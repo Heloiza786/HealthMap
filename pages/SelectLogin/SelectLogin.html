@@ -10,28 +10,46 @@
 <body>
     <div class="container">
 
-
         <div class="left">
             <img src="C:\Users\User\OneDrive\Documentos\facul helo\testeFrontHtml\images\image.png" alt="Médicos">
         </div>
-
 
         <div class="right">
             <h2>Criar conta</h2>
 
             <div class="selectCargo">
                 <select id="selectCargo">
-                    <option selected disabled>Selecionar</option>
+                    <option selected disabled value="">Selecionar</option>
                     <option value="med">Médico</option>
                     <option value="pac">Paciente</option>
                     <option value="sec">Secretário</option>
                 </select>
             </div>
 
-            <button class="btn">Continuar</button>
+            <button class="btn" onclick="continuar()">Continuar</button>
         </div>
 
     </div>
+
+    <script>
+        function continuar() {
+            const cargo = document.getElementById("selectCargo").value;
+
+            if (cargo === "") {
+                alert("Por favor, selecione um cargo.");
+                return;
+            }
+
+            if (cargo === "med") {
+                window.location.href = "../RegisterMed/RegisterMed.html";
+            } else if (cargo === "pac") {
+                window.location.href = "../RegisterPac/RegisterPac.html";
+            } else if (cargo === "sec") {
+                window.location.href = "../RegisterSec/RegisterSec.html";
+            }
+        }
+    </script>
+
 </body>
 
 </html>
