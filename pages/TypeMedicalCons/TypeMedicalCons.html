@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tipos de Atendimentos</title>
+    <link rel="stylesheet" href="TypeMedicalCons.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Tipos de atendimentos</h1>
+        <p>Selecione o tipo de consulta que deseja agendar</p>
+
+        <div class="cards">
+
+
+            <div class="card">
+                <img src="C:\Users\User\OneDrive\Documentos\facul helo\testeFrontHtml\images\ortopedia.jpg"
+                    alt="Ortopedia">
+                <div class="info">
+                    <h3>Ortopedista</h3>
+                    <button onclick="irConsulta('ortopedia')">Selecionar</button>
+                </div>
+            </div>
+
+
+            <div class="card">
+                <img src="C:\Users\User\OneDrive\Documentos\facul helo\testeFrontHtml\images\ortopedia.jpg"
+                    alt="Dermatologia">
+                <div class="info">
+                    <h3>Dermatologista</h3>
+                    <button onclick="irConsulta('dermatologia')">Selecionar</button>
+                </div>
+            </div>
+
+
+            <div class="card">
+                <img src="C:\Users\User\OneDrive\Documentos\facul helo\testeFrontHtml\images\ortopedia.jpg"
+                    alt="Cardiologia">
+                <div class="info">
+                    <h3>Cardiologista</h3>
+                    <button onclick="irConsulta('cardiologia')">Selecionar</button>
+                </div>
+            </div>
+
+        </div>
+
+        <button class="voltar" onclick="voltar()">← Voltar</button>
+    </div>
+
+    <script>
+        function irConsulta(tipo) {
+
+            window.location.href = "../Agendamento/Agendamento.html";
+        }
+
+        function voltar() {
+            window.history.back();
+        }
+    </script>
+
+</body>
+
+</html>
