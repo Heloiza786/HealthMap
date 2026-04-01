@@ -1,0 +1,81 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    height: 100vh;
+    background: #aaecf2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    width: 750px;
+    height: 350px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+}
+
+
+.left {
+    width: 50%;
+    background: #2c7a87;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.left img {
+    width: 80%;
+    border-radius: 10px;
+}
+
+
+.right {
+    width: 50%;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.right h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+
+.selectCargo {
+    background: #2c7a87;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: #ddd;
+}
+
+/* BOTÃO */
+.btn {
+    margin-top: 15px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: #ccc;
+}
+
+.btn:hover {
+    background: #bbb;
+}
