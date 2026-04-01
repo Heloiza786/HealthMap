@@ -29,11 +29,20 @@
                 <input type="tel" placeholder="Telefone">
             </div>
 
-
             <button class="btn">Cadastrar</button>
-            <button class="btn">Agendar Consulta</button>
+
+            <!-- BOTÃO CORRIGIDO -->
+            <button class="btn" onclick="irParaConsulta()">
+                Agendar Consulta
+            </button>
         </div>
     </div>
+
+    <script>
+        function irParaConsulta() {
+            window.location.href = "../TypeMedicalCons/TypeMedicalCons.html";
+        }
+    </script>
 
 </body>
 
