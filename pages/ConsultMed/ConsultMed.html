@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro Consulta</title>
+    <link rel="stylesheet" href="ConsultMed.css">
+</head>
+
+<body>
+
+    <!-- pagina global para os tres tipos de consulta -->
+
+    <div class="container">
+        <div class="center">
+            <h2>Cadastro Consulta</h2>
+
+            <div class="input-group">
+                <input type="text" placeholder="CPF do paciente" required>
+            </div>
+
+            <div class="input-group">
+                <input type="text" placeholder="Nome do médico" required>
+            </div>
+
+            <div class="input-group">
+                <input type="date" required>
+            </div>
+
+            <div class="input-group">
+                <input type="time" required>
+            </div>
+
+            <button class="btn">Cadastrar</button>
+
+            <!-- Botão para ir para tipo de consulta -->
+            <button class="btn" onclick="irParaConsulta()">
+                Agendar Consulta
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function irParaConsulta() {
+            window.location.href = "../TypeMedicalCons/TypeMedicalCons.html";
+        }
+    </script>
+
+</body>
+
+</html>

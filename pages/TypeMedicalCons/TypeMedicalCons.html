@@ -15,30 +15,29 @@
 
         <div class="cards">
 
-
+            <!-- ORTOPEDIA -->
             <div class="card">
-                <img src="C:\Users\User\OneDrive\Documentos\facul helo\testeFrontHtml\images\ortopedia.jpg"
-                    alt="Ortopedia">
+                <img src="../../images/ortopedia.jpg" alt="Ortopedia">
                 <div class="info">
                     <h3>Ortopedista</h3>
                     <button onclick="irConsulta('ortopedia')">Selecionar</button>
                 </div>
             </div>
 
-
+            <!-- DERMATOLOGIA -->
             <div class="card">
-                <img src="C:\Users\User\OneDrive\Documentos\facul helo\testeFrontHtml\images\ortopedia.jpg"
-                    alt="Dermatologia">
+                <!-- <img src="../../images/dermatologia.jpg" alt="Dermatologia"> -->
+                <img src="../../images/ortopedia.jpg" alt="Ortopedia">
                 <div class="info">
                     <h3>Dermatologista</h3>
                     <button onclick="irConsulta('dermatologia')">Selecionar</button>
                 </div>
             </div>
 
-
+            <!-- CARDIOLOGIA -->
             <div class="card">
-                <img src="C:\Users\User\OneDrive\Documentos\facul helo\testeFrontHtml\images\ortopedia.jpg"
-                    alt="Cardiologia">
+                <!-- <img src="../../images/cardiologia.jpg" alt="Cardiologia"> -->
+                <img src="../../images/ortopedia.jpg" alt="Ortopedia">
                 <div class="info">
                     <h3>Cardiologista</h3>
                     <button onclick="irConsulta('cardiologia')">Selecionar</button>
@@ -53,7 +52,7 @@
     <script>
         function irConsulta(tipo) {
 
-            window.location.href = "../Agendamento/Agendamento.html";
+            window.location.href = `../ConsultMed/ConsultMed.html?tipo=${tipo}`;
         }
 
         function voltar() {
