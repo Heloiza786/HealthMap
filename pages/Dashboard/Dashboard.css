@@ -1,0 +1,92 @@
+/* Configurações Gerais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Container Principal */
+.dashboard {
+    width: 950px;
+    height: 550px;
+    background-color: #ffffff;
+    position: relative;
+    display: flex;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    border-radius: 4px; /* Leve arredondamento na borda da tela */
+    overflow: hidden;
+}
+
+/* Fundo Teal (Lateral Esquerda) */
+.sidebar-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 38%;
+    height: 100%;
+    background-color: #277184; 
+    z-index: 1;
+}
+
+/* Wrapper do Conteúdo */
+.content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    padding: 40px;
+}
+
+/* Foto do Médico */
+.image-area {
+    flex: 0 0 45%;
+    height: 90%;
+}
+
+.image-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.15);
+}
+
+/* Lista de Cards à Direita */
+.patients-list {
+    flex: 1;
+    padding-left: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Espaço entre os pacientes */
+}
+
+/* Card do Paciente */
+.patient-card {
+    background-color: #E2E2E2; /* Cinza claro do Figma */
+    padding: 18px 25px;
+    border-radius: 10px;
+    color: #333;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    transition: transform 0.2s;
+}
+
+/* Efeito ao passar o mouse (opcional, para interatividade) */
+.patient-card:hover {
+    transform: translateX(5px);
+    background-color: #d8d8d8;
+}
+
+.patient-card strong {
+    color: #1a1a1a;
+}

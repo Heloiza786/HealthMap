@@ -20,18 +20,33 @@
             <h2>Login</h2>
 
             <div class="input-group">
-                <input type="text" placeholder="Login">
+                <input type="text" id="email" placeholder="Login">
             </div>
 
             <div class="input-group">
-                <input type="password" placeholder="Senha">
+                <input type="password" id="senha" placeholder="Senha">
             </div>
 
-            <a href="../HomeSec/HomeSec.html" class="btn">Continuar</a>
+            <a href="javascript:void(0)" onclick="logar()" class="btn">Continuar</a>
 
             <div class="btn">esqueci a senha</div>
         </div>
     </div>
+
+    <script>
+        function logar() {
+            var email = document.getElementById('email').value;
+            var senha = document.getElementById('senha').value;
+
+            if (email === "medico@gmail.com" && senha === "123") {
+                
+                window.location.href = "../Dashboard/Dashboard.html"; 
+            } else {
+               
+                window.location.href = "../HomeSec/HomeSec.html";
+            }
+        }
+    </script>
 
 </body>
 
