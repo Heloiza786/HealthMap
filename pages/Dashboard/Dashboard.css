@@ -87,3 +87,11 @@ body {
     text-align: center;
     padding: 20px;
 }
+
+.sidebar-bg {
+    width: 40%;
+    background: #2c7a87;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
