@@ -1,0 +1,89 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+
+body {
+    height: 100vh;
+    background: #aaecf2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.dashboard {
+    display: flex;
+    width: 700px;
+    height: 350px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+}
+
+.sidebar-bg {
+    width: 40%;
+    background: #2c7a87;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.image-area {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-area img {
+    width: 80%;
+    border-radius: 10px;
+}
+
+.content {
+    width: 60%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+.patients-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+.patient-card {
+    background: #e0e0e0;
+    padding: 10px;
+    border-radius: 5px;
+    color: #333;
+    font-size: 0.95rem;
+    transition: 0.2s;
+}
+
+
+.patient-card:hover {
+    background: #ccc;
+    transform: translateX(3px);
+}
+
+.patient-card strong {
+    color: #000;
+}
+
+
+.titulo-sidebar {
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
