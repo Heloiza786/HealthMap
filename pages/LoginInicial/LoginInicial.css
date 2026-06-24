@@ -231,7 +231,7 @@
 }
 
 /* ── Responsivo ── */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .login-container {
         flex-direction: column;
         max-width: 440px;
@@ -260,6 +260,27 @@
     .login-form {
         width: 100%;
         padding: var(--spacing-xl);
+    }
+
+    .form-title {
+        font-size: var(--font-size-xl);
+    }
+
+    /* Larger touch targets for form fields */
+    .input-group input,
+    .input-group .select-field {
+        font-size: 16px;
+        min-height: 48px;
+    }
+
+    .btn {
+        min-height: 48px;
+        font-size: var(--font-size-base);
+    }
+
+    .demo-accounts .btn {
+        min-height: 40px;
+        font-size: var(--font-size-sm);
     }
 }
 
@@ -296,5 +317,19 @@
         flex-direction: column;
         align-items: flex-start;
         gap: var(--spacing-sm);
+    }
+
+    .form-title {
+        font-size: var(--font-size-lg);
+    }
+
+    .demo-accounts {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .demo-accounts .btn {
+        width: 100%;
+        justify-content: center;
     }
 }

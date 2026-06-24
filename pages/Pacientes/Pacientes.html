@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="../../styles/components.css">
     <link rel="stylesheet" href="../../styles/animations.css">
     <link rel="stylesheet" href="../../styles/admin.css">
+    <link rel="stylesheet" href="../../styles/responsive.css">
     <link rel="stylesheet" href="../Dashboard/Dashboard.css">
     <script src="../../js/data.js">
     </script>
@@ -101,6 +102,32 @@
         </main>
     </div>
 
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav" id="bottomNav">
+        <div class="bottom-nav-inner">
+            <a href="../Dashboard/Dashboard.html" class="bottom-nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="../NovaConsulta/NovaConsulta.html" class="bottom-nav-item">
+                <span class="nav-icon">➕</span>
+                <span class="nav-label">Nova Consulta</span>
+            </a>
+            <a href="Pacientes.html" class="bottom-nav-item active">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">Pacientes</span>
+            </a>
+            <a href="../ConsultasMed/ConsultasMed.html" class="bottom-nav-item">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">Consultas</span>
+            </a>
+            <a href="../PerfilMed/PerfilMed.html" class="bottom-nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Perfil</span>
+            </a>
+        </div>
+    </nav>
+
     <!-- Detail Modal -->
     <div class="modal-backdrop" id="detailBackdrop" onclick="closePacienteModal()"></div>
     <div class="modal" id="detailModal">
@@ -180,16 +207,16 @@
                 const totalCons = consultas.length;
                 return `
                             <tr>
-                                <td>
+                                <td data-label="Paciente">
                                     <strong>${p.nome}</strong>
                                 </td>
-                                <td>${p.cpf}</td>
-                                <td>${p.email}</td>
-                                <td>${p.telefone}</td>
-                                <td>
+                                <td data-label="CPF">${p.cpf}</td>
+                                <td data-label="E-mail">${p.email}</td>
+                                <td data-label="Telefone">${p.telefone}</td>
+                                <td data-label="Consultas">
                                     <span class="badge badge-info">${totalCons} consulta(s)</span>
                                 </td>
-                                <td>
+                                <td data-label="Ações">
                                     <div class="table-actions">
                                         <button class="btn btn-sm btn-ghost" onclick="verPaciente('${p.id}')" title="Visualizar">👁️</button>
                                         <button class="btn btn-sm btn-ghost" onclick="editarPaciente('${p.id}')" title="Editar">✏️</button>

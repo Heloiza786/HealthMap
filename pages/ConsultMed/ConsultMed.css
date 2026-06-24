@@ -58,6 +58,38 @@
     font-weight: var(--font-weight-medium);
 }
 
+@media (max-width: 767px) {
+    .appointment-container {
+        padding: var(--spacing-xl);
+    }
+
+    .appointment-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .back-link {
+        position: static;
+        display: block;
+        text-align: left;
+        margin-bottom: var(--spacing-md);
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Larger touch targets for form fields */
+    .input-group input,
+    .input-group .select-field {
+        font-size: 16px;
+        min-height: 48px;
+    }
+
+    .btn {
+        min-height: 48px;
+        font-size: var(--font-size-base);
+    }
+}
+
 @media (max-width: 480px) {
     .appointment-page {
         padding: 0;
@@ -68,6 +100,14 @@
         min-height: 100vh;
         box-shadow: none;
         padding: var(--spacing-lg);
+    }
+
+    .appointment-title {
+        font-size: var(--font-size-lg);
+    }
+
+    .appointment-logo {
+        font-size: 2.5rem;
     }
 
     .back-link {

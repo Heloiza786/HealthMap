@@ -8,6 +8,10 @@ function toggleSidebar() {
     const overlay = document.getElementById('sidebarOverlay');
     if (sidebar) sidebar.classList.toggle('open');
     if (overlay) overlay.classList.toggle('active');
+    // Prevent body scroll when sidebar is open on mobile
+    if (window.innerWidth <= 767) {
+        document.body.style.overflow = sidebar && sidebar.classList.contains('open') ? 'hidden' : '';
+    }
 }
 
 // ── Theme ──
@@ -141,6 +145,19 @@ function showLoading(containerId, message = 'Carregando...') {
     `;
 }
 
+// ── Bottom Navigation Active State ──
+function initBottomNav() {
+    const currentPath = window.location.pathname;
+    const currentFile = currentPath.split('/').pop() || '';
+    document.querySelectorAll('.bottom-nav-item').forEach(item => {
+        const href = item.getAttribute('href');
+        if (href) {
+            const targetFile = href.split('/').pop();
+            item.classList.toggle('active', targetFile === currentFile);
+        }
+    });
+}
+
 // ── Init on page load ──
 document.addEventListener('DOMContentLoaded', () => {
     loadTheme();
@@ -148,5 +165,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set current year in footers
     document.querySelectorAll('.current-year').forEach(el => {
         el.textContent = new Date().getFullYear();
+    });
+
+    // Bottom nav active state
+    initBottomNav();
+
+    // Close sidebar on Escape key
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                if (overlay) overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
     });
 });

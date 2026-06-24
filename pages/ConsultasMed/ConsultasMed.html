@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="../../styles/components.css">
     <link rel="stylesheet" href="../../styles/animations.css">
     <link rel="stylesheet" href="../../styles/admin.css">
+    <link rel="stylesheet" href="../../styles/responsive.css">
     <link rel="stylesheet" href="../Dashboard/Dashboard.css">
     <script src="../../js/data.js">
     </script>
@@ -119,6 +120,32 @@
         </main>
     </div>
 
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav" id="bottomNav">
+        <div class="bottom-nav-inner">
+            <a href="../Dashboard/Dashboard.html" class="bottom-nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="../NovaConsulta/NovaConsulta.html" class="bottom-nav-item">
+                <span class="nav-icon">➕</span>
+                <span class="nav-label">Nova Consulta</span>
+            </a>
+            <a href="../Pacientes/Pacientes.html" class="bottom-nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">Pacientes</span>
+            </a>
+            <a href="ConsultasMed.html" class="bottom-nav-item active">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">Consultas</span>
+            </a>
+            <a href="../PerfilMed/PerfilMed.html" class="bottom-nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Perfil</span>
+            </a>
+        </div>
+    </nav>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
@@ -191,12 +218,12 @@
                 const nomePac = paciente ? paciente.nome : 'Paciente';
                 return `
                             <tr>
-                                <td>${formatDate(c.data)}</td>
-                                <td><span class="time-badge">${c.hora}</span></td>
-                                <td><strong>${nomePac}</strong></td>
-                                <td><span class="text-muted text-sm">${c.observacoes || '—'}</span></td>
-                                <td><span class="badge ${getStatusBadgeClass(c.status)}">${getStatusLabel(c.status)}</span></td>
-                                <td>
+                                <td data-label="Data">${formatDate(c.data)}</td>
+                                <td data-label="Horário"><span class="time-badge">${c.hora}</span></td>
+                                <td data-label="Paciente"><strong>${nomePac}</strong></td>
+                                <td data-label="Observações"><span class="text-muted text-sm">${c.observacoes || '—'}</span></td>
+                                <td data-label="Status"><span class="badge ${getStatusBadgeClass(c.status)}">${getStatusLabel(c.status)}</span></td>
+                                <td data-label="Ações">
                                     <div class="table-actions">
                                         ${c.status !== 'concluida' && c.status !== 'cancelada' ? `
                                             <button class="btn btn-sm btn-ghost" onclick="concluirConsulta('${c.id}')" title="Concluir">✅</button>

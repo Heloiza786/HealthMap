@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="../../styles/animations.css">
     <link rel="stylesheet" href="../../styles/admin.css">
     <link rel="stylesheet" href="../Dashboard/Dashboard.css">
+    <link rel="stylesheet" href="../../styles/responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
     </script>
     <script src="../../js/data.js">
@@ -193,6 +194,32 @@
         </main>
     </div>
 
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav" id="bottomNav">
+        <div class="bottom-nav-inner">
+            <a href="DashboardAdmin.html" class="bottom-nav-item active">
+                <span class="bottom-nav-icon">📊</span>
+                <span class="bottom-nav-label">Dashboard</span>
+            </a>
+            <a href="AdminUsuarios.html" class="bottom-nav-item">
+                <span class="bottom-nav-icon">👥</span>
+                <span class="bottom-nav-label">Usuários</span>
+            </a>
+            <a href="AdminConsultas.html" class="bottom-nav-item">
+                <span class="bottom-nav-icon">📅</span>
+                <span class="bottom-nav-label">Consultas</span>
+            </a>
+            <a href="AdminRelatorios.html" class="bottom-nav-item">
+                <span class="bottom-nav-icon">📈</span>
+                <span class="bottom-nav-label">Relatórios</span>
+            </a>
+            <a href="AdminConfiguracoes.html" class="bottom-nav-item">
+                <span class="bottom-nav-icon">⚙️</span>
+                <span class="bottom-nav-label">Config</span>
+            </a>
+        </div>
+    </nav>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
@@ -238,11 +265,11 @@
                 const medico = MedCloud.getMedicoById(c.medicoId);
                 return `
                     <tr>
-                        <td>${formatDate(c.data)}</td>
-                        <td><span class="time-badge">${c.hora}</span></td>
-                        <td><strong>${paciente ? paciente.nome : 'Paciente'}</strong></td>
-                        <td>${medico ? medico.nome : 'Médico'}</td>
-                        <td><span class="badge ${getStatusBadgeClass(c.status)}">${getStatusLabel(c.status)}</span></td>
+                        <td data-label="Data">${formatDate(c.data)}</td>
+                        <td data-label="Horário"><span class="time-badge">${c.hora}</span></td>
+                        <td data-label="Paciente"><strong>${paciente ? paciente.nome : 'Paciente'}</strong></td>
+                        <td data-label="Médico">${medico ? medico.nome : 'Médico'}</td>
+                        <td data-label="Status"><span class="badge ${getStatusBadgeClass(c.status)}">${getStatusLabel(c.status)}</span></td>
                     </tr>
                 `;
             }).join('');

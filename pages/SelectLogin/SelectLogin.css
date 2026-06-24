@@ -149,9 +149,13 @@
 }
 
 /* ── Responsivo ── */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .select-container {
         padding: var(--spacing-xl);
+    }
+
+    .select-title {
+        font-size: var(--font-size-xl);
     }
 
     .profile-cards {
@@ -163,11 +167,16 @@
         flex-direction: row;
         text-align: left;
         padding: var(--spacing-md);
+        min-height: 64px;
     }
 
     .profile-icon {
         font-size: 2rem;
         margin-bottom: 0;
+    }
+
+    .profile-name {
+        font-size: var(--font-size-base);
     }
 
     .profile-desc {
@@ -178,6 +187,7 @@
         opacity: 1;
         transform: none;
         margin-left: auto;
+        font-size: var(--font-size-sm);
     }
 
     .back-link {
@@ -198,5 +208,13 @@
         min-height: 100vh;
         box-shadow: none;
         padding: var(--spacing-lg);
+    }
+
+    .select-title {
+        font-size: var(--font-size-lg);
+    }
+
+    .profile-card {
+        padding: var(--spacing-sm) var(--spacing-md);
     }
 }

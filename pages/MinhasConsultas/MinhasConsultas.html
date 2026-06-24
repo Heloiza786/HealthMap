@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="../../styles/components.css">
     <link rel="stylesheet" href="../../styles/animations.css">
     <link rel="stylesheet" href="../../styles/admin.css">
+    <link rel="stylesheet" href="../../styles/responsive.css">
     <link rel="stylesheet" href="../Dashboard/Dashboard.css">
     <script src="../../js/data.js">
     </script>
@@ -106,6 +107,28 @@
         </main>
     </div>
 
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav" id="bottomNav">
+        <div class="bottom-nav-inner">
+            <a href="../DashboardPac/DashboardPac.html" class="bottom-nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Início</span>
+            </a>
+            <a href="MinhasConsultas.html" class="bottom-nav-item active">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">Consultas</span>
+            </a>
+            <a href="../TypeMedicalCons/TypeMedicalCons.html" class="bottom-nav-item">
+                <span class="nav-icon">➕</span>
+                <span class="nav-label">Agendar</span>
+            </a>
+            <a href="../PerfilPac/PerfilPac.html" class="bottom-nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Perfil</span>
+            </a>
+        </div>
+    </nav>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
@@ -170,12 +193,12 @@
 
                 return `
                             <tr>
-                                <td>${formatDate(c.data)}</td>
-                                <td><span class="time-badge">${c.hora}</span></td>
-                                <td><strong>${nomeMed}</strong></td>
-                                <td>${especialidade}</td>
-                                <td><span class="badge ${getStatusBadgeClass(c.status)}">${getStatusLabel(c.status)}</span></td>
-                                <td>
+                                <td data-label="Data">${formatDate(c.data)}</td>
+                                <td data-label="Horário"><span class="time-badge">${c.hora}</span></td>
+                                <td data-label="Médico"><strong>${nomeMed}</strong></td>
+                                <td data-label="Especialidade">${especialidade}</td>
+                                <td data-label="Status"><span class="badge ${getStatusBadgeClass(c.status)}">${getStatusLabel(c.status)}</span></td>
+                                <td data-label="Ações">
                                     <div class="table-actions">
                                         ${podeCancelar ? `
                                             <button class="btn btn-sm btn-ghost" onclick="cancelarConsulta('${c.id}')" title="Cancelar">❌</button>

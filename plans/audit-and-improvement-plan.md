@@ -678,3 +678,149 @@ flowchart TD
 5. **🟡 Média**: Implementar exportação PDF nos relatórios
 6. **🟢 Baixa**: Adicionar upload de avatar/foto para médicos e pacientes
 7. **🟢 Baixa**: Criar página de log de auditoria (ações dos administradores)
+
+---
+
+## 10. Implementações Realizadas — Responsividade Mobile
+
+### 10.1 Resumo das Alterações
+
+Foi implementada responsividade mobile-first completa em todas as páginas do sistema, incluindo navegação por bottom nav, conversão de tabelas em cards, e ajustes de touch para dispositivos móveis.
+
+| # | Funcionalidade | Status | Arquivos |
+|---|---------------|--------|----------|
+| 1 | Arquivo responsivo centralizado (`responsive.css`) | ✅ Completo | [`styles/responsive.css`](styles/responsive.css) |
+| 2 | Bottom Navigation Bar (Doctor) | ✅ Completo | [`pages/Dashboard/Dashboard.html`](pages/Dashboard/Dashboard.html), [`pages/NovaConsulta/NovaConsulta.html`](pages/NovaConsulta/NovaConsulta.html), [`pages/Pacientes/Pacientes.html`](pages/Pacientes/Pacientes.html), [`pages/ConsultasMed/ConsultasMed.html`](pages/ConsultasMed/ConsultasMed.html), [`pages/PerfilMed/PerfilMed.html`](pages/PerfilMed/PerfilMed.html) |
+| 3 | Bottom Navigation Bar (Patient) | ✅ Completo | [`pages/DashboardPac/DashboardPac.html`](pages/DashboardPac/DashboardPac.html), [`pages/MinhasConsultas/MinhasConsultas.html`](pages/MinhasConsultas/MinhasConsultas.html), [`pages/PerfilPac/PerfilPac.html`](pages/PerfilPac/PerfilPac.html) |
+| 4 | Bottom Navigation Bar (Admin) | ✅ Completo | [`pages/DashboardAdmin/DashboardAdmin.html`](pages/DashboardAdmin/DashboardAdmin.html), [`pages/DashboardAdmin/AdminUsuarios.html`](pages/DashboardAdmin/AdminUsuarios.html), [`pages/DashboardAdmin/AdminMedicos.html`](pages/DashboardAdmin/AdminMedicos.html), [`pages/DashboardAdmin/AdminPacientes.html`](pages/DashboardAdmin/AdminPacientes.html), [`pages/DashboardAdmin/AdminConsultas.html`](pages/DashboardAdmin/AdminConsultas.html), [`pages/DashboardAdmin/AdminNovoAgendamento.html`](pages/DashboardAdmin/AdminNovoAgendamento.html), [`pages/DashboardAdmin/AdminRelatorios.html`](pages/DashboardAdmin/AdminRelatorios.html), [`pages/DashboardAdmin/AdminConfiguracoes.html`](pages/DashboardAdmin/AdminConfiguracoes.html) |
+| 5 | Table-to-cards conversion com `data-label` | ✅ Completo | [`pages/ConsultasMed/ConsultasMed.html`](pages/ConsultasMed/ConsultasMed.html), [`pages/Pacientes/Pacientes.html`](pages/Pacientes/Pacientes.html), [`pages/MinhasConsultas/MinhasConsultas.html`](pages/MinhasConsultas/MinhasConsultas.html), [`pages/DashboardAdmin/AdminUsuarios.html`](pages/DashboardAdmin/AdminUsuarios.html), [`pages/DashboardAdmin/AdminMedicos.html`](pages/DashboardAdmin/AdminMedicos.html), [`pages/DashboardAdmin/AdminPacientes.html`](pages/DashboardAdmin/AdminPacientes.html), [`pages/DashboardAdmin/AdminConsultas.html`](pages/DashboardAdmin/AdminConsultas.html), [`pages/DashboardAdmin/AdminRelatorios.html`](pages/DashboardAdmin/AdminRelatorios.html), [`pages/DashboardAdmin/DashboardAdmin.html`](pages/DashboardAdmin/DashboardAdmin.html) |
+| 6 | CSS mobile refinements (Doctor pages) | ✅ Completo | [`pages/Dashboard/Dashboard.css`](pages/Dashboard/Dashboard.css), [`pages/ConsultasMed/ConsultasMed.css`](pages/ConsultasMed/ConsultasMed.css), [`pages/Pacientes/Pacientes.css`](pages/Pacientes/Pacientes.css), [`pages/PerfilMed/PerfilMed.css`](pages/PerfilMed/PerfilMed.css) |
+| 7 | CSS mobile refinements (Patient pages) | ✅ Completo | [`pages/DashboardPac/DashboardPac.css`](pages/DashboardPac/DashboardPac.css), [`pages/MinhasConsultas/MinhasConsultas.css`](pages/MinhasConsultas/MinhasConsultas.css), [`pages/PerfilPac/PerfilPac.css`](pages/PerfilPac/PerfilPac.css) |
+| 8 | CSS mobile refinements (Admin pages) | ✅ Completo | [`styles/admin.css`](styles/admin.css) |
+| 9 | CSS mobile refinements (Login/Select/Type/Consult) | ✅ Completo | [`pages/LoginInicial/LoginInicial.css`](pages/LoginInicial/LoginInicial.css), [`pages/SelectLogin/SelectLogin.css`](pages/SelectLogin/SelectLogin.css), [`pages/TypeMedicalCons/TypeMedicalCons.css`](pages/TypeMedicalCons/TypeMedicalCons.css), [`pages/ConsultMed/ConsultMed.css`](pages/ConsultMed/ConsultMed.css) |
+| 10 | Mobile sidebar toggle + bottom nav active state | ✅ Completo | [`js/app.js`](js/app.js) |
+
+### 10.2 Detalhamento das Implementações
+
+#### 10.2.1 Arquivo Responsivo Centralizado
+
+**Novo arquivo**: [`styles/responsive.css`](styles/responsive.css)
+
+Contém regras globais para mobile:
+
+- **Bottom Navigation**: `.bottom-nav` fixo na parte inferior com 5 itens, safe area support via `env(safe-area-inset-bottom)`, backdrop-filter blur, active state com cor primária
+- **Sidebar Mobile**: Largura reduzida (280px), overlay com backdrop-filter blur, transição suave
+- **Table-to-cards**: Em telas ≤ 767px, tabelas se transformam em cards com `display: grid` e `data-label` como pseudo-elementos `::before`
+- **Touch targets**: Mínimo de 44px para elementos interativos
+- **iOS prevention**: `font-size: 16px` em inputs/selects para evitar zoom automático
+- **Skeleton loading**: Animação shimmer para estados de carregamento
+- **Smooth scrolling**: `scroll-behavior: smooth` e `-webkit-overflow-scrolling: touch`
+
+#### 10.2.2 Bottom Navigation por Perfil
+
+**Doctor Bottom Nav** (5 itens):
+```
+Dashboard 📊 → Nova Consulta ➕ → Pacientes 👥 → Consultas 📅 → Perfil 👤
+```
+
+**Patient Bottom Nav** (4 itens):
+```
+Início 🏠 → Minhas Consultas 📋 → Agendar 📅 → Perfil 👤
+```
+
+**Admin Bottom Nav** (5 itens):
+```
+Dashboard 📊 → Usuários 👥 → Consultas 📅 → Relatórios 📈 → Config ⚙️
+```
+
+#### 10.2.3 Table-to-Cards Conversion
+
+Em telas ≤ 767px, todas as tabelas se transformam em cards usando:
+
+```css
+.table-container td {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.table-container td::before {
+    content: attr(data-label);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+}
+```
+
+#### 10.2.4 Mobile Sidebar Improvements
+
+Em [`js/app.js`](js/app.js):
+
+- `toggleSidebar()` previne scroll do body quando sidebar está aberta em mobile (`window.innerWidth <= 767`)
+- Event listener para tecla `Escape` fecha a sidebar
+- `initBottomNav()` detecta automaticamente a página atual e marca o item ativo na bottom nav
+
+#### 10.2.5 Touch-Friendly Adjustments
+
+- Botões e links têm `min-height: 48px` em mobile
+- Inputs/selects têm `font-size: 16px` para evitar zoom no iOS
+- Hover states são substituídos por active states em touch devices
+- `-webkit-tap-highlight-color: transparent` remove highlight padrão do mobile
+- Cards clicáveis têm `cursor: pointer` e active state visual
+
+### 10.3 Breakpoints Utilizados
+
+| Breakpoint | Largura | Comportamento |
+|------------|---------|---------------|
+| Mobile | ≤ 767px | Bottom nav visível, sidebar oculta (toggle por hamburger), tabelas viram cards, touch targets ampliados |
+| Tablet | 768px — 1023px | Sidebar compacta, layout adaptável, sem bottom nav |
+| Desktop | ≥ 1024px | Sidebar fixa, layout completo, sem bottom nav |
+
+### 10.4 Arquivos Modificados
+
+```
+styles/
+├── responsive.css              # NOVO - Regras responsivas globais
+├── components.css              # MODIFICADO - Mobile variants para componentes
+├── admin.css                   # MODIFICADO - Mobile responsive para admin
+
+pages/
+├── Dashboard/Dashboard.css     # MODIFICADO - Bottom nav, table-to-cards
+├── DashboardPac/DashboardPac.css # MODIFICADO - Quick actions mobile
+├── LoginInicial/LoginInicial.css # MODIFICADO - Touch targets, font-size
+├── SelectLogin/SelectLogin.css # MODIFICADO - Profile cards mobile
+├── TypeMedicalCons/TypeMedicalCons.css # MODIFICADO - Touch targets
+├── ConsultMed/ConsultMed.css   # MODIFICADO - Touch targets, font-size
+
+js/
+├── app.js                      # MODIFICADO - Mobile sidebar, bottom nav init
+
+# HTML pages (responsive.css link + bottom nav markup):
+pages/Dashboard/Dashboard.html
+pages/NovaConsulta/NovaConsulta.html
+pages/Pacientes/Pacientes.html
+pages/ConsultasMed/ConsultasMed.html
+pages/PerfilMed/PerfilMed.html
+pages/DashboardPac/DashboardPac.html
+pages/MinhasConsultas/MinhasConsultas.html
+pages/PerfilPac/PerfilPac.html
+pages/DashboardAdmin/DashboardAdmin.html
+pages/DashboardAdmin/AdminUsuarios.html
+pages/DashboardAdmin/AdminMedicos.html
+pages/DashboardAdmin/AdminPacientes.html
+pages/DashboardAdmin/AdminConsultas.html
+pages/DashboardAdmin/AdminNovoAgendamento.html
+pages/DashboardAdmin/AdminRelatorios.html
+pages/DashboardAdmin/AdminConfiguracoes.html
+```
+
+### 10.5 Próximos Passos Recomendados (Mobile)
+
+1. **🔴 Crítica**: Testar em dispositivos reais (iPhone SE, iPhone 15, Samsung Galaxy S23, Moto G, iPad)
+2. **🟠 Alta**: Adicionar gestos de swipe para navegação entre abas na bottom nav
+3. **🟠 Alta**: Implementar pull-to-refresh nas listas de consultas
+4. **🟡 Média**: Adicionar PWA manifest para instalação como app em smartphones
+5. **🟡 Média**: Otimizar imagens e assets para carregamento em redes móveis
+6. **🟢 Baixa**: Adicionar suporte a notificações push em dispositivos móveis

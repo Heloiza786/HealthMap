@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="../../styles/animations.css">
     <link rel="stylesheet" href="../../styles/admin.css">
     <link rel="stylesheet" href="../Dashboard/Dashboard.css">
+    <link rel="stylesheet" href="../../styles/responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
     </script>
     <script src="../../js/data.js"></script>
@@ -205,6 +206,32 @@
         </main>
     </div>
 
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav" id="bottomNav">
+        <div class="bottom-nav-inner">
+            <a href="DashboardAdmin.html" class="bottom-nav-item">
+                <span class="bottom-nav-icon">📊</span>
+                <span class="bottom-nav-label">Dashboard</span>
+            </a>
+            <a href="AdminUsuarios.html" class="bottom-nav-item">
+                <span class="bottom-nav-icon">👥</span>
+                <span class="bottom-nav-label">Usuários</span>
+            </a>
+            <a href="AdminConsultas.html" class="bottom-nav-item">
+                <span class="bottom-nav-icon">📅</span>
+                <span class="bottom-nav-label">Consultas</span>
+            </a>
+            <a href="AdminRelatorios.html" class="bottom-nav-item active">
+                <span class="bottom-nav-icon">📈</span>
+                <span class="bottom-nav-label">Relatórios</span>
+            </a>
+            <a href="AdminConfiguracoes.html" class="bottom-nav-item">
+                <span class="bottom-nav-icon">⚙️</span>
+                <span class="bottom-nav-label">Config</span>
+            </a>
+        </div>
+    </nav>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
@@ -314,12 +341,12 @@
 
             tbody.innerHTML = reportData.map(r => `
                 <tr>
-                    <td><strong>${r.medico.nome}</strong></td>
-                    <td><span class="badge badge-info">${r.medico.especialidade || 'Clínico Geral'}</span></td>
-                    <td>${r.total}</td>
-                    <td>${r.concluidas}</td>
-                    <td>${r.canceladas}</td>
-                    <td>
+                    <td data-label="Médico"><strong>${r.medico.nome}</strong></td>
+                    <td data-label="Especialidade"><span class="badge badge-info">${r.medico.especialidade || 'Clínico Geral'}</span></td>
+                    <td data-label="Total Consultas">${r.total}</td>
+                    <td data-label="Concluídas">${r.concluidas}</td>
+                    <td data-label="Canceladas">${r.canceladas}</td>
+                    <td data-label="Taxa de Sucesso">
                         <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
                             <div style="flex: 1; height: 6px; background: var(--color-border); border-radius: 3px; overflow: hidden;">
                                 <div style="height: 100%; width: ${r.taxa}%; background: ${r.taxa >= 70 ? 'var(--color-success)' : r.taxa >= 40 ? 'var(--color-warning)' : 'var(--color-error)'}; border-radius: 3px; transition: width 0.5s ease;"></div>
@@ -358,11 +385,11 @@
 
             tbody.innerHTML = reportData.map(r => `
                 <tr>
-                    <td><strong>${r.paciente.nome}</strong></td>
-                    <td>${r.total}</td>
-                    <td>${r.concluidas}</td>
-                    <td>${r.canceladas}</td>
-                    <td>${r.ultima ? formatDate(r.ultima.data) + ' ' + r.ultima.hora : '—'}</td>
+                    <td data-label="Paciente"><strong>${r.paciente.nome}</strong></td>
+                    <td data-label="Total Consultas">${r.total}</td>
+                    <td data-label="Concluídas">${r.concluidas}</td>
+                    <td data-label="Canceladas">${r.canceladas}</td>
+                    <td data-label="Última Consulta">${r.ultima ? formatDate(r.ultima.data) + ' ' + r.ultima.hora : '—'}</td>
                 </tr>
             `).join('');
         }

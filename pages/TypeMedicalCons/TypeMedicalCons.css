@@ -149,7 +149,7 @@
 }
 
 /* ── Responsivo ── */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .specialties-grid {
         grid-template-columns: 1fr;
         gap: var(--spacing-md);
@@ -159,20 +159,61 @@
         height: 160px;
     }
 
+    .specialty-name {
+        font-size: var(--font-size-lg);
+    }
+
+    .specialty-desc {
+        font-size: var(--font-size-xs);
+    }
+
+    .specialty-action {
+        font-size: var(--font-size-xs);
+        padding: var(--spacing-xs) var(--spacing-md);
+    }
+
     .back-link {
         position: static;
         display: block;
         text-align: left;
         margin-bottom: var(--spacing-md);
+        font-size: var(--font-size-sm);
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    .specialties-title {
+        font-size: var(--font-size-xl);
     }
 }
 
 @media (max-width: 480px) {
+    .specialties-page {
+        padding-bottom: 0;
+    }
+
     .specialties-header {
         padding: var(--spacing-md);
     }
 
     .specialties-main {
+        padding: var(--spacing-md);
+    }
+
+    .specialties-title {
+        font-size: var(--font-size-lg);
+    }
+
+    .specialty-card {
+        border-radius: var(--radius-lg);
+    }
+
+    .specialty-image {
+        height: 140px;
+    }
+
+    .specialty-info {
         padding: var(--spacing-md);
     }
 }

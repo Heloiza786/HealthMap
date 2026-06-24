@@ -1,0 +1,801 @@
+/* ============================================
+   🏥 MedCloud — Responsive & Mobile Styles
+   Mobile-first responsive system
+   ============================================ */
+
+/* ── Breakpoints ──
+   Mobile: 320px - 767px
+   Tablet: 768px - 1023px
+   Desktop: 1024px+
+   ============================================ */
+
+/* ============================================
+   1. BOTTOM NAVIGATION (Mobile)
+   ============================================ */
+
+.bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    z-index: calc(var(--z-sticky) + 10);
+    padding: 0 env(safe-area-inset-bottom, 0);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.bottom-nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 64px;
+}
+
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 4px 12px;
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    min-width: 56px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.bottom-nav-item .nav-icon {
+    font-size: 22px;
+    line-height: 1;
+    transition: transform var(--transition-fast);
+}
+
+.bottom-nav-item .nav-label {
+    font-size: 10px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.bottom-nav-item:active .nav-icon {
+    transform: scale(0.9);
+}
+
+.bottom-nav-item.active {
+    color: var(--color-primary);
+}
+
+.bottom-nav-item.active .nav-icon {
+    transform: scale(1.05);
+}
+
+/* ============================================
+   2. MOBILE SIDEBAR OVERRIDES
+   ============================================ */
+
+@media (max-width: 767px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 280px !important;
+        z-index: calc(var(--z-sticky) + 5) !important;
+        box-shadow: none;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: calc(var(--z-sticky) + 4);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    .dashboard-main {
+        margin-left: 0 !important;
+        padding-bottom: 72px;
+        /* Space for bottom nav */
+    }
+
+    .menu-toggle {
+        display: block !important;
+        font-size: 1.5rem !important;
+        padding: 8px !important;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .dashboard-topbar {
+        padding: 12px 16px !important;
+        position: sticky;
+        top: 0;
+        z-index: calc(var(--z-sticky) - 2);
+    }
+
+    .dashboard-content {
+        padding: 16px !important;
+    }
+
+    /* Bottom nav visible on mobile */
+    .bottom-nav {
+        display: block;
+    }
+
+    /* Hide sidebar footer on mobile (use bottom nav instead) */
+    .sidebar-footer {
+        display: none;
+    }
+
+    /* Larger touch targets for sidebar links */
+    .sidebar-link {
+        padding: 12px 16px !important;
+        font-size: 15px !important;
+        min-height: 48px;
+    }
+
+    .sidebar-link span:first-child {
+        font-size: 20px;
+    }
+}
+
+/* ============================================
+   3. STATS GRID (Mobile)
+   ============================================ */
+
+@media (max-width: 767px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .stats-card {
+        padding: 16px !important;
+    }
+
+    .stats-card .stats-card-icon {
+        font-size: 1.5rem !important;
+        margin-bottom: 8px !important;
+    }
+
+    .stats-card-value {
+        font-size: 1.5rem !important;
+    }
+
+    .stats-card-label {
+        font-size: 0.75rem !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+
+    .stats-card {
+        padding: 12px !important;
+    }
+
+    .stats-card-value {
+        font-size: 1.25rem !important;
+    }
+}
+
+/* ============================================
+   4. CHARTS (Mobile)
+   ============================================ */
+
+@media (max-width: 767px) {
+    .charts-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .chart-card {
+        padding: 16px !important;
+    }
+
+    .chart-card .chart-container {
+        height: 200px !important;
+    }
+
+    .chart-card.full-width .chart-container {
+        height: 220px !important;
+    }
+
+    .chart-title {
+        font-size: 0.875rem !important;
+    }
+}
+
+/* ============================================
+   5. TABLES → CARDS (Mobile)
+   ============================================ */
+
+@media (max-width: 767px) {
+    .table-container {
+        border-radius: 12px !important;
+        overflow: hidden !important;
+    }
+
+    table {
+        display: block;
+    }
+
+    thead {
+        display: none;
+        /* Hide headers on mobile */
+    }
+
+    tbody {
+        display: block;
+    }
+
+    tr {
+        display: block;
+        padding: 16px;
+        border-bottom: 1px solid var(--color-border-light);
+    }
+
+    tr:last-child {
+        border-bottom: none;
+    }
+
+    td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 0 !important;
+        border: none !important;
+        font-size: 14px !important;
+    }
+
+    td:empty {
+        display: none;
+    }
+
+    /* Add label before each cell */
+    td::before {
+        content: attr(data-label);
+        font-size: 12px;
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+
+    /* Style for action buttons in card view */
+    td .table-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    td .table-actions .btn {
+        padding: 8px 12px !important;
+        min-height: 36px;
+        min-width: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Empty state in mobile */
+    .empty-state {
+        padding: 32px 16px !important;
+    }
+
+    .empty-state .empty-icon {
+        font-size: 2.5rem !important;
+    }
+}
+
+/* ============================================
+   6. PAGE HEADER (Mobile)
+   ============================================ */
+
+@media (max-width: 767px) {
+    .page-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .page-header h1 {
+        font-size: 1.25rem !important;
+    }
+
+    .page-header p {
+        font-size: 0.8125rem !important;
+    }
+
+    .page-header>div:first-child {
+        width: 100%;
+    }
+
+    .page-header>div:last-child {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+    }
+
+    .page-header>div:last-child .btn {
+        flex: 1;
+        justify-content: center;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        min-height: 44px;
+    }
+}
+
+/* ============================================
+   7. SEARCH BAR (Mobile)
+   ============================================ */
+
+@media (max-width: 767px) {
+    .search-bar {
+        max-width: 100% !important;
+        padding: 10px 14px !important;
+    }
+
+    .search-bar input {
+        font-size: 16px !important;
+        /* Prevent iOS zoom */
+    }
+}
+
+/* ============================================
+   8. FILTER TABS (Mobile)
+   ============================================ */
+
+@media (max-width: 767px) {
+    .filter-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 4px !important;
+        gap: 4px !important;
+    }
+
+    .filter-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .filter-tab {
+        flex-shrink: 0;
+        padding: 8px 16px !important;
+        font-size: 13px !important;
+        white-space: nowrap;
+        min-height: 36px;
+    }
+}
+
+/* ============================================
+   9. FORMS (Mobile)
+   ============================================ */
+
+@media (max-width: 767px) {
+
+    .input-field,
+    .select-field {
+        padding: 12px 14px !important;
+        font-size: 16px !important;
+        /* Prevent iOS zoom */
+        min-height: 48px;
+    }
+
+    .input-label {
+        font-size: 14px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .input-group {
+        margin-bottom: 16px !important;
+    }
+
+    .btn {
+        padding: 12px 20px !important;
+        font-size: 15px !important;
+        min-height: 48px;
+    }
+
+    .btn-sm {
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+        min-height: 36px;
+    }
+
+    .btn-lg {
+        padding: 14px 24px !important;
+        font-size: 16px !important;
+        min-height: 52px;
+    }
+
+    .btn-full {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ============================================
+   10. MODALS (Mobile)
+   ============================================ */
+
+@media (max-width: 767px) {
+    .modal {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 90vh !important;
+        top: auto !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        transform: none !important;
+        border-radius: 16px 16px 0 0 !important;
+        animation: modalSlideUp var(--transition-normal) ease forwards !important;
+    }
+
+    .modal-header {
+        padding: 16px 20px !important;
+    }
+
+    .modal-body {
+        padding: 20px !important;
+    }
+
+    .modal-backdrop {
+        background: rgba(0, 0, 0, 0.4) !important;
+    }
+
+    @keyframes modalSlideUp {
+        from {
+            transform: translateY(100%);
+        }
+
+        to {
+            transform: translateY(0);
+        }
+    }
+}
+
+/* ============================================
+   11. QUICK ACTIONS (Mobile)
+   ============================================ */
+
+@media (max-width: 767px) {
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    .quick-action-card {
+        padding: 16px 12px !important;
+    }
+
+    .quick-action-icon {
+        font-size: 1.5rem !important;
+    }
+
+    .quick-action-text {
+        font-size: 13px !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .quick-actions {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+}
+
+/* ============================================
+   12. APPOINTMENT CARDS (Mobile)
+   ============================================ */
+
+@media (max-width: 767px) {
+    .appointment-card {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+        padding: 16px !important;
+    }
+
+    .appointment-time {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .time-badge {
+        font-size: 14px !important;
+        padding: 4px 12px !important;
+    }
+
+    .appointment-info {
+        width: 100% !important;
+    }
+
+    .appointment-info strong {
+        font-size: 15px !important;
+    }
+}
+
+/* ============================================
+   13. SECTION HEADER (Mobile)
+   ============================================ */
+
+@media (max-width: 767px) {
+    .section-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .section-title {
+        font-size: 1.125rem !important;
+    }
+}
+
+/* ============================================
+   14. SETTINGS (Mobile)
+   ============================================ */
+
+@media (max-width: 767px) {
+    .settings-group {
+        padding: 16px !important;
+    }
+
+    .setting-item {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+        padding: 12px 0 !important;
+    }
+
+    .setting-item .toggle-switch {
+        align-self: flex-end;
+    }
+
+    .detail-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ============================================
+   15. TOAST (Mobile)
+   ============================================ */
+
+@media (max-width: 767px) {
+    .toast-container {
+        top: auto !important;
+        bottom: 80px !important;
+        /* Above bottom nav */
+        right: 16px !important;
+        left: 16px !important;
+    }
+
+    .toast {
+        max-width: 100% !important;
+        padding: 14px 16px !important;
+        font-size: 14px !important;
+        border-radius: 12px !important;
+    }
+
+    @keyframes toastSlideIn {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+}
+
+/* ============================================
+   16. TABLET (768px - 1023px)
+   ============================================ */
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 16px !important;
+    }
+
+    .dashboard-content {
+        padding: 24px !important;
+    }
+
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .sidebar {
+        width: 220px !important;
+    }
+
+    .dashboard-main {
+        margin-left: 220px !important;
+    }
+
+    .page-header h1 {
+        font-size: 1.5rem !important;
+    }
+}
+
+/* ============================================
+   17. LANDSCAPE MOBILE
+   ============================================ */
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .bottom-nav {
+        height: 48px;
+    }
+
+    .bottom-nav-inner {
+        height: 48px;
+    }
+
+    .bottom-nav-item .nav-icon {
+        font-size: 18px;
+    }
+
+    .bottom-nav-item .nav-label {
+        font-size: 9px;
+    }
+
+    .dashboard-main {
+        padding-bottom: 56px;
+    }
+
+    .sidebar {
+        overflow-y: auto;
+    }
+
+    .sidebar-nav {
+        padding: 8px !important;
+    }
+
+    .sidebar-link {
+        padding: 8px 12px !important;
+        min-height: 36px;
+    }
+}
+
+/* ============================================
+   18. SAFE AREA (Notch devices)
+   ============================================ */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+    .bottom-nav {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .dashboard-main {
+        padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    }
+}
+
+/* ============================================
+   19. TOUCH FEEDBACK
+   ============================================ */
+
+@media (hover: none) and (pointer: coarse) {
+
+    /* Larger touch targets for all interactive elements */
+    .btn,
+    .sidebar-link,
+    .bottom-nav-item,
+    .filter-tab,
+    .profile-card,
+    .specialty-card,
+    .quick-action-card,
+    .appointment-card {
+        cursor: default;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn:active,
+    .sidebar-link:active,
+    .bottom-nav-item:active {
+        opacity: 0.7;
+        transform: scale(0.97);
+    }
+
+    /* Remove hover effects on touch devices */
+    .card:hover,
+    .appointment-card:hover,
+    .quick-action-card:hover {
+        transform: none !important;
+        box-shadow: var(--shadow-sm) !important;
+    }
+
+    .specialty-card:hover {
+        transform: none !important;
+        box-shadow: var(--shadow-md) !important;
+    }
+
+    .profile-card:hover {
+        transform: none !important;
+        box-shadow: var(--shadow-md) !important;
+    }
+
+    .profile-card:hover .profile-action {
+        opacity: 1;
+        transform: none;
+    }
+
+    .specialty-card:hover .specialty-action {
+        background: var(--color-primary-lightest);
+        color: var(--color-primary);
+    }
+}
+
+/* ============================================
+   20. SKELETON LOADING (Mobile optimized)
+   ============================================ */
+
+@media (max-width: 767px) {
+    .skeleton-card {
+        height: 80px !important;
+    }
+
+    .skeleton-text {
+        height: 14px !important;
+    }
+
+    .skeleton-title {
+        height: 20px !important;
+    }
+}
+
+/* ============================================
+   21. PRINT STYLES
+   ============================================ */
+
+@media print {
+
+    .bottom-nav,
+    .sidebar,
+    .sidebar-overlay,
+    .menu-toggle,
+    .toast-container {
+        display: none !important;
+    }
+
+    .dashboard-main {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    .dashboard-content {
+        max-width: 100% !important;
+    }
+}

@@ -39,7 +39,26 @@
     color: var(--color-text);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+    }
+
+    .quick-action-card {
+        padding: var(--spacing-md);
+    }
+
+    .quick-action-icon {
+        font-size: 1.5rem;
+    }
+
+    .quick-action-text {
+        font-size: var(--font-size-xs);
+    }
+}
+
+@media (max-width: 480px) {
     .quick-actions {
         grid-template-columns: 1fr;
     }
