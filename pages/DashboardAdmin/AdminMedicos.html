@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Médicos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <link rel="stylesheet" href="../../styles/admin.css">
+    <link rel="stylesheet" href="../Dashboard/Dashboard.css">
+    <script src="../../js/data.js"></script>
+    <script src="../../js/app.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">🏥 MedCloud</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="DashboardAdmin.html" class="sidebar-link">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="AdminUsuarios.html" class="sidebar-link">
+                    <span>👥</span> Usuários
+                </a>
+                <a href="AdminMedicos.html" class="sidebar-link active">
+                    <span>👨‍⚕️</span> Médicos
+                </a>
+                <a href="AdminPacientes.html" class="sidebar-link">
+                    <span>🙋</span> Pacientes
+                </a>
+                <a href="AdminConsultas.html" class="sidebar-link">
+                    <span>📅</span> Consultas
+                </a>
+                <a href="AdminNovoAgendamento.html" class="sidebar-link">
+                    <span>➕</span> Novo Agendamento
+                </a>
+                <a href="AdminRelatorios.html" class="sidebar-link">
+                    <span>📈</span> Relatórios
+                </a>
+                <a href="AdminConfiguracoes.html" class="sidebar-link">
+                    <span>⚙️</span> Configurações
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../LoginInicial/LoginInicial.html" class="sidebar-link" onclick="MedCloud.logout()">
+                    <span>🚪</span> Sair
+                </a>
+            </div>
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <main class="dashboard-main">
+            <header class="dashboard-topbar">
+                <button class="btn btn-ghost menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menu">☰</button>
+                <div class="topbar-info">
+                    <span class="topbar-greeting" id="greeting">Médicos</span>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" aria-label="Alternar tema">🌓</button>
+                    <div class="avatar" id="userAvatar">👤</div>
+                </div>
+            </header>
+
+            <div class="dashboard-content page-enter">
+                <div class="page-header">
+                    <div>
+                        <h1>Médicos</h1>
+                        <p>Gerencie os médicos cadastrados no sistema</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="window.location.href='AdminUsuarios.html'">+ Novo
+                        Médico</button>
+                </div>
+
+                <div class="search-bar" style="margin-bottom: var(--spacing-lg); max-width: 100%;">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchMedico" placeholder="Buscar por nome, email ou CRM..."
+                        oninput="renderMedicos()">
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>CRM</th>
+                                <th>Especialidade</th>
+                                <th>E-mail</th>
+                                <th>Telefone</th>
+                                <th>Consultas</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="medicosTableBody">
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <div class="spinner"></div>
+                                    <p>Carregando...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const user = requireAuth('admin');
+            if (!user) return;
+
+            document.getElementById('greeting').textContent = `Médicos — ${user.nome}`;
+            document.getElementById('userAvatar').textContent = user.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            renderMedicos();
+        });
+
+        function renderMedicos() {
+            let medicos = MedCloud.getMedicos();
+            const query = document.getElementById('searchMedico').value.toLowerCase().trim();
+
+            if (query) {
+                medicos = medicos.filter(m =>
+                    m.nome.toLowerCase().includes(query) ||
+                    m.email.toLowerCase().includes(query) ||
+                    (m.crm && m.crm.toLowerCase().includes(query))
+                );
+            }
+
+            const tbody = document.getElementById('medicosTableBody');
+
+            if (medicos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <div class="empty-icon">👨‍⚕️</div>
+                            <p>Nenhum médico encontrado.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = medicos.map(m => {
+                const consultas = MedCloud.getConsultasByMedico(m.id);
+                return `
+                    <tr>
+                        <td><strong>${m.nome}</strong></td>
+                        <td>${m.crm || '—'}</td>
+                        <td><span class="badge badge-info">${m.especialidade || 'Clínico Geral'}</span></td>
+                        <td>${m.email}</td>
+                        <td>${m.telefone || '—'}</td>
+                        <td><span class="badge badge-success">${consultas.length} consulta(s)</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-sm btn-ghost" onclick="verMedico('${m.id}')" title="Visualizar">👁️</button>
+                                <button class="btn btn-sm btn-ghost" onclick="editarMedico('${m.id}')" title="Editar">✏️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function verMedico(id) {
+            const m = MedCloud.getMedicoById(id);
+            if (!m) return;
+            showToast(`${m.nome} — ${m.especialidade || 'Clínico Geral'}`, 'info');
+        }
+
+        function editarMedico(id) {
+            window.location.href = `AdminUsuarios.html?editMedico=${id}`;
+        }
+    </script>
+</body>
+
+</html>

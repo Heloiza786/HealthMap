@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Redefinir Senha</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <script src="../../js/data.js">
+    </script>
+    <script src="../../js/app.js">
+    </script>
+    <script src="../../js/email-service.js">
+    </script>
+    <style>
+        .reset-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--color-primary-lightest) 0%, var(--color-bg) 50%, #E0F2FE 100%);
+            padding: var(--spacing-md);
+        }
+
+        .reset-container {
+            width: 100%;
+            max-width: 440px;
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            padding: var(--spacing-2xl);
+            animation: fadeInUp var(--transition-slow) ease forwards;
+        }
+
+        .reset-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .reset-icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .reset-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .reset-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .reset-footer {
+            text-align: center;
+            margin-top: var(--spacing-lg);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .error-message {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+            font-size: var(--font-size-sm);
+        }
+
+        @media (max-width: 480px) {
+            .reset-page {
+                padding: 0;
+            }
+
+            .reset-container {
+                border-radius: 0;
+                min-height: 100vh;
+                box-shadow: none;
+                padding: var(--spacing-lg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="reset-page">
+        <div class="reset-container">
+            <div class="reset-header">
+                <div class="reset-icon">🔐</div>
+                <h1 class="reset-title">Redefinir Senha</h1>
+                <p class="reset-subtitle">Digite sua nova senha.</p>
+            </div>
+
+            <!-- Error message -->
+            <div id="errorMessage" class="error-message" style="display:none;"></div>
+
+            <!-- Form -->
+            <form id="resetForm" onsubmit="handleResetPassword(event)" novalidate>
+                <div class="input-group">
+                    <label class="input-label" for="novaSenha">Nova Senha</label>
+                    <input type="password" id="novaSenha" class="input-field" placeholder="Mínimo 3 caracteres" required
+                        minlength="3">
+                    <span class="input-error" id="novaSenhaError"></span>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label" for="confirmarSenha">Confirmar Nova Senha</label>
+                    <input type="password" id="confirmarSenha" class="input-field" placeholder="Repita a nova senha"
+                        required>
+                    <span class="input-error" id="confirmarSenhaError"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
+                    Redefinir Senha
+                </button>
+            </form>
+
+            <!-- Success (hidden initially) -->
+            <div id="successMessage" style="display:none;">
+                <div style="text-align: center; padding: var(--spacing-lg);">
+                    <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">✅</div>
+                    <h2
+                        style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: var(--spacing-sm);">
+                        Senha redefinida com sucesso!
+                    </h2>
+                    <p class="reset-subtitle">
+                        Sua senha foi alterada. Você já pode fazer login com a nova senha.
+                    </p>
+                    <a href="../LoginInicial/LoginInicial.html" class="btn btn-primary btn-full"
+                        style="margin-top: var(--spacing-lg);">
+                        Ir para o Login
+                    </a>
+                </div>
+            </div>
+
+            <div class="reset-footer">
+                <a href="../LoginInicial/LoginInicial.html" class="login-link">← Voltar para o Login</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let resetToken = '';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get token from URL
+            const params = new URLSearchParams(window.location.search);
+            resetToken = params.get('token');
+
+            if (!resetToken) {
+                document.getElementById('errorMessage').textContent = 'Token de redefinição não encontrado.';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('resetForm').style.display = 'none';
+                return;
+            }
+
+            // Validate token
+            const validation = MedCloud.validarToken(resetToken);
+            if (!validation.success) {
+                document.getElementById('errorMessage').textContent = validation.error;
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('resetForm').style.display = 'none';
+            }
+        });
+
+        function handleResetPassword(event) {
+            event.preventDefault();
+
+            const novaSenha = document.getElementById('novaSenha').value;
+            const confirmarSenha = document.getElementById('confirmarSenha').value;
+
+            document.getElementById('novaSenhaError').textContent = '';
+            document.getElementById('confirmarSenhaError').textContent = '';
+            document.querySelectorAll('.input-field').forEach(el => el.classList.remove('error'));
+
+            let hasError = false;
+
+            if (!novaSenha || novaSenha.length < 3) {
+                document.getElementById('novaSenhaError').textContent = 'A senha deve ter pelo menos 3 caracteres.';
+                document.getElementById('novaSenha').classList.add('error');
+                hasError = true;
+            }
+
+            if (novaSenha !== confirmarSenha) {
+                document.getElementById('confirmarSenhaError').textContent = 'As senhas não conferem.';
+                document.getElementById('confirmarSenha').classList.add('error');
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            const result = MedCloud.redefinirSenha(resetToken, novaSenha);
+
+            if (result.success) {
+                document.getElementById('resetForm').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+                showToast('Senha redefinida com sucesso!');
+            } else {
+                document.getElementById('errorMessage').textContent = result.error;
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+
+</html>

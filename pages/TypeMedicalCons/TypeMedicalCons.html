@@ -3,63 +3,91 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Tipos de Atendimentos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Especialidades</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
     <link rel="stylesheet" href="TypeMedicalCons.css">
 </head>
 
 <body>
+    <div class="specialties-page">
+        <header class="specialties-header">
+            <a href="javascript:history.back()" class="back-link">← Voltar</a>
+            <div class="specialties-header-content">
+                <h1 class="specialties-title">Tipos de Atendimento</h1>
+                <p class="specialties-subtitle">Selecione a especialidade desejada para agendar sua consulta</p>
+            </div>
+        </header>
 
-    <div class="container">
-        <h1>Tipos de atendimentos</h1>
-        <p>Selecione o tipo de consulta que deseja agendar</p>
+        <main class="specialties-main">
+            <div class="specialties-grid">
+                <!-- Ortopedia -->
+                <div class="specialty-card" onclick="irConsulta('ortopedia')" tabindex="0" role="button"
+                    aria-label="Agendar Ortopedia">
+                    <div class="specialty-image">
+                        <img src="../../images/ortopedia.jpg" alt="Médico ortopedista atendendo paciente">
+                    </div>
+                    <div class="specialty-info">
+                        <span class="specialty-icon">🦴</span>
+                        <h3 class="specialty-name">Ortopedia</h3>
+                        <p class="specialty-desc">Tratamento de lesões e doenças do sistema musculoesquelético.</p>
+                        <span class="specialty-action">Agendar →</span>
+                    </div>
+                </div>
 
-        <div class="cards">
+                <!-- Dermatologia -->
+                <div class="specialty-card" onclick="irConsulta('dermatologia')" tabindex="0" role="button"
+                    aria-label="Agendar Dermatologia">
+                    <div class="specialty-image">
+                        <img src="../../images/derma.jpg" alt="Médico dermatologista realizando exame de pele">
+                    </div>
+                    <div class="specialty-info">
+                        <span class="specialty-icon">🩺</span>
+                        <h3 class="specialty-name">Dermatologia</h3>
+                        <p class="specialty-desc">Diagnóstico e tratamento de doenças da pele, cabelo e unhas.</p>
+                        <span class="specialty-action">Agendar →</span>
+                    </div>
+                </div>
 
-            <!-- ORTOPEDIA -->
-            <div class="card">
-                <img src="../../images/ortopedia.jpg" alt="Ortopedia">
-                <div class="info">
-                    <h3>Ortopedista</h3>
-                    <button onclick="irConsulta('ortopedia')">Selecionar</button>
+                <!-- Cardiologia -->
+                <div class="specialty-card" onclick="irConsulta('cardiologia')" tabindex="0" role="button"
+                    aria-label="Agendar Cardiologia">
+                    <div class="specialty-image">
+                        <img src="../../images/cardi.jpg" alt="Médico cardiologista analisando exame do coração">
+                    </div>
+                    <div class="specialty-info">
+                        <span class="specialty-icon">❤️</span>
+                        <h3 class="specialty-name">Cardiologia</h3>
+                        <p class="specialty-desc">Prevenção e tratamento de doenças do coração e sistema circulatório.
+                        </p>
+                        <span class="specialty-action">Agendar →</span>
+                    </div>
                 </div>
             </div>
-
-            <!-- DERMATOLOGIA -->
-            <div class="card">
-                <!-- <img src="../../images/dermatologia.jpg" alt="Dermatologia"> -->
-                <img src="../../images/derma.jpg" alt="Ortopedia">
-                <div class="info">
-                    <h3>Dermatologista</h3>
-                    <button onclick="irConsulta('dermatologia')">Selecionar</button>
-                </div>
-            </div>
-
-            <!-- CARDIOLOGIA -->
-            <div class="card">
-                <!-- <img src="../../images/cardiologia.jpg" alt="Cardiologia"> -->
-                <img src="../../images/cardi.jpg" alt="Ortopedia">
-                <div class="info">
-                    <h3>Cardiologista</h3>
-                    <button onclick="irConsulta('cardiologia')">Selecionar</button>
-                </div>
-            </div>
-
-        </div>
-
-        <button class="voltar" onclick="voltar()">← Voltar</button>
+        </main>
     </div>
 
     <script>
         function irConsulta(tipo) {
-
             window.location.href = `../ConsultMed/ConsultMed.html?tipo=${tipo}`;
         }
 
-        function voltar() {
-            window.history.back();
-        }
+        // Keyboard support
+        document.querySelectorAll('.specialty-card').forEach(card => {
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    card.click();
+                }
+            });
+        });
     </script>
-
 </body>
 
 </html>

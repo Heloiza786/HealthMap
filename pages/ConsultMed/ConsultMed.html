@@ -1,51 +1,109 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
-    <title>Cadastro Consulta</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Agendar Consulta</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
     <link rel="stylesheet" href="ConsultMed.css">
 </head>
-
 <body>
-
-    <!-- pagina global para os tres tipos de consulta -->
-
-    <div class="container">
-        <div class="center">
-            <h2>Cadastro Consulta</h2>
-
-            <div class="input-group">
-                <input type="text" placeholder="CPF do paciente" required>
+    <div class="appointment-page">
+        <div class="appointment-container">
+            <div class="appointment-header">
+                <a href="../TypeMedicalCons/TypeMedicalCons.html" class="back-link">← Voltar</a>
+                <div class="appointment-logo">📅</div>
+                <h1 class="appointment-title">Agendar Consulta</h1>
+                <p class="appointment-subtitle" id="specialtyLabel">Preencha os dados para agendar</p>
             </div>
 
-            <div class="input-group">
-                <input type="text" placeholder="Nome do médico" required>
-            </div>
+            <form id="appointmentForm" onsubmit="handleAppointment(event)" novalidate>
+                <div class="input-group">
+                    <label for="cpf" class="input-label">CPF do paciente</label>
+                    <input type="text" id="cpf" class="input-field" placeholder="000.000.000-00" required>
+                    <span class="input-error" id="cpfError"></span>
+                </div>
 
-            <div class="input-group">
-                <input type="date" required>
-            </div>
+                <div class="input-group">
+                    <label for="medico" class="input-label">Nome do médico</label>
+                    <select id="medico" class="select-field" required>
+                        <option value="" disabled selected>Selecione um médico</option>
+                        <option value="dr-carlos">Dr. Carlos Silva (Ortopedia)</option>
+                        <option value="dra-ana">Dra. Ana Costa (Dermatologia)</option>
+                        <option value="dr-roberto">Dr. Roberto Lima (Cardiologia)</option>
+                        <option value="dra-maria">Dra. Maria Souza (Clínico Geral)</option>
+                    </select>
+                    <span class="input-error" id="medicoError"></span>
+                </div>
 
-            <div class="input-group">
-                <input type="time" required>
-            </div>
+                <div class="input-group">
+                    <label for="data" class="input-label">Data da consulta</label>
+                    <input type="date" id="data" class="input-field" required>
+                    <span class="input-error" id="dataError"></span>
+                </div>
 
+                <div class="input-group">
+                    <label for="hora" class="input-label">Horário</label>
+                    <input type="time" id="hora" class="input-field" required>
+                    <span class="input-error" id="horaError"></span>
+                </div>
 
-
-            <!-- Botão para ir para tipo de consulta -->
-            <button class="btn" onclick="irParaConsulta()">
-                Agendar Consulta
-            </button>
+                <button type="submit" class="btn btn-primary btn-full btn-lg mt-md">
+                    Confirmar Agendamento
+                </button>
+            </form>
         </div>
     </div>
 
     <script>
-        function irParaConsulta() {
-            window.location.href = "../TypeMedicalCons/TypeMedicalCons.html";
+        // Get specialty from URL
+        const params = new URLSearchParams(window.location.search);
+        const tipo = params.get('tipo');
+        const specialtyLabel = document.getElementById('specialtyLabel');
+
+        const specialtyNames = {
+            'ortopedia': 'Ortopedia',
+            'dermatologia': 'Dermatologia',
+            'cardiologia': 'Cardiologia'
+        };
+
+        if (tipo && specialtyNames[tipo]) {
+            specialtyLabel.textContent = `Especialidade: ${specialtyNames[tipo]}`;
         }
+
+        function handleAppointment(event) {
+            event.preventDefault();
+
+            const fields = ['cpf', 'medico', 'data', 'hora'];
+            let hasError = false;
+
+            fields.forEach(field => {
+                const input = document.getElementById(field);
+                const error = document.getElementById(field + 'Error');
+                error.textContent = '';
+                input.classList.remove('error');
+
+                if (!input.value.trim()) {
+                    error.textContent = 'Este campo é obrigatório';
+                    input.classList.add('error');
+                    hasError = true;
+                }
+            });
+
+            if (!hasError) {
+                alert('✅ Consulta agendada com sucesso!');
+                window.location.href = '../TypeMedicalCons/TypeMedicalCons.html';
+            }
+        }
+
+        // Set min date to today
+        document.getElementById('data').min = new Date().toISOString().split('T')[0];
     </script>
-
 </body>
-
 </html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Administrador</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <link rel="stylesheet" href="../../styles/admin.css">
+    <link rel="stylesheet" href="../Dashboard/Dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
+    </script>
+    <script src="../../js/data.js">
+    </script>
+    <script src="../../js/app.js">
+    </script>
+    <script src="../../js/email-service.js">
+    </script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">🏥 MedCloud</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="DashboardAdmin.html" class="sidebar-link active">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="AdminUsuarios.html" class="sidebar-link">
+                    <span>👥</span> Usuários
+                </a>
+                <a href="AdminMedicos.html" class="sidebar-link">
+                    <span>👨‍⚕️</span> Médicos
+                </a>
+                <a href="AdminPacientes.html" class="sidebar-link">
+                    <span>🙋</span> Pacientes
+                </a>
+                <a href="AdminConsultas.html" class="sidebar-link">
+                    <span>📅</span> Consultas
+                </a>
+                <a href="AdminNovoAgendamento.html" class="sidebar-link">
+                    <span>➕</span> Novo Agendamento
+                </a>
+                <a href="AdminRelatorios.html" class="sidebar-link">
+                    <span>📈</span> Relatórios
+                </a>
+                <a href="AdminConfiguracoes.html" class="sidebar-link">
+                    <span>⚙️</span> Configurações
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="../LoginInicial/LoginInicial.html" class="sidebar-link" onclick="MedCloud.logout()">
+                    <span>🚪</span> Sair
+                </a>
+            </div>
+        </aside>
+
+        <!-- Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Top Bar -->
+            <header class="dashboard-topbar">
+                <button class="btn btn-ghost menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menu">
+                    ☰
+                </button>
+                <div class="topbar-info">
+                    <span class="topbar-greeting" id="greeting">Painel Administrativo</span>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" aria-label="Alternar tema">
+                        🌓
+                    </button>
+                    <div class="avatar" id="userAvatar">👤</div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="dashboard-content page-enter">
+                <!-- Stats -->
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stats-card blue">
+                        <div class="stats-card-icon">👨‍⚕️</div>
+                        <div class="stats-card-label">Médicos</div>
+                        <div class="stats-card-value" id="statMedicos">0</div>
+                        <div class="stats-card-change positive" id="statMedicosChange">Cadastrados</div>
+                    </div>
+                    <div class="stats-card green">
+                        <div class="stats-card-icon">🙋</div>
+                        <div class="stats-card-label">Pacientes</div>
+                        <div class="stats-card-value" id="statPacientes">0</div>
+                        <div class="stats-card-change positive" id="statPacientesChange">Cadastrados</div>
+                    </div>
+                    <div class="stats-card yellow">
+                        <div class="stats-card-icon">📋</div>
+                        <div class="stats-card-label">Consultas Hoje</div>
+                        <div class="stats-card-value" id="statHoje">0</div>
+                        <div class="stats-card-change positive" id="statHojeChange">Agendadas</div>
+                    </div>
+                    <div class="stats-card red">
+                        <div class="stats-card-icon">📅</div>
+                        <div class="stats-card-label">Total Consultas</div>
+                        <div class="stats-card-value" id="statTotal">0</div>
+                        <div class="stats-card-change positive" id="statTotalChange">Registradas</div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-title">Consultas por Mês</div>
+                        <div class="chart-container">
+                            <canvas id="chartMes"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">Status das Consultas</div>
+                        <div class="chart-container">
+                            <canvas id="chartStatus"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card full-width">
+                        <div class="chart-title">Distribuição por Especialidade</div>
+                        <div class="chart-container">
+                            <canvas id="chartEspecialidade"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="section-header">
+                    <h2 class="section-title">Ações Rápidas</h2>
+                </div>
+
+                <div class="quick-actions">
+                    <a href="AdminUsuarios.html" class="quick-action-card">
+                        <span class="quick-action-icon">👥</span>
+                        <span class="quick-action-text">Gerenciar Usuários</span>
+                    </a>
+                    <a href="AdminNovoAgendamento.html" class="quick-action-card">
+                        <span class="quick-action-icon">➕</span>
+                        <span class="quick-action-text">Novo Agendamento</span>
+                    </a>
+                    <a href="AdminMedicos.html" class="quick-action-card">
+                        <span class="quick-action-icon">👨‍⚕️</span>
+                        <span class="quick-action-text">Gerenciar Médicos</span>
+                    </a>
+                    <a href="AdminRelatorios.html" class="quick-action-card">
+                        <span class="quick-action-icon">📈</span>
+                        <span class="quick-action-text">Relatórios</span>
+                    </a>
+                </div>
+
+                <!-- Recent Appointments -->
+                <div class="section-header mt-xl">
+                    <h2 class="section-title">Consultas Recentes</h2>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Horário</th>
+                                <th>Paciente</th>
+                                <th>Médico</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentConsultasTable">
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    <div class="spinner"></div>
+                                    <p>Carregando...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const user = requireAuth('admin');
+            if (!user) return;
+
+            document.getElementById('greeting').textContent = `Painel Administrativo — ${user.nome}`;
+            document.getElementById('userAvatar').textContent = user.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            const stats = MedCloud.getStatsAdmin();
+
+            document.getElementById('statMedicos').textContent = stats.totalMedicos;
+            document.getElementById('statPacientes').textContent = stats.totalPacientes;
+            document.getElementById('statHoje').textContent = stats.consultasHoje;
+            document.getElementById('statTotal').textContent = stats.totalConsultas;
+
+            loadRecentConsultas();
+            initCharts();
+        });
+
+        function loadRecentConsultas() {
+            const consultas = MedCloud.getConsultas()
+                .sort((a, b) => b.data.localeCompare(a.data) || b.hora.localeCompare(b.hora))
+                .slice(0, 10);
+
+            const tbody = document.getElementById('recentConsultasTable');
+
+            if (consultas.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <div class="empty-icon">📅</div>
+                            <p>Nenhuma consulta registrada.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = consultas.map(c => {
+                const paciente = MedCloud.getPacienteById(c.pacienteId);
+                const medico = MedCloud.getMedicoById(c.medicoId);
+                return `
+                    <tr>
+                        <td>${formatDate(c.data)}</td>
+                        <td><span class="time-badge">${c.hora}</span></td>
+                        <td><strong>${paciente ? paciente.nome : 'Paciente'}</strong></td>
+                        <td>${medico ? medico.nome : 'Médico'}</td>
+                        <td><span class="badge ${getStatusBadgeClass(c.status)}">${getStatusLabel(c.status)}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function initCharts() {
+            const primaryColor = '#0D9488';
+            const secondaryColor = '#0284C7';
+            const warningColor = '#F59E0B';
+            const errorColor = '#EF4444';
+            const successColor = '#22C55E';
+
+            // Consultas por Mês (all doctors)
+            const todasConsultas = MedCloud.getConsultas();
+            const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const dataMes = new Array(12).fill(0);
+            todasConsultas.forEach(c => {
+                const month = new Date(c.data + 'T12:00:00').getMonth();
+                dataMes[month]++;
+            });
+
+            new Chart(document.getElementById('chartMes'), {
+                type: 'bar',
+                data: {
+                    labels: meses,
+                    datasets: [{
+                        label: 'Consultas',
+                        data: dataMes,
+                        backgroundColor: primaryColor + '33',
+                        borderColor: primaryColor,
+                        borderWidth: 2,
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+
+            // Status
+            const pendentes = todasConsultas.filter(c => c.status === 'pendente').length;
+            const confirmadas = todasConsultas.filter(c => c.status === 'confirmada').length;
+            const concluidas = todasConsultas.filter(c => c.status === 'concluida').length;
+            const canceladas = todasConsultas.filter(c => c.status === 'cancelada').length;
+
+            new Chart(document.getElementById('chartStatus'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Concluídas', 'Pendentes', 'Canceladas', 'Confirmadas'],
+                    datasets: [{
+                        data: [concluidas, pendentes, canceladas, confirmadas],
+                        backgroundColor: ['#22C55E', '#F59E0B', '#EF4444', '#3B82F6'],
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 16, usePointStyle: true, font: { family: 'Inter' } }
+                        }
+                    }
+                }
+            });
+
+            // Especialidades
+            const especialidades = {};
+            MedCloud.getMedicos().forEach(m => {
+                const esp = m.especialidade || 'Clínico Geral';
+                const count = todasConsultas.filter(c => c.medicoId === m.id).length;
+                if (especialidades[esp]) {
+                    especialidades[esp] += count;
+                } else {
+                    especialidades[esp] = count;
+                }
+            });
+
+            const espLabels = Object.keys(especialidades);
+            const espData = Object.values(especialidades);
+            const colors = ['#0D9488', '#0284C7', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+
+            new Chart(document.getElementById('chartEspecialidade'), {
+                type: 'bar',
+                data: {
+                    labels: espLabels,
+                    datasets: [{
+                        label: 'Consultas',
+                        data: espData,
+                        backgroundColor: colors.slice(0, espLabels.length).map(c => c + '33'),
+                        borderColor: colors.slice(0, espLabels.length),
+                        borderWidth: 2,
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

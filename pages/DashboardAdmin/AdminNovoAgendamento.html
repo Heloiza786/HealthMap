@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Novo Agendamento</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <link rel="stylesheet" href="../../styles/admin.css">
+    <link rel="stylesheet" href="../Dashboard/Dashboard.css">
+    <script src="../../js/data.js">
+    </script>
+    <script src="../../js/app.js">
+    </script>
+    <script src="../../js/email-service.js">
+    </script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">🏥 MedCloud</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="DashboardAdmin.html" class="sidebar-link">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="AdminUsuarios.html" class="sidebar-link">
+                    <span>👥</span> Usuários
+                </a>
+                <a href="AdminMedicos.html" class="sidebar-link">
+                    <span>👨‍⚕️</span> Médicos
+                </a>
+                <a href="AdminPacientes.html" class="sidebar-link">
+                    <span>🙋</span> Pacientes
+                </a>
+                <a href="AdminConsultas.html" class="sidebar-link">
+                    <span>📅</span> Consultas
+                </a>
+                <a href="AdminNovoAgendamento.html" class="sidebar-link active">
+                    <span>➕</span> Novo Agendamento
+                </a>
+                <a href="AdminRelatorios.html" class="sidebar-link">
+                    <span>📈</span> Relatórios
+                </a>
+                <a href="AdminConfiguracoes.html" class="sidebar-link">
+                    <span>⚙️</span> Configurações
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../LoginInicial/LoginInicial.html" class="sidebar-link" onclick="MedCloud.logout()">
+                    <span>🚪</span> Sair
+                </a>
+            </div>
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <main class="dashboard-main">
+            <header class="dashboard-topbar">
+                <button class="btn btn-ghost menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menu">☰</button>
+                <div class="topbar-info">
+                    <span class="topbar-greeting" id="greeting">Novo Agendamento</span>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" aria-label="Alternar tema">🌓</button>
+                    <div class="avatar" id="userAvatar">👤</div>
+                </div>
+            </header>
+
+            <div class="dashboard-content page-enter">
+                <div class="page-header">
+                    <div>
+                        <h1>Novo Agendamento</h1>
+                        <p>Agende uma consulta para um paciente</p>
+                    </div>
+                </div>
+
+                <div class="card" style="max-width: 640px;">
+                    <form id="agendamentoForm" onsubmit="handleNovoAgendamento(event)" novalidate>
+                        <!-- Paciente -->
+                        <div class="input-group">
+                            <label class="input-label" for="paciente">Paciente</label>
+                            <select id="paciente" class="select-field" required>
+                                <option value="">Selecione um paciente...</option>
+                            </select>
+                            <span class="input-error" id="pacienteError"></span>
+                        </div>
+
+                        <!-- Médico -->
+                        <div class="input-group">
+                            <label class="input-label" for="medico">Médico</label>
+                            <select id="medico" class="select-field" required>
+                                <option value="">Selecione um médico...</option>
+                            </select>
+                            <span class="input-error" id="medicoError"></span>
+                        </div>
+
+                        <!-- Especialidade (auto-filled) -->
+                        <div class="input-group">
+                            <label class="input-label" for="especialidade">Especialidade</label>
+                            <input type="text" id="especialidade" class="input-field" readonly
+                                placeholder="Selecione um médico primeiro">
+                        </div>
+
+                        <!-- Data -->
+                        <div class="input-group">
+                            <label class="input-label" for="data">Data da Consulta</label>
+                            <input type="date" id="data" class="input-field" required min="">
+                            <span class="input-error" id="dataError"></span>
+                        </div>
+
+                        <!-- Horário -->
+                        <div class="input-group">
+                            <label class="input-label" for="hora">Horário</label>
+                            <input type="time" id="hora" class="input-field" required>
+                            <span class="input-help">Horários disponíveis: 08:00 às 18:00</span>
+                            <span class="input-error" id="horaError"></span>
+                        </div>
+
+                        <!-- E-mail para confirmação -->
+                        <div class="input-group">
+                            <label class="input-label" for="emailConfirmacao">E-mail para confirmação</label>
+                            <input type="email" id="emailConfirmacao" class="input-field"
+                                placeholder="email@exemplo.com" required value="heloizacustodio089@gmail.com">
+                            <span class="input-help">O comprovante será enviado para este e-mail</span>
+                            <span class="input-error" id="emailConfirmacaoError"></span>
+                        </div>
+
+                        <!-- Observações -->
+                        <div class="input-group">
+                            <label class="input-label" for="observacoes">Observações</label>
+                            <textarea id="observacoes" class="input-field" rows="3"
+                                placeholder="Motivo da consulta, observações relevantes..."></textarea>
+                        </div>
+
+                        <!-- Conflict warning -->
+                        <div class="input-group" id="conflitoWarning" style="display:none;">
+                            <div class="badge badge-error" style="padding: 0.75rem; width: 100%; text-align: center;">
+                                ⚠️ Já existe uma consulta agendada neste horário.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full btn-lg" id="submitBtn">
+                            Agendar Consulta
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Horários ocupados -->
+                <div class="card mt-xl" style="max-width: 640px;">
+                    <h3 class="card-title" style="margin-bottom: var(--spacing-md);">Horários Ocupados</h3>
+                    <div id="ocupadosList">
+                        <p class="text-muted text-sm">Selecione um médico e uma data para ver os horários ocupados.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const user = requireAuth('admin');
+            if (!user) return;
+
+            document.getElementById('greeting').textContent = `Novo Agendamento — ${user.nome}`;
+            document.getElementById('userAvatar').textContent = user.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            // Set min date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('data').setAttribute('min', today);
+
+            // Load patients
+            const pacientes = MedCloud.getPacientes();
+            const selectPac = document.getElementById('paciente');
+            pacientes.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = `${p.nome} — ${p.cpf}`;
+                selectPac.appendChild(opt);
+            });
+
+            // Load doctors
+            const medicos = MedCloud.getMedicos();
+            const selectMed = document.getElementById('medico');
+            medicos.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id;
+                opt.textContent = `${m.nome} — ${m.especialidade || 'Clínico Geral'}`;
+                selectMed.appendChild(opt);
+            });
+
+            // Auto-fill specialty when doctor is selected
+            document.getElementById('medico').addEventListener('change', function () {
+                const medico = MedCloud.getMedicoById(this.value);
+                document.getElementById('especialidade').value = medico ? (medico.especialidade || 'Clínico Geral') : '';
+                checkConflicts();
+            });
+
+            // Check conflicts on date/time change
+            document.getElementById('data').addEventListener('change', checkConflicts);
+            document.getElementById('hora').addEventListener('change', checkConflicts);
+        });
+
+        function checkConflicts() {
+            const medicoId = document.getElementById('medico').value;
+            const data = document.getElementById('data').value;
+            const hora = document.getElementById('hora').value;
+            const warning = document.getElementById('conflitoWarning');
+            const ocupadosList = document.getElementById('ocupadosList');
+
+            if (!medicoId || !data) {
+                warning.style.display = 'none';
+                if (!medicoId) {
+                    ocupadosList.innerHTML = '<p class="text-muted text-sm">Selecione um médico e uma data para ver os horários ocupados.</p>';
+                } else {
+                    ocupadosList.innerHTML = '<p class="text-muted text-sm">Selecione uma data para ver os horários ocupados.</p>';
+                }
+                return;
+            }
+
+            // Show occupied times for this date and doctor
+            const consultas = MedCloud.getConsultasByMedico(medicoId)
+                .filter(c => c.data === data && c.status !== 'cancelada')
+                .sort((a, b) => a.hora.localeCompare(b.hora));
+
+            if (consultas.length === 0) {
+                ocupadosList.innerHTML = '<p class="text-muted text-sm">Nenhum horário ocupado nesta data.</p>';
+            } else {
+                ocupadosList.innerHTML = consultas.map(c => {
+                    const paciente = MedCloud.getPacienteById(c.pacienteId);
+                    return `
+                        <div class="email-log-entry">
+                            <span class="log-status ${c.status === 'confirmada' ? 'sent' : 'pending'}"></span>
+                            <span><strong>${c.hora}</strong> — ${paciente ? paciente.nome : 'Paciente'} (${getStatusLabel(c.status)})</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Check if selected time conflicts
+            if (data && hora) {
+                const conflito = consultas.some(c => c.hora === hora);
+                warning.style.display = conflito ? 'block' : 'none';
+            } else {
+                warning.style.display = 'none';
+            }
+        }
+
+        function handleNovoAgendamento(event) {
+            event.preventDefault();
+
+            const pacienteId = document.getElementById('paciente').value;
+            const medicoId = document.getElementById('medico').value;
+            const emailConfirmacao = document.getElementById('emailConfirmacao').value.trim();
+            const data = document.getElementById('data').value;
+            const hora = document.getElementById('hora').value;
+            const observacoes = document.getElementById('observacoes').value.trim();
+
+            // Reset errors
+            document.querySelectorAll('.input-error').forEach(el => el.textContent = '');
+            document.querySelectorAll('.input-field, .select-field').forEach(el => el.classList.remove('error'));
+
+            let hasError = false;
+
+            if (!pacienteId) {
+                document.getElementById('pacienteError').textContent = 'Selecione um paciente.';
+                document.getElementById('paciente').classList.add('error');
+                hasError = true;
+            }
+
+            if (!medicoId) {
+                document.getElementById('medicoError').textContent = 'Selecione um médico.';
+                document.getElementById('medico').classList.add('error');
+                hasError = true;
+            }
+
+            // Validate email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailConfirmacao) {
+                document.getElementById('emailConfirmacaoError').textContent = 'O e-mail para confirmação é obrigatório.';
+                document.getElementById('emailConfirmacao').classList.add('error');
+                hasError = true;
+            } else if (!emailRegex.test(emailConfirmacao)) {
+                document.getElementById('emailConfirmacaoError').textContent = 'Insira um e-mail válido.';
+                document.getElementById('emailConfirmacao').classList.add('error');
+                hasError = true;
+            }
+
+            if (!data) {
+                document.getElementById('dataError').textContent = 'Selecione uma data.';
+                document.getElementById('data').classList.add('error');
+                hasError = true;
+            }
+
+            if (!hora) {
+                document.getElementById('horaError').textContent = 'Selecione um horário.';
+                document.getElementById('hora').classList.add('error');
+                hasError = true;
+            } else if (hora < '08:00' || hora > '18:00') {
+                document.getElementById('horaError').textContent = 'Horário fora do permitido (08:00 às 18:00).';
+                document.getElementById('hora').classList.add('error');
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            const result = MedCloud.criarConsulta(pacienteId, medicoId, data, hora, observacoes);
+
+            if (result.success) {
+                // Send confirmation email
+                const paciente = MedCloud.getPacienteById(pacienteId);
+                const medico = MedCloud.getMedicoById(medicoId);
+                const { html, text } = MedCloudEmail.buildAppointmentConfirmationEmail(
+                    result.consulta, paciente, medico
+                );
+                MedCloudEmail.sendEmail(emailConfirmacao, 'Confirmação de Consulta Agendada', html, text)
+                    .then(emailResult => {
+                        if (emailResult.success) {
+                            showToast('Consulta agendada! E-mail de confirmação enviado para ' + emailConfirmacao);
+                        } else {
+                            showToast('Consulta agendada! Falha ao enviar e-mail: ' + emailResult.error, 'warning');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('[EMAIL] Error sending confirmation:', err);
+                        showToast('Consulta agendada! Erro ao enviar e-mail.', 'warning');
+                    });
+
+                document.getElementById('agendamentoForm').reset();
+                document.getElementById('conflitoWarning').style.display = 'none';
+                document.getElementById('especialidade').value = '';
+                checkConflicts();
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = 'AdminConsultas.html';
+                }, 2000);
+            } else {
+                showToast(result.error, 'error');
+                document.getElementById('horaError').textContent = result.error;
+                document.getElementById('hora').classList.add('error');
+            }
+        }
+    </script>
+</body>
+
+</html>

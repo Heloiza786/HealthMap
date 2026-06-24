@@ -4,33 +4,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ola, paciente! acompanhe seu calendario de</title>
+    <title>MedCloud — Meu Painel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <link rel="stylesheet" href="../../styles/admin.css">
     <link rel="stylesheet" href="DashboardPac.css">
+    <script src="../../js/data.js">
+    </script>
+    <script src="../../js/app.js">
+    </script>
+    <script src="../../js/email-service.js">
+    </script>
+    <script src="../../js/notification-worker.js">
+    </script>
 </head>
 
 <body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">🏥 MedCloud</span>
+            </div>
 
-    <main class="dashboard">
+            <nav class="sidebar-nav">
+                <a href="DashboardPac.html" class="sidebar-link active">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="../MinhasConsultas/MinhasConsultas.html" class="sidebar-link">
+                    <span>📅</span> Minhas Consultas
+                </a>
+                <a href="../TypeMedicalCons/TypeMedicalCons.html" class="sidebar-link">
+                    <span>➕</span> Agendar Consulta
+                </a>
+                <a href="../PerfilPac/PerfilPac.html" class="sidebar-link">
+                    <span>👤</span> Perfil
+                </a>
+            </nav>
 
-        <div class="sidebar-bg">
-            <h2 class="titulo-sidebar">
-                Olá, paciente! acompanhe<br />
-                seu painel de consultas<br />
-                já agendadas<br />
-            </h2>
-        </div>
+            <div class="sidebar-footer">
+                <a href="../LoginInicial/LoginInicial.html" class="sidebar-link" onclick="MedCloud.logout()">
+                    <span>🚪</span> Sair
+                </a>
+            </div>
+        </aside>
 
-        <div class="content">
-            <section class="patients-list">
-                <div class="patient-card">
-                    <p><strong>Paciente:</strong> Maria</p>
-                    <p><strong>Data:</strong> 02/04/2026 - 10:00</p>
+        <!-- Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Top Bar -->
+            <header class="dashboard-topbar">
+                <button class="btn btn-ghost menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menu">
+                    ☰
+                </button>
+                <div class="topbar-info">
+                    <span class="topbar-greeting" id="greeting">Olá!</span>
                 </div>
-            </section>
-        </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" aria-label="Alternar tema">
+                        🌓
+                    </button>
+                    <div class="avatar" id="userAvatar">👤</div>
+                </div>
+            </header>
 
-    </main>
+            <!-- Content -->
+            <div class="dashboard-content page-enter">
+                <!-- Stats -->
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stats-card green">
+                        <div class="stats-card-icon">📅</div>
+                        <div class="stats-card-label">Próxima Consulta</div>
+                        <div class="stats-card-value" id="statProxima" style="font-size: var(--font-size-lg);">—</div>
+                        <div class="stats-card-change positive" id="statProximaDetalhe">Carregando...</div>
+                    </div>
+                    <div class="stats-card blue">
+                        <div class="stats-card-icon">✅</div>
+                        <div class="stats-card-label">Total de Consultas</div>
+                        <div class="stats-card-value" id="statTotal">0</div>
+                        <div class="stats-card-change positive" id="statTotalDetalhe">Realizadas</div>
+                    </div>
+                    <div class="stats-card yellow">
+                        <div class="stats-card-icon">⏳</div>
+                        <div class="stats-card-label">Agendadas</div>
+                        <div class="stats-card-value" id="statAgendadas">0</div>
+                        <div class="stats-card-change positive">Próximos 30 dias</div>
+                    </div>
+                    <div class="stats-card red">
+                        <div class="stats-card-icon">❌</div>
+                        <div class="stats-card-label">Canceladas</div>
+                        <div class="stats-card-value" id="statCanceladas">0</div>
+                        <div class="stats-card-change negative">Este ano</div>
+                    </div>
+                </div>
 
+                <!-- My Appointments -->
+                <div class="section-header">
+                    <h2 class="section-title">Minhas Consultas</h2>
+                    <a href="../TypeMedicalCons/TypeMedicalCons.html" class="btn btn-primary btn-sm">+ Nova Consulta</a>
+                </div>
+
+                <div class="appointments-list" id="appointmentsList">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p class="text-muted">Carregando consultas...</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="section-header mt-xl">
+                    <h2 class="section-title">Ações Rápidas</h2>
+                </div>
+
+                <div class="quick-actions">
+                    <a href="../TypeMedicalCons/TypeMedicalCons.html" class="quick-action-card">
+                        <span class="quick-action-icon">📅</span>
+                        <span class="quick-action-text">Agendar Consulta</span>
+                    </a>
+                    <a href="../MinhasConsultas/MinhasConsultas.html" class="quick-action-card">
+                        <span class="quick-action-icon">📋</span>
+                        <span class="quick-action-text">Minhas Consultas</span>
+                    </a>
+                    <a href="../PerfilPac/PerfilPac.html" class="quick-action-card">
+                        <span class="quick-action-icon">👤</span>
+                        <span class="quick-action-text">Meu Perfil</span>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const user = requireAuth('paciente');
+            if (!user) return;
+
+            document.getElementById('greeting').textContent = `Olá, ${user.nome.split(' ')[0]}! 👋`;
+            document.getElementById('userAvatar').textContent = user.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            const stats = MedCloud.getStatsPaciente(user.id);
+
+            // Update stats
+            document.getElementById('statTotal').textContent = stats.total;
+            document.getElementById('statAgendadas').textContent = stats.agendadas;
+            document.getElementById('statCanceladas').textContent = stats.canceladas;
+
+            if (stats.proxima) {
+                const medico = MedCloud.getMedicoById(stats.proxima.medicoId);
+                document.getElementById('statProxima').textContent = formatDate(stats.proxima.data);
+                document.getElementById('statProximaDetalhe').textContent =
+                    `${medico ? medico.nome : 'Médico'} — ${stats.proxima.hora}`;
+            } else {
+                document.getElementById('statProxima').textContent = '—';
+                document.getElementById('statProximaDetalhe').textContent = 'Nenhuma consulta agendada';
+            }
+
+            // Load appointments
+            loadAppointments(user.id);
+        });
+
+        function loadAppointments(pacienteId) {
+            const consultas = MedCloud.getConsultasFuturasPaciente(pacienteId)
+                .sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora))
+                .slice(0, 5);
+
+            const container = document.getElementById('appointmentsList');
+
+            if (consultas.length === 0) {
+                container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-icon">📅</div>
+                                <p>Nenhuma consulta agendada.</p>
+                                <a href="../TypeMedicalCons/TypeMedicalCons.html" class="btn btn-primary btn-sm mt-md">Agendar Consulta</a>
+                            </div>
+                        `;
+                return;
+            }
+
+            container.innerHTML = consultas.map(c => {
+                const medico = MedCloud.getMedicoById(c.medicoId);
+                const nomeMed = medico ? medico.nome : 'Médico';
+                return `
+                            <div class="appointment-card">
+                                <div class="appointment-time">
+                                    <span class="time-badge">${c.hora}</span>
+                                </div>
+                                <div class="appointment-info">
+                                    <strong>${nomeMed}${medico ? ' — ' + medico.especialidade : ''}</strong>
+                                    <span class="text-muted text-sm">${formatDateLong(c.data)}</span>
+                                </div>
+                                <span class="badge ${getStatusBadgeClass(c.status)}">${getStatusLabel(c.status)}</span>
+                            </div>
+                        `;
+            }).join('');
+        }
+    </script>
 </body>
 
 </html>

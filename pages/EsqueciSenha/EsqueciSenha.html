@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Esqueci Minha Senha</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <script src="../../js/data.js">
+    </script>
+    <script src="../../js/app.js">
+    </script>
+    <script src="../../js/email-service.js">
+    </script>
+    <style>
+        .forgot-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--color-primary-lightest) 0%, var(--color-bg) 50%, #E0F2FE 100%);
+            padding: var(--spacing-md);
+        }
+
+        .forgot-container {
+            width: 100%;
+            max-width: 440px;
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            padding: var(--spacing-2xl);
+            animation: fadeInUp var(--transition-slow) ease forwards;
+        }
+
+        .forgot-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .forgot-icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .forgot-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .forgot-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            line-height: var(--line-height-relaxed);
+        }
+
+        .forgot-footer {
+            text-align: center;
+            margin-top: var(--spacing-lg);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .success-message {
+            text-align: center;
+            padding: var(--spacing-lg);
+        }
+
+        .success-message .success-icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .dev-token-box {
+            background: var(--color-surface-hover);
+            border: 1px dashed var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+            font-size: var(--font-size-xs);
+            word-break: break-all;
+        }
+
+        @media (max-width: 480px) {
+            .forgot-page {
+                padding: 0;
+            }
+
+            .forgot-container {
+                border-radius: 0;
+                min-height: 100vh;
+                box-shadow: none;
+                padding: var(--spacing-lg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="forgot-page">
+        <div class="forgot-container">
+            <div class="forgot-header">
+                <div class="forgot-icon">🔑</div>
+                <h1 class="forgot-title">Esqueci Minha Senha</h1>
+                <p class="forgot-subtitle">
+                    Digite seu e-mail cadastrado e enviaremos um link para redefinir sua senha.
+                </p>
+            </div>
+
+            <!-- Form -->
+            <form id="forgotForm" onsubmit="handleForgotPassword(event)" novalidate>
+                <div class="input-group">
+                    <label class="input-label" for="email">E-mail</label>
+                    <input type="email" id="email" class="input-field" placeholder="seu@email.com" required>
+                    <span class="input-error" id="emailError"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
+                    Enviar Link de Redefinição
+                </button>
+            </form>
+
+            <!-- Success (hidden initially) -->
+            <div id="successMessage" style="display:none;">
+                <div class="success-message">
+                    <div class="success-icon">📧</div>
+                    <h2
+                        style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: var(--spacing-sm);">
+                        E-mail enviado!
+                    </h2>
+                    <p class="forgot-subtitle">
+                        Se o e-mail existir no sistema, você receberá um link para redefinir sua senha.
+                    </p>
+                    <!-- Dev token display -->
+                    <div class="dev-token-box" id="devTokenBox" style="display:none;">
+                        <strong>🔧 Modo Desenvolvimento</strong><br>
+                        Token: <span id="devToken"></span><br>
+                        <a href="#" id="devTokenLink" style="color: var(--color-primary);">Clique aqui para
+                            redefinir</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="forgot-footer">
+                <a href="../LoginInicial/LoginInicial.html" class="login-link">← Voltar para o Login</a>
+                <br>
+                <a href="../ConfigEmail/ConfigEmail.html" class="login-link" style="font-size: var(--font-size-xs); opacity: 0.7;">⚙️ Configurar E-mail</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        function handleForgotPassword(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const emailError = document.getElementById('emailError');
+            const emailInput = document.getElementById('email');
+
+            emailError.textContent = '';
+            emailInput.classList.remove('error');
+
+            if (!email) {
+                emailError.textContent = 'Digite seu e-mail.';
+                emailInput.classList.add('error');
+                return;
+            }
+
+            if (!email.includes('@')) {
+                emailError.textContent = 'Insira um e-mail válido.';
+                emailInput.classList.add('error');
+                return;
+            }
+
+            const result = MedCloud.solicitarResetSenha(email);
+
+            // Hide form, show success
+            document.getElementById('forgotForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+
+            // In dev mode, show the token
+            if (result._devToken) {
+                const token = result._devToken;
+                document.getElementById('devTokenBox').style.display = 'block';
+                document.getElementById('devToken').textContent = token;
+                document.getElementById('devTokenLink').href = `../RedefinirSenha/RedefinirSenha.html?token=${token}`;
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Consultas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <link rel="stylesheet" href="../../styles/admin.css">
+    <link rel="stylesheet" href="../Dashboard/Dashboard.css">
+    <script src="../../js/data.js"></script>
+    <script src="../../js/app.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">🏥 MedCloud</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="DashboardAdmin.html" class="sidebar-link">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="AdminUsuarios.html" class="sidebar-link">
+                    <span>👥</span> Usuários
+                </a>
+                <a href="AdminMedicos.html" class="sidebar-link">
+                    <span>👨‍⚕️</span> Médicos
+                </a>
+                <a href="AdminPacientes.html" class="sidebar-link">
+                    <span>🙋</span> Pacientes
+                </a>
+                <a href="AdminConsultas.html" class="sidebar-link active">
+                    <span>📅</span> Consultas
+                </a>
+                <a href="AdminNovoAgendamento.html" class="sidebar-link">
+                    <span>➕</span> Novo Agendamento
+                </a>
+                <a href="AdminRelatorios.html" class="sidebar-link">
+                    <span>📈</span> Relatórios
+                </a>
+                <a href="AdminConfiguracoes.html" class="sidebar-link">
+                    <span>⚙️</span> Configurações
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../LoginInicial/LoginInicial.html" class="sidebar-link" onclick="MedCloud.logout()">
+                    <span>🚪</span> Sair
+                </a>
+            </div>
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <main class="dashboard-main">
+            <header class="dashboard-topbar">
+                <button class="btn btn-ghost menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menu">☰</button>
+                <div class="topbar-info">
+                    <span class="topbar-greeting" id="greeting">Consultas</span>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" aria-label="Alternar tema">🌓</button>
+                    <div class="avatar" id="userAvatar">👤</div>
+                </div>
+            </header>
+
+            <div class="dashboard-content page-enter">
+                <div class="page-header">
+                    <div>
+                        <h1>Consultas</h1>
+                        <p>Visualize todas as consultas do sistema</p>
+                    </div>
+                    <a href="AdminNovoAgendamento.html" class="btn btn-primary">+ Novo Agendamento</a>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all" onclick="filterConsultas('all')">Todas</button>
+                    <button class="filter-tab" data-filter="futuras"
+                        onclick="filterConsultas('futuras')">Futuras</button>
+                    <button class="filter-tab" data-filter="concluidas"
+                        onclick="filterConsultas('concluidas')">Concluídas</button>
+                    <button class="filter-tab" data-filter="canceladas"
+                        onclick="filterConsultas('canceladas')">Canceladas</button>
+                </div>
+
+                <div class="search-bar" style="margin-bottom: var(--spacing-lg); max-width: 100%;">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchConsulta" placeholder="Buscar por paciente, médico ou data..."
+                        oninput="filterConsultas(currentFilter)">
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Horário</th>
+                                <th>Paciente</th>
+                                <th>Médico</th>
+                                <th>Especialidade</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="consultasTableBody">
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <div class="spinner"></div>
+                                    <p>Carregando...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let currentFilter = 'all';
+        let allConsultas = [];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const user = requireAuth('admin');
+            if (!user) return;
+
+            document.getElementById('greeting').textContent = `Consultas — ${user.nome}`;
+            document.getElementById('userAvatar').textContent = user.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            allConsultas = MedCloud.getConsultas()
+                .sort((a, b) => b.data.localeCompare(a.data) || b.hora.localeCompare(b.hora));
+
+            filterConsultas('all');
+        });
+
+        function filterConsultas(filter) {
+            currentFilter = filter;
+
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.filter === filter);
+            });
+
+            let filtered = [...allConsultas];
+
+            if (filter === 'futuras') {
+                const hoje = new Date().toISOString().split('T')[0];
+                filtered = filtered.filter(c => c.data >= hoje && c.status !== 'cancelada' && c.status !== 'concluida');
+            } else if (filter === 'concluidas') {
+                filtered = filtered.filter(c => c.status === 'concluida');
+            } else if (filter === 'canceladas') {
+                filtered = filtered.filter(c => c.status === 'cancelada');
+            }
+
+            const query = document.getElementById('searchConsulta').value.toLowerCase().trim();
+            if (query) {
+                filtered = filtered.filter(c => {
+                    const paciente = MedCloud.getPacienteById(c.pacienteId);
+                    const medico = MedCloud.getMedicoById(c.medicoId);
+                    return (paciente && paciente.nome.toLowerCase().includes(query)) ||
+                        (medico && medico.nome.toLowerCase().includes(query)) ||
+                        c.data.includes(query);
+                });
+            }
+
+            renderConsultas(filtered);
+        }
+
+        function renderConsultas(consultas) {
+            const tbody = document.getElementById('consultasTableBody');
+
+            if (consultas.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <div class="empty-icon">📅</div>
+                            <p>Nenhuma consulta encontrada.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = consultas.map(c => {
+                const paciente = MedCloud.getPacienteById(c.pacienteId);
+                const medico = MedCloud.getMedicoById(c.medicoId);
+                return `
+                    <tr>
+                        <td>${formatDate(c.data)}</td>
+                        <td><span class="time-badge">${c.hora}</span></td>
+                        <td><strong>${paciente ? paciente.nome : 'Paciente'}</strong></td>
+                        <td>${medico ? medico.nome : 'Médico'}</td>
+                        <td><span class="badge badge-info">${medico ? (medico.especialidade || 'Clínico Geral') : '—'}</span></td>
+                        <td><span class="badge ${getStatusBadgeClass(c.status)}">${getStatusLabel(c.status)}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                ${c.status !== 'concluida' && c.status !== 'cancelada' ? `
+                                    <button class="btn btn-sm btn-ghost" onclick="concluirConsulta('${c.id}')" title="Concluir">✅</button>
+                                    <button class="btn btn-sm btn-ghost" onclick="cancelarConsulta('${c.id}')" title="Cancelar">❌</button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function concluirConsulta(id) {
+            const result = MedCloud.concluirConsulta(id);
+            if (result.success) {
+                showToast('Consulta concluída!');
+                refreshData();
+            }
+        }
+
+        function cancelarConsulta(id) {
+            if (!confirm('Tem certeza que deseja cancelar esta consulta?')) return;
+            const result = MedCloud.cancelarConsulta(id);
+            if (result.success) {
+                showToast('Consulta cancelada.', 'warning');
+                refreshData();
+            }
+        }
+
+        function refreshData() {
+            allConsultas = MedCloud.getConsultas()
+                .sort((a, b) => b.data.localeCompare(a.data) || b.hora.localeCompare(b.hora));
+            filterConsultas(currentFilter);
+        }
+    </script>
+</body>
+
+</html>

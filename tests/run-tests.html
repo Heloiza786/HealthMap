@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Test Runner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #38bdf8;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-run-all {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-run-all:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-suite {
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+
+        .btn-suite:hover {
+            border-color: #2563eb;
+            color: #38bdf8;
+        }
+
+        .btn-clear {
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+
+        .btn-clear:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .summary {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .summary-item {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .summary-total {
+            background: #1e293b;
+            color: #94a3b8;
+        }
+
+        .summary-passed {
+            background: #064e3b;
+            color: #34d399;
+        }
+
+        .summary-failed {
+            background: #450a0a;
+            color: #f87171;
+        }
+
+        #output {
+            background: #0a0f1e;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            max-height: 600px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        #output .pass {
+            color: #34d399;
+        }
+
+        #output .fail {
+            color: #f87171;
+        }
+
+        #output .info {
+            color: #94a3b8;
+        }
+
+        #output .section {
+            color: #38bdf8;
+            font-weight: 600;
+        }
+
+        #output .separator {
+            color: #1e293b;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #1e293b;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2563eb, #38bdf8);
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        .timestamp {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 MedCloud — Test Runner</h1>
+        <p class="subtitle">Email System Test Suite</p>
+
+        <div class="controls">
+            <button class="btn-run-all" onclick="runAll()">▶️ Run All Tests</button>
+            <button class="btn-suite" onclick="runSuite('password-reset')">🔐 Password Reset</button>
+            <button class="btn-suite" onclick="runSuite('reminders')">📅 Reminders</button>
+            <button class="btn-suite" onclick="runSuite('email-service')">📧 Email Service</button>
+            <button class="btn-suite" onclick="runSuite('token-expiration')">⏰ Token Expiration</button>
+            <button class="btn-suite" onclick="runSuite('error-handling')">⚠️ Error Handling</button>
+            <button class="btn-clear" onclick="clearOutput()">🗑️ Clear</button>
+        </div>
+
+        <div class="summary">
+            <span class="summary-item summary-total">📊 Total: <span id="totalCount">0</span></span>
+            <span class="summary-item summary-passed">✅ Passed: <span id="passedCount">0</span></span>
+            <span class="summary-item summary-failed">❌ Failed: <span id="failedCount">0</span></span>
+        </div>
+
+        <div class="progress-bar">
+            <div class="fill" id="progressFill"></div>
+        </div>
+
+        <div id="output">Clique em "Run All Tests" para iniciar...</div>
+
+        <div class="timestamp" id="timestamp"></div>
+    </div>
+
+    <script src="../js/data.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/email-service.js"></script>
+    <script src="../js/notification-worker.js"></script>
+    <script src="email-tests.js"></script>
+    <script>
+        // Capture console output
+        const originalLog = console.log;
+        const originalError = console.error;
+        const output = document.getElementById('output');
+
+        console.log = function (...args) {
+            const msg = args.join(' ');
+            const div = document.createElement('div');
+            if (msg.startsWith('  ✅')) div.className = 'pass';
+            else if (msg.startsWith('  ❌')) div.className = 'fail';
+            else if (msg.startsWith('📋') || msg.startsWith('=')) div.className = 'section';
+            else if (msg.startsWith('  ')) div.className = 'info';
+            else div.className = 'info';
+            div.textContent = msg;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+            originalLog.apply(console, args);
+        };
+
+        console.error = function (...args) {
+            const msg = args.join(' ');
+            const div = document.createElement('div');
+            div.className = 'fail';
+            div.textContent = '❌ ' + msg;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+            originalError.apply(console, args);
+        };
+
+        function updateSummary(results) {
+            document.getElementById('totalCount').textContent = results.total || 0;
+            document.getElementById('passedCount').textContent = results.passed || 0;
+            document.getElementById('failedCount').textContent = results.failed || 0;
+            const total = results.total || 1;
+            const pct = ((results.passed || 0) / total) * 100;
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('timestamp').textContent = 'Último teste: ' + new Date().toLocaleString('pt-BR');
+        }
+
+        function runAll() {
+            output.innerHTML = '';
+            const results = MedCloudTests.runAll();
+            updateSummary(results);
+        }
+
+        function runSuite(name) {
+            output.innerHTML = '';
+            const results = MedCloudTests.run(name);
+            updateSummary(results);
+        }
+
+        function clearOutput() {
+            output.innerHTML = 'Output limpo.';
+            document.getElementById('totalCount').textContent = '0';
+            document.getElementById('passedCount').textContent = '0';
+            document.getElementById('failedCount').textContent = '0';
+            document.getElementById('progressFill').style.width = '0%';
+        }
+
+        // Auto-run if URL has ?auto
+        if (window.location.search.includes('auto=true')) {
+            setTimeout(runAll, 300);
+        }
+    </script>
+</body>
+
+</html>

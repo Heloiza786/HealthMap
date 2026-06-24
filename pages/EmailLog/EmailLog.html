@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Log de E-mails</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <script src="../../js/data.js"></script>
+    <script src="../../js/app.js"></script>
+    <script src="../../js/email-service.js"></script>
+    <script src="../../js/notification-worker.js"></script>
+    <style>
+        .log-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            background: var(--color-bg);
+            padding: var(--spacing-md);
+        }
+
+        .log-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            padding: var(--spacing-2xl);
+            margin-top: var(--spacing-lg);
+            animation: fadeInUp var(--transition-slow) ease forwards;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+
+        .log-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text);
+        }
+
+        .log-stats {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .stat-badge.total {
+            background: var(--color-primary-bg);
+            color: var(--color-primary);
+        }
+
+        .stat-badge.sent {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+
+        .stat-badge.pending {
+            background: var(--color-warning-bg);
+            color: var(--color-warning);
+        }
+
+        .stat-badge.error {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+        }
+
+        .log-filters {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            background: var(--color-surface);
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .filter-btn.active {
+            background: var(--color-primary);
+            color: #fff;
+            border-color: var(--color-primary);
+        }
+
+        .email-log-entry {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .email-log-entry:hover {
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .log-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        .log-status.sent {
+            background: var(--color-success);
+        }
+
+        .log-status.pending {
+            background: var(--color-warning);
+        }
+
+        .log-status.error {
+            background: var(--color-error);
+        }
+
+        .log-status.sending {
+            background: var(--color-primary);
+            animation: pulse 1.5s infinite;
+        }
+
+        .log-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .log-content .log-subject {
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-text);
+            font-size: var(--font-size-sm);
+            margin-bottom: 4px;
+        }
+
+        .log-content .log-details {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+
+        .log-content .log-error {
+            font-size: var(--font-size-xs);
+            color: var(--color-error);
+            margin-top: 4px;
+        }
+
+        .log-time {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-tertiary);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-2xl);
+            color: var(--color-text-secondary);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .worker-status {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--color-surface-hover);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .worker-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-success);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .log-container {
+                padding: var(--spacing-md);
+                border-radius: 0;
+                min-height: 100vh;
+            }
+
+            .log-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="log-page">
+        <div class="log-container">
+            <div class="log-header">
+                <h1 class="log-title">📧 Log de E-mails</h1>
+                <div class="log-stats" id="statsContainer">
+                    <span class="stat-badge total">📬 Total: <span id="totalCount">0</span></span>
+                    <span class="stat-badge sent">✅ Enviados: <span id="sentCount">0</span></span>
+                    <span class="stat-badge pending">⏳ Pendentes: <span id="pendingCount">0</span></span>
+                    <span class="stat-badge error">❌ Erros: <span id="errorCount">0</span></span>
+                </div>
+            </div>
+
+            <div class="worker-status">
+                <span class="worker-dot" id="workerDot"></span>
+                <span id="workerStatus">Worker de notificações ativo</span>
+                <span style="margin-left: auto;">
+                    <button class="btn btn-ghost btn-sm" onclick="processNow()">▶️ Processar Agora</button>
+                    <button class="btn btn-ghost btn-sm" onclick="refreshLog()">🔄 Atualizar</button>
+                </span>
+            </div>
+
+            <div class="log-filters">
+                <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Todos</button>
+                <button class="filter-btn" data-filter="enviado" onclick="setFilter('enviado')">Enviados</button>
+                <button class="filter-btn" data-filter="pendente" onclick="setFilter('pendente')">Pendentes</button>
+                <button class="filter-btn" data-filter="enviando" onclick="setFilter('enviando')">Enviando</button>
+                <button class="filter-btn" data-filter="erro" onclick="setFilter('erro')">Erros</button>
+                <button class="filter-btn" data-filter="agendado" onclick="setFilter('agendado')">Agendados</button>
+            </div>
+
+            <div id="logList">
+                <div class="empty-state">
+                    <div class="empty-icon">📭</div>
+                    <p>Nenhum e-mail registrado ainda.</p>
+                    <p class="text-muted text-sm">Os logs aparecerão aqui quando e-mails forem enviados.</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: var(--spacing-lg);">
+                <a href="../ConfigEmail/ConfigEmail.html" class="btn btn-secondary btn-sm">⚙️ Configurar E-mail</a>
+                <a href="../LoginInicial/LoginInicial.html" class="login-link" style="margin-left: var(--spacing-md);">←
+                    Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let currentFilter = 'all';
+
+        function refreshLog() {
+            renderLog(currentFilter);
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+            renderLog(filter);
+        }
+
+        function renderLog(filter) {
+            const logList = document.getElementById('logList');
+            const data = MedCloud.getRawData ? MedCloud.getRawData() : null;
+            if (!data || !data.emailLog || data.emailLog.length === 0) {
+                logList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>Nenhum e-mail registrado ainda.</p>
+                        <p class="text-muted text-sm">Os logs aparecerão aqui quando e-mails forem enviados.</p>
+                    </div>
+                `;
+                updateStats([]);
+                return;
+            }
+
+            let entries = [...data.emailLog].reverse(); // newest first
+
+            if (filter !== 'all') {
+                entries = entries.filter(e => e.status === filter);
+            }
+
+            updateStats(data.emailLog);
+
+            if (entries.length === 0) {
+                logList.innerHTML = `<div class="empty-state"><p>Nenhum registro com o filtro "${filter}".</p></div>`;
+                return;
+            }
+
+            logList.innerHTML = entries.map(entry => {
+                const statusClass = entry.status === 'enviado' ? 'sent' :
+                    entry.status === 'erro' ? 'error' :
+                        entry.status === 'enviando' ? 'sending' : 'pending';
+
+                const time = entry.enviadoEm || entry.registradoEm || entry.criadoEm || '';
+                const formattedTime = time ? new Date(time).toLocaleString('pt-BR') : '—';
+
+                const subject = entry.subject || (entry.tipo ? `Lembrete: ${entry.tipo}` : 'E-mail do sistema');
+                const target = entry.to || entry.pacienteEmail || '—';
+                const name = entry.pacienteNome || '—';
+
+                return `
+                    <div class="email-log-entry">
+                        <span class="log-status ${statusClass}"></span>
+                        <div class="log-content">
+                            <div class="log-subject">${subject}</div>
+                            <div class="log-details">
+                                Para: <strong>${name}</strong> (${target})
+                                ${entry.medicoNome ? `| Médico: ${entry.medicoNome}` : ''}
+                                ${entry.dataConsulta ? `| Data: ${new Date(entry.dataConsulta + 'T12:00:00').toLocaleDateString('pt-BR')} ${entry.horaConsulta || ''}` : ''}
+                                ${entry.provider ? `| Via: ${entry.provider}` : ''}
+                            </div>
+                            ${entry.erro ? `<div class="log-error">❌ ${entry.erro}</div>` : ''}
+                        </div>
+                        <div class="log-time">${formattedTime}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStats(entries) {
+            const total = entries.length;
+            const sent = entries.filter(e => e.status === 'enviado').length;
+            const pending = entries.filter(e => e.status === 'pendente' || e.status === 'agendado').length;
+            const errors = entries.filter(e => e.status === 'erro').length;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('sentCount').textContent = sent;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('errorCount').textContent = errors;
+        }
+
+        function processNow() {
+            if (MedCloud.processarNotificacoesPendentes) {
+                MedCloud.processarNotificacoesPendentes();
+                showToast('Notificações processadas!', 'success');
+                setTimeout(refreshLog, 500);
+            }
+        }
+
+        // Auto-refresh every 10 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            renderLog('all');
+            setInterval(refreshLog, 10000);
+        });
+    </script>
+</body>
+
+</html>

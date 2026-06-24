@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Configuração de E-mail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <script src="../../js/data.js"></script>
+    <script src="../../js/app.js"></script>
+    <script src="../../js/email-service.js"></script>
+    <style>
+        .config-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--color-primary-lightest) 0%, var(--color-bg) 50%, #E0F2FE 100%);
+            padding: var(--spacing-md);
+        }
+
+        .config-container {
+            width: 100%;
+            max-width: 640px;
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            padding: var(--spacing-2xl);
+            animation: fadeInUp var(--transition-slow) ease forwards;
+        }
+
+        .config-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .config-icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .config-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .config-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            line-height: var(--line-height-relaxed);
+        }
+
+        .provider-tabs {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .provider-tab {
+            flex: 1;
+            min-width: 100px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-md);
+            background: var(--color-surface);
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: center;
+        }
+
+        .provider-tab:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .provider-tab.active {
+            border-color: var(--color-primary);
+            background: var(--color-primary-bg);
+            color: var(--color-primary);
+        }
+
+        .config-section {
+            display: none;
+        }
+
+        .config-section.active {
+            display: block;
+            animation: fadeIn var(--transition-normal) ease;
+        }
+
+        .config-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+        }
+
+        .config-actions .btn {
+            flex: 1;
+        }
+
+        .test-result {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            display: none;
+        }
+
+        .test-result.success {
+            display: block;
+            background: var(--color-success-bg);
+            color: var(--color-success);
+            border: 1px solid var(--color-success);
+        }
+
+        .test-result.error {
+            display: block;
+            background: var(--color-error-bg);
+            color: var(--color-error);
+            border: 1px solid var(--color-error);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .status-indicator.configured {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+
+        .status-indicator.not-configured {
+            background: var(--color-warning-bg);
+            color: var(--color-warning);
+        }
+
+        .env-helper {
+            background: var(--color-surface-hover);
+            border: 1px dashed var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+            font-size: var(--font-size-xs);
+        }
+
+        .env-helper code {
+            display: block;
+            background: var(--color-bg);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-family: monospace;
+            margin: 4px 0;
+            font-size: var(--font-size-xs);
+        }
+
+        @media (max-width: 480px) {
+            .config-page {
+                padding: 0;
+            }
+
+            .config-container {
+                border-radius: 0;
+                min-height: 100vh;
+                box-shadow: none;
+                padding: var(--spacing-lg);
+            }
+
+            .provider-tabs {
+                flex-direction: column;
+            }
+
+            .config-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="config-page">
+        <div class="config-container">
+            <div class="config-header">
+                <div class="config-icon">📧</div>
+                <h1 class="config-title">Configuração de E-mail</h1>
+                <p class="config-subtitle">
+                    Configure o serviço de envio de e-mails para recuperação de senha e lembretes de consulta.
+                </p>
+            </div>
+
+            <!-- Provider Tabs -->
+            <div class="provider-tabs">
+                <button class="provider-tab active" data-provider="emailjs" onclick="switchProvider('emailjs')">
+                    📧 EmailJS
+                </button>
+                <button class="provider-tab" data-provider="smtp" onclick="switchProvider('smtp')">
+                    📨 SMTP
+                </button>
+                <button class="provider-tab" data-provider="sendgrid" onclick="switchProvider('sendgrid')">
+                    ✉️ SendGrid
+                </button>
+                <button class="provider-tab" data-provider="mailgun" onclick="switchProvider('mailgun')">
+                    🚀 Mailgun
+                </button>
+                <button class="provider-tab" data-provider="resend" onclick="switchProvider('resend')">
+                    📬 Resend
+                </button>
+            </div>
+
+            <!-- EmailJS Config -->
+            <div class="config-section active" id="section-emailjs">
+                <p class="config-subtitle" style="margin-bottom: var(--spacing-lg);">
+                    <strong>EmailJS</strong> é a opção recomendada para projetos front-end.
+                    <a href="https://www.emailjs.com/" target="_blank" style="color: var(--color-primary);">Crie uma
+                        conta gratuita</a>
+                    e obtenha suas chaves.
+                </p>
+                <div class="input-group">
+                    <label class="input-label">Service ID</label>
+                    <input type="text" id="emailjsServiceId" class="input-field" placeholder="service_xxxxxxx">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Template ID</label>
+                    <input type="text" id="emailjsTemplateId" class="input-field" placeholder="template_xxxxxxx">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Public Key</label>
+                    <input type="text" id="emailjsPublicKey" class="input-field" placeholder="your_public_key">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">E-mail de origem (From)</label>
+                    <input type="email" id="emailjsFrom" class="input-field" placeholder="noreply@medcloud.com">
+                </div>
+                <div class="env-helper">
+                    <strong>📋 Como configurar no EmailJS:</strong>
+                    <ol style="margin: 8px 0 0 16px; padding: 0; line-height: 1.8;">
+                        <li>Crie uma conta em <a href="https://www.emailjs.com/" target="_blank">emailjs.com</a></li>
+                        <li>Conecte um serviço de e-mail (Gmail, Outlook, etc.)</li>
+                        <li>Crie um template de e-mail com as variáveis: <code>{{to_email}}</code>,
+                            <code>{{to_name}}</code>, <code>{{subject}}</code>, <code>{{message}}</code>,
+                            <code>{{html_message}}</code></li>
+                        <li>Copie o Service ID, Template ID e Public Key para os campos acima</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- SMTP Config -->
+            <div class="config-section" id="section-smtp">
+                <p class="config-subtitle" style="margin-bottom: var(--spacing-lg);">
+                    <strong>SMTP</strong> requer um backend rodando. Configure também o <code>BACKEND_URL</code>.
+                </p>
+                <div class="input-group">
+                    <label class="input-label">SMTP Host</label>
+                    <input type="text" id="smtpHost" class="input-field" placeholder="smtp.gmail.com">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">SMTP Port</label>
+                    <input type="number" id="smtpPort" class="input-field" placeholder="587">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">SMTP User</label>
+                    <input type="text" id="smtpUser" class="input-field" placeholder="seu@email.com">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">SMTP Password</label>
+                    <input type="password" id="smtpPass" class="input-field" placeholder="App Password">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">From Email</label>
+                    <input type="email" id="smtpFrom" class="input-field" placeholder="noreply@medcloud.com">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">
+                        <input type="checkbox" id="smtpSecure"> Usar SSL/TLS (porta 465)
+                    </label>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Backend URL</label>
+                    <input type="text" id="backendUrl" class="input-field" placeholder="http://localhost:3000">
+                </div>
+                <div class="env-helper">
+                    <strong>📋 Gmail App Password:</strong>
+                    <code>1. Ative 2FA em: https://myaccount.google.com/security</code>
+                    <code>2. Gere App Password em: https://myaccount.google.com/apppasswords</code>
+                    <code>3. Use o App Password gerado no campo SMTP Password</code>
+                    <code>SMTP_HOST=smtp.gmail.com | SMTP_PORT=587 | SMTP_SECURE=false</code>
+                </div>
+            </div>
+
+            <!-- SendGrid Config -->
+            <div class="config-section" id="section-sendgrid">
+                <p class="config-subtitle" style="margin-bottom: var(--spacing-lg);">
+                    <strong>SendGrid</strong> — Crie uma conta em <a href="https://sendgrid.com/" target="_blank"
+                        style="color: var(--color-primary);">sendgrid.com</a>
+                    e gere uma API Key.
+                </p>
+                <div class="input-group">
+                    <label class="input-label">SendGrid API Key</label>
+                    <input type="password" id="sendgridApiKey" class="input-field"
+                        placeholder="SG.xxxxxxxxxxxxxxxxxxxxx">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">From Email</label>
+                    <input type="email" id="sendgridFrom" class="input-field" placeholder="noreply@medcloud.com">
+                </div>
+            </div>
+
+            <!-- Mailgun Config -->
+            <div class="config-section" id="section-mailgun">
+                <p class="config-subtitle" style="margin-bottom: var(--spacing-lg);">
+                    <strong>Mailgun</strong> — Crie uma conta em <a href="https://www.mailgun.com/" target="_blank"
+                        style="color: var(--color-primary);">mailgun.com</a>.
+                </p>
+                <div class="input-group">
+                    <label class="input-label">Mailgun API Key</label>
+                    <input type="password" id="mailgunApiKey" class="input-field" placeholder="key-xxxxxxxxxxxxx">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Mailgun Domain</label>
+                    <input type="text" id="mailgunDomain" class="input-field" placeholder="mg.seudominio.com">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">From Email</label>
+                    <input type="email" id="mailgunFrom" class="input-field" placeholder="noreply@medcloud.com">
+                </div>
+            </div>
+
+            <!-- Resend Config -->
+            <div class="config-section" id="section-resend">
+                <p class="config-subtitle" style="margin-bottom: var(--spacing-lg);">
+                    <strong>Resend</strong> — Crie uma conta em <a href="https://resend.com/" target="_blank"
+                        style="color: var(--color-primary);">resend.com</a>.
+                </p>
+                <div class="input-group">
+                    <label class="input-label">Resend API Key</label>
+                    <input type="password" id="resendApiKey" class="input-field" placeholder="re_xxxxxxxxxxxxxxxxxxxxx">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">From Email</label>
+                    <input type="email" id="resendFrom" class="input-field" placeholder="noreply@medcloud.com">
+                </div>
+            </div>
+
+            <!-- Test Email -->
+            <div class="input-group" style="margin-top: var(--spacing-lg);">
+                <label class="input-label">E-mail para teste</label>
+                <input type="email" id="testEmail" class="input-field" placeholder="seu@email.com">
+            </div>
+
+            <!-- Test Result -->
+            <div class="test-result" id="testResult"></div>
+
+            <!-- Actions -->
+            <div class="config-actions">
+                <button class="btn btn-secondary" onclick="testConfig()">
+                    🔍 Testar Configuração
+                </button>
+                <button class="btn btn-primary" onclick="saveConfig()">
+                    💾 Salvar Configuração
+                </button>
+            </div>
+
+            <div style="text-align: center; margin-top: var(--spacing-lg);">
+                <a href="../LoginInicial/LoginInicial.html" class="login-link">← Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let currentProvider = 'emailjs';
+
+        function switchProvider(provider) {
+            currentProvider = provider;
+
+            // Update tabs
+            document.querySelectorAll('.provider-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.provider === provider);
+            });
+
+            // Update sections
+            document.querySelectorAll('.config-section').forEach(section => {
+                section.classList.toggle('active', section.id === 'section-' + provider);
+            });
+
+            // Load saved values for this provider
+            loadConfigForProvider(provider);
+        }
+
+        function loadConfigForProvider(provider) {
+            const config = MedCloudEmail.getConfig();
+
+            switch (provider) {
+                case 'emailjs':
+                    document.getElementById('emailjsServiceId').value = config.emailjsServiceId || '';
+                    document.getElementById('emailjsTemplateId').value = config.emailjsTemplateId || '';
+                    document.getElementById('emailjsPublicKey').value = config.emailjsPublicKey || '';
+                    document.getElementById('emailjsFrom').value = config.smtpFrom || '';
+                    break;
+                case 'smtp':
+                    document.getElementById('smtpHost').value = config.smtpHost || '';
+                    document.getElementById('smtpPort').value = config.smtpPort || '587';
+                    document.getElementById('smtpUser').value = config.smtpUser || '';
+                    document.getElementById('smtpPass').value = config.smtpPass || '';
+                    document.getElementById('smtpFrom').value = config.smtpFrom || '';
+                    document.getElementById('smtpSecure').checked = config.smtpSecure || false;
+                    document.getElementById('backendUrl').value = localStorage.getItem('BACKEND_URL') || 'http://localhost:3000';
+                    break;
+                case 'sendgrid':
+                    document.getElementById('sendgridApiKey').value = config.sendgridApiKey || '';
+                    document.getElementById('sendgridFrom').value = config.smtpFrom || '';
+                    break;
+                case 'mailgun':
+                    document.getElementById('mailgunApiKey').value = config.mailgunApiKey || '';
+                    document.getElementById('mailgunDomain').value = config.mailgunDomain || '';
+                    document.getElementById('mailgunFrom').value = config.smtpFrom || '';
+                    break;
+                case 'resend':
+                    document.getElementById('resendApiKey').value = config.resendApiKey || '';
+                    document.getElementById('resendFrom').value = config.smtpFrom || '';
+                    break;
+            }
+        }
+
+        function saveConfig() {
+            const updates = {
+                emailProvider: currentProvider,
+            };
+
+            switch (currentProvider) {
+                case 'emailjs':
+                    updates.emailjsServiceId = document.getElementById('emailjsServiceId').value.trim();
+                    updates.emailjsTemplateId = document.getElementById('emailjsTemplateId').value.trim();
+                    updates.emailjsPublicKey = document.getElementById('emailjsPublicKey').value.trim();
+                    updates.smtpFrom = document.getElementById('emailjsFrom').value.trim() || 'noreply@medcloud.com';
+                    break;
+                case 'smtp':
+                    updates.smtpHost = document.getElementById('smtpHost').value.trim();
+                    updates.smtpPort = document.getElementById('smtpPort').value.trim() || '587';
+                    updates.smtpUser = document.getElementById('smtpUser').value.trim();
+                    updates.smtpPass = document.getElementById('smtpPass').value.trim();
+                    updates.smtpFrom = document.getElementById('smtpFrom').value.trim() || 'noreply@medcloud.com';
+                    updates.smtpSecure = document.getElementById('smtpSecure').checked;
+                    localStorage.setItem('BACKEND_URL', document.getElementById('backendUrl').value.trim() || 'http://localhost:3000');
+                    break;
+                case 'sendgrid':
+                    updates.sendgridApiKey = document.getElementById('sendgridApiKey').value.trim();
+                    updates.smtpFrom = document.getElementById('sendgridFrom').value.trim() || 'noreply@medcloud.com';
+                    break;
+                case 'mailgun':
+                    updates.mailgunApiKey = document.getElementById('mailgunApiKey').value.trim();
+                    updates.mailgunDomain = document.getElementById('mailgunDomain').value.trim();
+                    updates.smtpFrom = document.getElementById('mailgunFrom').value.trim() || 'noreply@medcloud.com';
+                    break;
+                case 'resend':
+                    updates.resendApiKey = document.getElementById('resendApiKey').value.trim();
+                    updates.smtpFrom = document.getElementById('resendFrom').value.trim() || 'noreply@medcloud.com';
+                    break;
+            }
+
+            MedCloudEmail.updateConfig(updates);
+            showToast('Configuração salva com sucesso!', 'success');
+        }
+
+        async function testConfig() {
+            const testEmail = document.getElementById('testEmail').value.trim();
+            const resultDiv = document.getElementById('testResult');
+
+            if (!testEmail || !testEmail.includes('@')) {
+                resultDiv.className = 'test-result error';
+                resultDiv.textContent = 'Digite um e-mail válido para teste.';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            // Save first
+            saveConfig();
+
+            resultDiv.className = 'test-result';
+            resultDiv.textContent = '⏳ Enviando e-mail de teste...';
+            resultDiv.style.display = 'block';
+
+            const result = await MedCloudEmail.testConfig(testEmail);
+
+            if (result.success) {
+                resultDiv.className = 'test-result success';
+                resultDiv.innerHTML = '✅ E-mail de teste enviado com sucesso! Verifique sua caixa de entrada.';
+            } else {
+                resultDiv.className = 'test-result error';
+                resultDiv.innerHTML = '❌ Falha ao enviar: ' + result.error;
+            }
+        }
+
+        // Load initial config
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedProvider = MedCloudEmail.getConfig().emailProvider || 'emailjs';
+            switchProvider(savedProvider);
+        });
+    </script>
+</body>
+
+</html>

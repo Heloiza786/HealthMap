@@ -1,58 +1,232 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
+/* ============================================
+   🏥 MedCloud — Home Page
+   ============================================ */
 
-
-body {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #aee7ec, #6dd5ed);
-}
-
-
-.container {
+.home-page {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background: var(--color-bg);
+}
+
+/* ── Header ── */
+.home-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+}
+
+.home-header-content {
+    max-width: var(--max-content-width);
+    margin: 0 auto;
+    padding: var(--spacing-md) var(--spacing-xl);
+    display: flex;
     align-items: center;
-    gap: 15px;
-    width: 300px;
-    padding: 30px;
-    border-radius: 12px;
-    background: white;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    justify-content: space-between;
 }
 
-
-.container h1 {
-    margin-bottom: 10px;
-    color: #333;
+.home-logo {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
 }
 
-
-.btn {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    background: #2c7a87;
-    color: white;
-    font-weight: bold;
-    transition: 0.3s;
+.home-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
 }
 
-/* HOVER */
-.btn:hover {
-    background: #2c7a87;
+/* ── Hero ── */
+.home-main {
+    flex: 1;
 }
 
-/* LINK SEM SUBLINHADO */
-a {
-    width: 100%;
-    text-decoration: none;
+.hero-section {
+    max-width: var(--max-content-width);
+    margin: 0 auto;
+    padding: var(--spacing-3xl) var(--spacing-xl);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2xl);
+    min-height: calc(100vh - 140px);
+}
+
+.hero-content {
+    flex: 1;
+}
+
+.hero-badge {
+    display: inline-block;
+    background: var(--color-primary-lightest);
+    color: var(--color-primary);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--spacing-lg);
+}
+
+.hero-title {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    line-height: var(--line-height-tight);
+    margin-bottom: var(--spacing-lg);
+    letter-spacing: -0.03em;
+}
+
+.hero-text {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--spacing-xl);
+}
+
+.hero-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+/* ── Hero Illustration ── */
+.hero-image {
+    flex-shrink: 0;
+}
+
+.hero-illustration {
+    width: 280px;
+    height: 280px;
+    background: linear-gradient(135deg, var(--color-primary-lightest), #E0F2FE);
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.ilustra-card {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+}
+
+.ilu-1 {
+    top: 40px;
+    left: 40px;
+    animation: float 3s ease-in-out infinite;
+}
+
+.ilu-2 {
+    top: 40px;
+    right: 40px;
+    animation: float 3s ease-in-out infinite 0.5s;
+}
+
+.ilu-3 {
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: float 3s ease-in-out infinite 1s;
+}
+
+/* ── Features ── */
+.features-section {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+}
+
+.features-grid {
+    max-width: var(--max-content-width);
+    margin: 0 auto;
+    padding: var(--spacing-2xl) var(--spacing-xl);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-xl);
+}
+
+.feature-card {
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.feature-card h3 {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-sm);
+}
+
+.feature-card p {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+}
+
+/* ── Footer ── */
+.home-footer {
+    text-align: center;
+    padding: var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    border-top: 1px solid var(--color-border);
+}
+
+/* ── Responsivo ── */
+@media (max-width: 768px) {
+    .hero-section {
+        flex-direction: column;
+        text-align: center;
+        padding: var(--spacing-2xl) var(--spacing-md);
+        min-height: auto;
+    }
+
+    .hero-title {
+        font-size: var(--font-size-3xl);
+    }
+
+    .hero-text br {
+        display: none;
+    }
+
+    .hero-actions {
+        justify-content: center;
+    }
+
+    .hero-image {
+        display: none;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: var(--font-size-2xl);
+    }
+
+    .hero-actions {
+        flex-direction: column;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+    }
 }

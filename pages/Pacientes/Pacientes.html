@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Pacientes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <link rel="stylesheet" href="../../styles/admin.css">
+    <link rel="stylesheet" href="../Dashboard/Dashboard.css">
+    <script src="../../js/data.js">
+    </script>
+    <script src="../../js/app.js">
+    </script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">🏥 MedCloud</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../Dashboard/Dashboard.html" class="sidebar-link">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="../ConsultasMed/ConsultasMed.html" class="sidebar-link">
+                    <span>📅</span> Consultas
+                </a>
+                <a href="Pacientes.html" class="sidebar-link active">
+                    <span>👥</span> Pacientes
+                </a>
+                <a href="../PerfilMed/PerfilMed.html" class="sidebar-link">
+                    <span>👤</span> Perfil
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../LoginInicial/LoginInicial.html" class="sidebar-link" onclick="MedCloud.logout()">
+                    <span>🚪</span> Sair
+                </a>
+            </div>
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <main class="dashboard-main">
+            <header class="dashboard-topbar">
+                <button class="btn btn-ghost menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menu">☰</button>
+                <div class="topbar-info">
+                    <span class="topbar-greeting" id="greeting">Pacientes</span>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" aria-label="Alternar tema">🌓</button>
+                    <div class="avatar" id="userAvatar">👤</div>
+                </div>
+            </header>
+
+            <div class="dashboard-content page-enter">
+                <div class="page-header">
+                    <div>
+                        <h1>Pacientes</h1>
+                        <p>Gerencie seus pacientes</p>
+                    </div>
+                    <div class="search-bar">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="searchPaciente" placeholder="Buscar por nome, email ou CPF..."
+                            oninput="filterPacientes()">
+                    </div>
+                </div>
+
+                <!-- Patient List -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Paciente</th>
+                                <th>CPF</th>
+                                <th>E-mail</th>
+                                <th>Telefone</th>
+                                <th>Consultas</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pacientesTableBody">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <div class="spinner"></div>
+                                    <p>Carregando...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-backdrop" id="detailBackdrop" onclick="closePacienteModal()"></div>
+    <div class="modal" id="detailModal">
+        <div class="modal-header">
+            <h3 class="modal-title" id="detailModalTitle">Detalhes do Paciente</h3>
+            <button class="btn btn-ghost btn-sm" onclick="closePacienteModal()">✕</button>
+        </div>
+        <div class="modal-body" id="detailModalBody">
+            <!-- Filled dynamically -->
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-backdrop" id="editBackdrop" onclick="closeEditModal()"></div>
+    <div class="modal" id="editModal">
+        <div class="modal-header">
+            <h3 class="modal-title">Editar Paciente</h3>
+            <button class="btn btn-ghost btn-sm" onclick="closeEditModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <form id="editPacienteForm" onsubmit="handleEditPaciente(event)">
+                <input type="hidden" id="editPacienteId">
+                <div class="input-group">
+                    <label class="input-label" for="editNome">Nome</label>
+                    <input type="text" id="editNome" class="input-field" required>
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="editEmail">E-mail</label>
+                    <input type="email" id="editEmail" class="input-field" required>
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="editTelefone">Telefone</label>
+                    <input type="text" id="editTelefone" class="input-field" required>
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="editCpf">CPF</label>
+                    <input type="text" id="editCpf" class="input-field" required disabled>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let currentPacienteId = null;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const user = requireAuth('medico');
+            if (!user) return;
+
+            document.getElementById('greeting').textContent = `Pacientes — ${user.nome.split(' ').slice(0, 2).join(' ')}`;
+            document.getElementById('userAvatar').textContent = user.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            renderPacientes();
+        });
+
+        function renderPacientes(list) {
+            const pacientes = list || MedCloud.getPacientes();
+            const tbody = document.getElementById('pacientesTableBody');
+
+            if (pacientes.length === 0) {
+                tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <div class="empty-icon">👥</div>
+                                    <p>Nenhum paciente encontrado.</p>
+                                </td>
+                            </tr>
+                        `;
+                return;
+            }
+
+            tbody.innerHTML = pacientes.map(p => {
+                const consultas = MedCloud.getConsultasByPaciente(p.id);
+                const totalCons = consultas.length;
+                return `
+                            <tr>
+                                <td>
+                                    <strong>${p.nome}</strong>
+                                </td>
+                                <td>${p.cpf}</td>
+                                <td>${p.email}</td>
+                                <td>${p.telefone}</td>
+                                <td>
+                                    <span class="badge badge-info">${totalCons} consulta(s)</span>
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="btn btn-sm btn-ghost" onclick="verPaciente('${p.id}')" title="Visualizar">👁️</button>
+                                        <button class="btn btn-sm btn-ghost" onclick="editarPaciente('${p.id}')" title="Editar">✏️</button>
+                                        <button class="btn btn-sm btn-ghost" onclick="verHistorico('${p.id}')" title="Histórico">📋</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+            }).join('');
+        }
+
+        function filterPacientes() {
+            const query = document.getElementById('searchPaciente').value;
+            if (!query.trim()) {
+                renderPacientes(MedCloud.getPacientes());
+                return;
+            }
+            const results = MedCloud.searchPacientes(query);
+            renderPacientes(results);
+        }
+
+        function verPaciente(id) {
+            const p = MedCloud.getPacienteById(id);
+            if (!p) return;
+
+            currentPacienteId = id;
+            document.getElementById('detailModalTitle').textContent = p.nome;
+
+            const consultas = MedCloud.getConsultasByPaciente(id);
+            const consultasHtml = consultas.length > 0 ? consultas.map(c => {
+                const medico = MedCloud.getMedicoById(c.medicoId);
+                return `
+                            <div class="email-log-entry">
+                                <span class="log-status ${c.status === 'concluida' ? 'sent' : c.status === 'cancelada' ? 'error' : 'pending'}"></span>
+                                <span><strong>${formatDate(c.data)}</strong> às ${c.hora} — ${medico ? medico.nome : 'Médico'} (${getStatusLabel(c.status)})</span>
+                            </div>
+                        `;
+            }).join('') : '<p class="text-muted text-sm">Nenhuma consulta registrada.</p>';
+
+            document.getElementById('detailModalBody').innerHTML = `
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Nome</label>
+                                <span>${p.nome}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>CPF</label>
+                                <span>${p.cpf}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>E-mail</label>
+                                <span>${p.email}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Telefone</label>
+                                <span>${p.telefone}</span>
+                            </div>
+                        </div>
+                        <hr style="margin: var(--spacing-lg) 0; border-color: var(--color-border-light);">
+                        <h4 style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); margin-bottom: var(--spacing-sm);">Histórico de Consultas</h4>
+                        <div style="display: flex; flex-direction: column; gap: var(--spacing-xs);">
+                            ${consultasHtml}
+                        </div>
+                    `;
+
+            document.getElementById('detailModal').classList.add('open');
+            document.getElementById('detailBackdrop').classList.add('active');
+        }
+
+        function closePacienteModal() {
+            document.getElementById('detailModal').classList.remove('open');
+            document.getElementById('detailBackdrop').classList.remove('active');
+        }
+
+        function editarPaciente(id) {
+            const p = MedCloud.getPacienteById(id);
+            if (!p) return;
+
+            document.getElementById('editPacienteId').value = p.id;
+            document.getElementById('editNome').value = p.nome;
+            document.getElementById('editEmail').value = p.email;
+            document.getElementById('editTelefone').value = p.telefone;
+            document.getElementById('editCpf').value = p.cpf;
+
+            document.getElementById('editModal').classList.add('open');
+            document.getElementById('editBackdrop').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('open');
+            document.getElementById('editBackdrop').classList.remove('active');
+        }
+
+        function handleEditPaciente(event) {
+            event.preventDefault();
+            const id = document.getElementById('editPacienteId').value;
+            const nome = document.getElementById('editNome').value.trim();
+            const email = document.getElementById('editEmail').value.trim();
+            const telefone = document.getElementById('editTelefone').value.trim();
+
+            const result = MedCloud.updatePaciente(id, { nome, email, telefone });
+            if (result) {
+                showToast('Paciente atualizado com sucesso!');
+                closeEditModal();
+                renderPacientes();
+            } else {
+                showToast('Erro ao atualizar paciente.', 'error');
+            }
+        }
+
+        function verHistorico(id) {
+            verPaciente(id);
+        }
+    </script>
+</body>
+
+</html>

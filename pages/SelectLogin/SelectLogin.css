@@ -1,81 +1,202 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
+/* ============================================
+   🏥 MedCloud — Seleção de Perfil
+   ============================================ */
 
-body {
-    height: 100vh;
-    background: #aaecf2;
+.select-page {
+    min-height: 100vh;
     display: flex;
-    justify-content: center;
     align-items: center;
-}
-
-.container {
-    display: flex;
-    width: 750px;
-    height: 350px;
-    border-radius: 10px;
-    overflow: hidden;
-    background: white;
-}
-
-
-.left {
-    width: 50%;
-    background: #2c7a87;
-    display: flex;
     justify-content: center;
-    align-items: center;
+    background: linear-gradient(135deg, var(--color-primary-lightest) 0%, var(--color-bg) 50%, #E0F2FE 100%);
+    padding: var(--spacing-md);
 }
 
-.left img {
-    width: 80%;
-    border-radius: 10px;
+.select-container {
+    width: 100%;
+    max-width: 640px;
+    background: var(--color-surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    padding: var(--spacing-2xl);
+    animation: fadeInUp var(--transition-slow) ease forwards;
 }
 
+/* ── Header ── */
+.select-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    position: relative;
+}
 
-.right {
-    width: 50%;
-    padding: 30px;
+.back-link {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    transition: color var(--transition-fast);
+}
+
+.back-link:hover {
+    color: var(--color-primary);
+}
+
+.select-logo {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.select-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xs);
+}
+
+.select-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+/* ── Profile Cards ── */
+.profile-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.profile-card {
+    background: var(--color-surface);
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-normal);
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-sm);
 }
 
-.right h2 {
+.profile-card:hover {
+    border-color: var(--color-primary);
+    background: var(--color-primary-lightest);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.profile-card:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.profile-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-xs);
+    transition: transform var(--transition-normal);
+}
+
+.profile-card:hover .profile-icon {
+    transform: scale(1.1);
+}
+
+.profile-name {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+}
+
+.profile-desc {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-normal);
+}
+
+.profile-action {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-primary);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: all var(--transition-normal);
+}
+
+.profile-card:hover .profile-action {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── Footer ── */
+.select-footer {
     text-align: center;
-    margin-bottom: 20px;
-    color: #333;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
 }
 
-
-.selectCargo {
-    background: #2c7a87;
-    padding: 15px;
-    border-radius: 8px;
+.login-link {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-semibold);
+    transition: color var(--transition-fast);
 }
 
-select {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    background: #ddd;
+.login-link:hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
 }
 
-/* BOTÃO */
-.btn {
-    margin-top: 15px;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background: #ccc;
+/* ── Responsivo ── */
+@media (max-width: 768px) {
+    .select-container {
+        padding: var(--spacing-xl);
+    }
+
+    .profile-cards {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+    }
+
+    .profile-card {
+        flex-direction: row;
+        text-align: left;
+        padding: var(--spacing-md);
+    }
+
+    .profile-icon {
+        font-size: 2rem;
+        margin-bottom: 0;
+    }
+
+    .profile-desc {
+        display: none;
+    }
+
+    .profile-action {
+        opacity: 1;
+        transform: none;
+        margin-left: auto;
+    }
+
+    .back-link {
+        position: static;
+        display: block;
+        text-align: left;
+        margin-bottom: var(--spacing-md);
+    }
 }
 
-.btn:hover {
-    background: #bbb;
+@media (max-width: 480px) {
+    .select-page {
+        padding: 0;
+    }
+
+    .select-container {
+        border-radius: 0;
+        min-height: 100vh;
+        box-shadow: none;
+        padding: var(--spacing-lg);
+    }
 }

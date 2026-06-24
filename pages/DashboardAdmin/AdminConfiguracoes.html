@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Configurações</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <link rel="stylesheet" href="../../styles/admin.css">
+    <link rel="stylesheet" href="../Dashboard/Dashboard.css">
+    <script src="../../js/data.js"></script>
+    <script src="../../js/app.js"></script>
+    <script src="../../js/email-service.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">🏥 MedCloud</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="DashboardAdmin.html" class="sidebar-link">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="AdminUsuarios.html" class="sidebar-link">
+                    <span>👥</span> Usuários
+                </a>
+                <a href="AdminMedicos.html" class="sidebar-link">
+                    <span>👨‍⚕️</span> Médicos
+                </a>
+                <a href="AdminPacientes.html" class="sidebar-link">
+                    <span>🙋</span> Pacientes
+                </a>
+                <a href="AdminConsultas.html" class="sidebar-link">
+                    <span>📅</span> Consultas
+                </a>
+                <a href="AdminNovoAgendamento.html" class="sidebar-link">
+                    <span>➕</span> Novo Agendamento
+                </a>
+                <a href="AdminRelatorios.html" class="sidebar-link">
+                    <span>📈</span> Relatórios
+                </a>
+                <a href="AdminConfiguracoes.html" class="sidebar-link active">
+                    <span>⚙️</span> Configurações
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../LoginInicial/LoginInicial.html" class="sidebar-link" onclick="MedCloud.logout()">
+                    <span>🚪</span> Sair
+                </a>
+            </div>
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <header class="dashboard-topbar">
+                <button class="btn btn-ghost menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menu">☰</button>
+                <div class="topbar-info">
+                    <span class="topbar-greeting" id="greeting">Configurações</span>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" aria-label="Alternar tema">🌓</button>
+                    <div class="avatar" id="userAvatar">👤</div>
+                </div>
+            </header>
+
+            <div class="dashboard-content page-enter">
+                <div class="page-header">
+                    <div>
+                        <h1>Configurações do Sistema</h1>
+                        <p>Gerencie as configurações gerais do MedCloud</p>
+                    </div>
+                </div>
+
+                <!-- Config Sections -->
+                <div class="settings-group">
+                    <h3>🔔 Notificações</h3>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Notificações por E-mail</span>
+                            <span class="setting-desc">Enviar e-mails de confirmação e lembretes de consultas</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notifyEmail" checked onchange="saveNotificationSettings()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Lembrete 24h antes</span>
+                            <span class="setting-desc">Enviar lembrete automático 24 horas antes da consulta</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notifyReminder24h" checked onchange="saveNotificationSettings()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Lembrete 1h antes</span>
+                            <span class="setting-desc">Enviar lembrete automático 1 hora antes da consulta</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notifyReminder1h" checked onchange="saveNotificationSettings()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Notificações no Sistema</span>
+                            <span class="setting-desc">Exibir notificações visuais dentro do sistema</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notifySystem" checked onchange="saveNotificationSettings()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3>📧 Configuração de E-mail</h3>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Provedor de E-mail</span>
+                            <span class="setting-desc">Selecione o serviço de envio de e-mails</span>
+                        </div>
+                        <select id="emailProvider" class="select-field" style="width: auto;"
+                            onchange="saveEmailConfig()">
+                            <option value="emailjs">EmailJS</option>
+                            <option value="smtp">SMTP (Backend)</option>
+                            <option value="sendgrid">SendGrid</option>
+                            <option value="mailgun">Mailgun</option>
+                            <option value="resend">Resend</option>
+                        </select>
+                    </div>
+                    <div class="setting-item"
+                        style="flex-direction: column; align-items: stretch; gap: var(--spacing-md);">
+                        <div class="setting-info">
+                            <span class="setting-label">E-mail de Confirmação Padrão</span>
+                            <span class="setting-desc">E-mail pré-preenchido no campo de confirmação de
+                                agendamentos</span>
+                        </div>
+                        <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
+                            <input type="email" id="defaultEmail" class="input-field"
+                                value="heloizacustodio089@gmail.com" style="flex: 1; max-width: 400px;">
+                            <button class="btn btn-primary btn-sm" onclick="saveDefaultEmail()">Salvar</button>
+                        </div>
+                    </div>
+                    <div class="setting-item"
+                        style="flex-direction: column; align-items: stretch; gap: var(--spacing-md);">
+                        <div class="setting-info">
+                            <span class="setting-label">Testar Envio de E-mail</span>
+                            <span class="setting-desc">Envie um e-mail de teste para verificar a configuração</span>
+                        </div>
+                        <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
+                            <input type="email" id="testEmail" class="input-field" placeholder="email@teste.com"
+                                style="flex: 1; max-width: 400px;">
+                            <button class="btn btn-secondary btn-sm" onclick="testEmailConfig()">Enviar Teste</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3>👤 Dados do Administrador</h3>
+                    <form id="adminProfileForm" onsubmit="handleUpdateAdmin(event)">
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-md);">
+                            <div class="input-group">
+                                <label class="input-label" for="adminNome">Nome</label>
+                                <input type="text" id="adminNome" class="input-field" required>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label" for="adminEmail">E-mail</label>
+                                <input type="email" id="adminEmail" class="input-field" required>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label" for="adminSenha">Nova Senha</label>
+                                <input type="text" id="adminSenha" class="input-field"
+                                    placeholder="Deixe em branco para manter">
+                                <span class="input-help">Preencha apenas se quiser alterar a senha</span>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top: var(--spacing-md);">Salvar
+                            Alterações</button>
+                    </form>
+                </div>
+
+                <div class="settings-group">
+                    <h3>🗄️ Dados do Sistema</h3>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Total de Consultas Registradas</span>
+                            <span class="setting-desc" id="totalConsultasInfo">—</span>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Médicos Cadastrados</span>
+                            <span class="setting-desc" id="totalMedicosInfo">—</span>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Pacientes Cadastrados</span>
+                            <span class="setting-desc" id="totalPacientesInfo">—</span>
+                        </div>
+                    </div>
+                    <div class="setting-item" style="border-bottom: none; padding-bottom: 0;">
+                        <div class="setting-info">
+                            <span class="setting-label">E-mails Enviados</span>
+                            <span class="setting-desc" id="totalEmailsInfo">—</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: var(--spacing-lg); display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="exportarDados()">📥 Exportar Dados</button>
+                        <button class="btn btn-danger" onclick="resetarDados()">⚠️ Resetar Dados</button>
+                    </div>
+                </div>
+
+                <!-- Email Log -->
+                <div class="settings-group">
+                    <h3>📋 Histórico de E-mails</h3>
+                    <div id="emailLogContainer">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            <p>Carregando...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const user = requireAuth('admin');
+            if (!user) return;
+
+            document.getElementById('greeting').textContent = `Configurações — ${user.nome}`;
+            document.getElementById('userAvatar').textContent = user.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            loadSettings();
+            loadEmailLog();
+            loadSystemInfo();
+        });
+
+        function loadSettings() {
+            // Load notification settings
+            const settings = MedCloud.getNotificationSettings();
+            if (settings) {
+                document.getElementById('notifyEmail').checked = settings.email !== false;
+                document.getElementById('notifyReminder24h').checked = settings.reminder24h !== false;
+                document.getElementById('notifyReminder1h').checked = settings.reminder1h !== false;
+                document.getElementById('notifySystem').checked = settings.system !== false;
+            }
+
+            // Load admin profile
+            const admin = MedCloud.getAdministradores();
+            if (admin && admin.length > 0) {
+                document.getElementById('adminNome').value = admin[0].nome || '';
+                document.getElementById('adminEmail').value = admin[0].email || '';
+            }
+
+            // Load email provider
+            const savedProvider = localStorage.getItem('medcloud_email_provider');
+            if (savedProvider) {
+                document.getElementById('emailProvider').value = savedProvider;
+            }
+
+            // Load default email
+            const savedEmail = localStorage.getItem('medcloud_default_email');
+            if (savedEmail) {
+                document.getElementById('defaultEmail').value = savedEmail;
+            }
+        }
+
+        function saveNotificationSettings() {
+            const settings = {
+                email: document.getElementById('notifyEmail').checked,
+                reminder24h: document.getElementById('notifyReminder24h').checked,
+                reminder1h: document.getElementById('notifyReminder1h').checked,
+                system: document.getElementById('notifySystem').checked,
+            };
+
+            MedCloud.updateNotificationSettings(settings);
+            showToast('Configurações de notificação salvas!');
+        }
+
+        function saveEmailConfig() {
+            const provider = document.getElementById('emailProvider').value;
+            localStorage.setItem('medcloud_email_provider', provider);
+
+            if (MedCloudEmail && MedCloudEmail.updateConfig) {
+                MedCloudEmail.updateConfig({ provider: provider });
+            }
+
+            showToast('Provedor de e-mail atualizado!');
+        }
+
+        function saveDefaultEmail() {
+            const email = document.getElementById('defaultEmail').value.trim();
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showToast('Informe um e-mail válido.', 'error');
+                return;
+            }
+            localStorage.setItem('medcloud_default_email', email);
+            showToast('E-mail padrão salvo!');
+        }
+
+        async function testEmailConfig() {
+            const testTo = document.getElementById('testEmail').value.trim();
+            if (!testTo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(testTo)) {
+                showToast('Informe um e-mail de destino válido.', 'error');
+                return;
+            }
+
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+
+            try {
+                if (MedCloudEmail && MedCloudEmail.testConfig) {
+                    const result = await MedCloudEmail.testConfig(testTo);
+                    if (result.success) {
+                        showToast('E-mail de teste enviado com sucesso!');
+                    } else {
+                        showToast('Falha ao enviar: ' + (result.error || 'Erro desconhecido'), 'error');
+                    }
+                } else {
+                    showToast('Serviço de e-mail não disponível.', 'error');
+                }
+            } catch (err) {
+                showToast('Erro ao testar e-mail.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Enviar Teste';
+            }
+        }
+
+        function handleUpdateAdmin(event) {
+            event.preventDefault();
+
+            const nome = document.getElementById('adminNome').value.trim();
+            const email = document.getElementById('adminEmail').value.trim();
+            const senha = document.getElementById('adminSenha').value.trim();
+
+            if (!nome || !email) {
+                showToast('Nome e e-mail são obrigatórios.', 'error');
+                return;
+            }
+
+            // Update admin in localStorage data
+            const data = MedCloud.getAdministradores();
+            if (data && data.length > 0) {
+                data[0].nome = nome;
+                data[0].email = email;
+                if (senha) {
+                    data[0].senha = senha;
+                }
+                // Save back - we need to access the internal data
+                try {
+                    // Use the MedCloud internal save mechanism
+                    const rawData = JSON.parse(localStorage.getItem('medcloud_data'));
+                    if (rawData && rawData.administradores) {
+                        rawData.administradores[0].nome = nome;
+                        rawData.administradores[0].email = email;
+                        if (senha) {
+                            rawData.administradores[0].senha = senha;
+                        }
+                        localStorage.setItem('medcloud_data', JSON.stringify(rawData));
+                    }
+                } catch (e) {
+                    console.error('Error saving admin data:', e);
+                }
+            }
+
+            showToast('Dados do administrador atualizados!');
+            document.getElementById('adminSenha').value = '';
+        }
+
+        function loadEmailLog() {
+            const container = document.getElementById('emailLogContainer');
+
+            try {
+                const rawData = JSON.parse(localStorage.getItem('medcloud_data'));
+                const log = (rawData && rawData.emailLog) || [];
+
+                if (log.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📧</div>
+                            <p>Nenhum e-mail enviado ainda.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const recentLog = log.slice(-20).reverse();
+
+                container.innerHTML = recentLog.map(entry => `
+                    <div class="email-log-entry">
+                        <span class="log-status ${entry.status || 'sent'}"></span>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: var(--font-weight-medium); font-size: var(--font-size-sm); color: var(--color-text);">${entry.to || '—'}</div>
+                            <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary);">${entry.subject || '—'}</div>
+                        </div>
+                        <span style="font-size: var(--font-size-xs); color: var(--color-text-muted); white-space: nowrap;">${entry.timestamp ? new Date(entry.timestamp).toLocaleString('pt-BR') : '—'}</span>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📧</div>
+                        <p>Erro ao carregar histórico.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function loadSystemInfo() {
+            const stats = MedCloud.getStatsAdmin();
+            document.getElementById('totalConsultasInfo').textContent = stats.totalConsultas + ' consultas';
+            document.getElementById('totalMedicosInfo').textContent = stats.totalMedicos + ' médicos';
+            document.getElementById('totalPacientesInfo').textContent = stats.totalPacientes + ' pacientes';
+
+            try {
+                const rawData = JSON.parse(localStorage.getItem('medcloud_data'));
+                const emailLog = (rawData && rawData.emailLog) || [];
+                document.getElementById('totalEmailsInfo').textContent = emailLog.length + ' e-mails';
+            } catch (e) {
+                document.getElementById('totalEmailsInfo').textContent = '—';
+            }
+        }
+
+        function exportarDados() {
+            try {
+                const rawData = localStorage.getItem('medcloud_data');
+                if (!rawData) {
+                    showToast('Nenhum dado para exportar.', 'error');
+                    return;
+                }
+
+                const blob = new Blob([rawData], { type: 'application/json' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `medcloud-backup-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+
+                showToast('Dados exportados com sucesso!');
+            } catch (e) {
+                showToast('Erro ao exportar dados.', 'error');
+            }
+        }
+
+        function resetarDados() {
+            if (!confirm('⚠️ TEM CERTEZA? Esta ação irá REMOVER TODOS OS DADOS do sistema (consultas, médicos, pacientes) e restaurar os dados padrão. Esta ação não pode ser desfeita!')) {
+                return;
+            }
+
+            if (!confirm('Confirme novamente: deseja realmente resetar todos os dados?')) {
+                return;
+            }
+
+            MedCloud.resetData();
+            showToast('Dados resetados para o padrão!');
+            loadEmailLog();
+            loadSystemInfo();
+        }
+    </script>
+</body>
+
+</html>

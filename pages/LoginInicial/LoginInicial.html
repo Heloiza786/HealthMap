@@ -3,52 +3,186 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
     <link rel="stylesheet" href="LoginInicial.css">
+    <script src="../../js/data.js"></script>
+    <script src="../../js/app.js"></script>
+    <script src="../../js/email-service.js"></script>
+    <script src="../../js/notification-worker.js"></script>
 </head>
 
 <body>
-
-    <div class="container">
-
-        <div class="left">
-            <img src="C:\Users\User\OneDrive\Documentos\facul helo\testeFrontHtml\images\image.png" alt="Médica">
-        </div>
-
-
-        <div class="right">
-            <h2>Login</h2>
-
-            <div class="input-group">
-                <input type="text" id="email" placeholder="Login">
+    <div class="login-page">
+        <div class="login-container">
+            <div class="login-illustration">
+                <div class="illustration-content">
+                    <div class="illustration-badge">🏥</div>
+                    <h1 class="illustration-title">MedCloud</h1>
+                    <p class="illustration-text">Sua saúde em boas mãos. Agende consultas com os melhores profissionais.
+                    </p>
+                    <div class="illustration-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Agendamento rápido</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Médicos especialistas</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Acompanhamento digital</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="input-group">
-                <input type="password" id="senha" placeholder="Senha">
+            <div class="login-form">
+                <div class="form-header">
+                    <div class="form-logo">🏥 MedCloud</div>
+                    <h2 class="form-title">Entrar</h2>
+                    <p class="form-subtitle">Acesse sua conta para continuar</p>
+                </div>
+
+                <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+                    <div class="input-group">
+                        <label for="email" class="input-label">E-mail</label>
+                        <input type="email" id="email" class="input-field" placeholder="seu@email.com" required
+                            autocomplete="email">
+                        <span class="input-error" id="emailError"></span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="senha" class="input-label">Senha</label>
+                        <input type="password" id="senha" class="input-field" placeholder="Sua senha" required
+                            autocomplete="current-password">
+                        <span class="input-error" id="senhaError"></span>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="lembrar">
+                            <span>Lembrar-me</span>
+                        </label>
+                        <a href="../EsqueciSenha/EsqueciSenha.html" class="forgot-link">Esqueci a
+                            senha</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full btn-lg">
+                        Entrar
+                    </button>
+                </form>
+
+                <div class="form-footer">
+                    <span>Não tem uma conta?</span>
+                    <a href="../SelectLogin/SelectLogin.html" class="register-link">Cadastre-se</a>
+                </div>
+
+                <div class="form-divider">
+                    <span>ou</span>
+                </div>
+
+                <div class="demo-accounts">
+                    <p class="demo-title">Contas de demonstração:</p>
+                    <button type="button" class="btn btn-ghost btn-sm"
+                        onclick="fillDemo('admin@medcloud.com', 'admin123')">
+                        🔧 Administrador
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="fillDemo('medico@gmail.com', '123')">
+                        👨‍⚕️ Médico
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="fillDemo('paciente@gmail.com', '123')">
+                        🙋 Paciente
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-sm"
+                        onclick="fillDemo('invalido@teste.com', 'errado')">
+                        🔑 Testar inválido
+                    </button>
+                </div>
+
+                <div class="form-divider">
+                    <span>admin</span>
+                </div>
+
+                <div class="demo-accounts" style="justify-content: center;">
+                    <a href="../ConfigEmail/ConfigEmail.html" class="btn btn-ghost btn-sm">⚙️ Configurar E-mail</a>
+                    <a href="../EmailLog/EmailLog.html" class="btn btn-ghost btn-sm">📋 Log de E-mails</a>
+                    <a href="../../tests/run-tests.html" class="btn btn-ghost btn-sm">🧪 Testes</a>
+                </div>
             </div>
-
-            <button onclick="logar()" class="btn">Continuar</button>
-
-            <div class="btn">esqueci a senha</div>
         </div>
     </div>
+
     <script>
-        function logar() {
-            var email = document.getElementById('email').value;
-            var senha = document.getElementById('senha').value;
+        function handleLogin(event) {
+            event.preventDefault();
 
-            if (email === "medico@gmail.com" && senha === "123") {
-                window.location.href = "../Dashboard/Dashboard.html";
+            const email = document.getElementById('email').value.trim();
+            const senha = document.getElementById('senha').value.trim();
+            const emailError = document.getElementById('emailError');
+            const senhaError = document.getElementById('senhaError');
+            const emailInput = document.getElementById('email');
+            const senhaInput = document.getElementById('senha');
 
-            } else if (email === "paciente@gmail.com" && senha === "123") {
-                window.location.href = "../DashboardPac/DashboardPac.html";
+            // Reset errors
+            emailError.textContent = '';
+            senhaError.textContent = '';
+            emailInput.classList.remove('error');
+            senhaInput.classList.remove('error');
 
+            // Validation
+            let hasError = false;
+
+            if (!email) {
+                emailError.textContent = 'O e-mail é obrigatório';
+                emailInput.classList.add('error');
+                hasError = true;
+            } else if (!email.includes('@')) {
+                emailError.textContent = 'Insira um e-mail válido';
+                emailInput.classList.add('error');
+                hasError = true;
+            }
+
+            if (!senha) {
+                senhaError.textContent = 'A senha é obrigatória';
+                senhaInput.classList.add('error');
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            // Login via MedCloud data layer
+            const result = MedCloud.login(email, senha);
+            if (result.success) {
+                if (result.user.tipo === 'admin') {
+                    window.location.href = '../DashboardAdmin/DashboardAdmin.html';
+                } else if (result.user.tipo === 'medico') {
+                    window.location.href = '../Dashboard/Dashboard.html';
+                } else {
+                    window.location.href = '../DashboardPac/DashboardPac.html';
+                }
             } else {
-                window.location.href = "../HomeSec/HomeSec.html";
+                senhaError.textContent = result.error;
+                senhaInput.classList.add('error');
+                emailInput.classList.add('error');
             }
         }
-    </script>
 
+        function fillDemo(email, senha) {
+            document.getElementById('email').value = email;
+            document.getElementById('senha').value = senha;
+            document.getElementById('email').classList.add('success');
+            document.getElementById('senha').classList.add('success');
+        }
+    </script>
 </body>
 
 </html>

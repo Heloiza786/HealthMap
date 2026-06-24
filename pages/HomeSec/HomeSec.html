@@ -3,24 +3,82 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
     <link rel="stylesheet" href="HomeSec.css">
 </head>
 
 <body>
+    <div class="home-page">
+        <header class="home-header">
+            <div class="home-header-content">
+                <div class="home-logo">🏥 MedCloud</div>
+                <nav class="home-nav">
+                    <a href="../LoginInicial/LoginInicial.html" class="btn btn-ghost">Entrar</a>
+                    <a href="../SelectLogin/SelectLogin.html" class="btn btn-primary">Cadastre-se</a>
+                </nav>
+            </div>
+        </header>
 
-    <div class="container">
-        <h1>Você precisa?</h1>
+        <main class="home-main">
+            <section class="hero-section">
+                <div class="hero-content animate-fade-in-up">
+                    <span class="hero-badge">🏥 Saúde Digital</span>
+                    <h1 class="hero-title">Sua saúde em<br>boas mãos</h1>
+                    <p class="hero-text">
+                        Agende consultas com os melhores profissionais, acompanhe seus<br>
+                        atendimentos e gerencie sua saúde de forma simples e digital.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="../SelectLogin/SelectLogin.html" class="btn btn-primary btn-lg">
+                            Criar uma conta
+                        </a>
+                        <a href="../TypeMedicalCons/TypeMedicalCons.html" class="btn btn-secondary btn-lg">
+                            Agendar Consulta
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-image animate-float">
+                    <div class="hero-illustration">
+                        <div class="ilustra-card ilu-1">👨‍⚕️</div>
+                        <div class="ilustra-card ilu-2">📅</div>
+                        <div class="ilustra-card ilu-3">❤️</div>
+                    </div>
+                </div>
+            </section>
 
-        <a href="../SelectLogin/SelectLogin.html">
-            <button class="btn">Criar uma conta</button>
-        </a>
+            <section class="features-section">
+                <div class="features-grid">
+                    <div class="feature-card stagger-children">
+                        <div class="feature-icon">📅</div>
+                        <h3>Agendamento Fácil</h3>
+                        <p>Marque consultas de forma rápida e intuitiva, sem burocracia.</p>
+                    </div>
+                    <div class="feature-card stagger-children">
+                        <div class="feature-icon">👨‍⚕️</div>
+                        <h3>Profissionais</h3>
+                        <p>Rede de médicos especialistas prontos para atender você.</p>
+                    </div>
+                    <div class="feature-card stagger-children">
+                        <div class="feature-icon">📊</div>
+                        <h3>Acompanhamento</h3>
+                        <p>Histórico completo de consultas e exames sempre disponível.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
 
-        <a href="../TypeMedicalCons/TypeMedicalCons.html">
-            <button class="btn">Registrar Consulta</button>
-        </a>
+        <footer class="home-footer">
+            <p>© 2026 MedCloud. Todos os direitos reservados.</p>
+        </footer>
     </div>
-
 </body>
 
 </html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Usuários</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <link rel="stylesheet" href="../../styles/admin.css">
+    <link rel="stylesheet" href="../Dashboard/Dashboard.css">
+    <script src="../../js/data.js"></script>
+    <script src="../../js/app.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">🏥 MedCloud</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="DashboardAdmin.html" class="sidebar-link">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="AdminUsuarios.html" class="sidebar-link active">
+                    <span>👥</span> Usuários
+                </a>
+                <a href="AdminMedicos.html" class="sidebar-link">
+                    <span>👨‍⚕️</span> Médicos
+                </a>
+                <a href="AdminPacientes.html" class="sidebar-link">
+                    <span>🙋</span> Pacientes
+                </a>
+                <a href="AdminConsultas.html" class="sidebar-link">
+                    <span>📅</span> Consultas
+                </a>
+                <a href="AdminNovoAgendamento.html" class="sidebar-link">
+                    <span>➕</span> Novo Agendamento
+                </a>
+                <a href="AdminRelatorios.html" class="sidebar-link">
+                    <span>📈</span> Relatórios
+                </a>
+                <a href="AdminConfiguracoes.html" class="sidebar-link">
+                    <span>⚙️</span> Configurações
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../LoginInicial/LoginInicial.html" class="sidebar-link" onclick="MedCloud.logout()">
+                    <span>🚪</span> Sair
+                </a>
+            </div>
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <main class="dashboard-main">
+            <header class="dashboard-topbar">
+                <button class="btn btn-ghost menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menu">☰</button>
+                <div class="topbar-info">
+                    <span class="topbar-greeting" id="greeting">Usuários</span>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" aria-label="Alternar tema">🌓</button>
+                    <div class="avatar" id="userAvatar">👤</div>
+                </div>
+            </header>
+
+            <div class="dashboard-content page-enter">
+                <div class="page-header">
+                    <div>
+                        <h1>Gestão de Usuários</h1>
+                        <p>Gerencie médicos e pacientes do sistema</p>
+                    </div>
+                    <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="openCriarMedico()">+ Novo Médico</button>
+                        <button class="btn btn-secondary" onclick="openCriarPaciente()">+ Novo Paciente</button>
+                    </div>
+                </div>
+
+                <!-- User Type Tabs -->
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all" onclick="filterUsers('all')">Todos</button>
+                    <button class="filter-tab" data-filter="medicos" onclick="filterUsers('medicos')">Médicos</button>
+                    <button class="filter-tab" data-filter="pacientes"
+                        onclick="filterUsers('pacientes')">Pacientes</button>
+                </div>
+
+                <!-- Search -->
+                <div class="search-bar" style="margin-bottom: var(--spacing-lg); max-width: 100%;">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchUser" placeholder="Buscar por nome, email ou CPF/CRM..."
+                        oninput="filterUsers(currentFilter)">
+                </div>
+
+                <!-- Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Tipo</th>
+                                <th>E-mail</th>
+                                <th>Documento</th>
+                                <th>Telefone</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <div class="spinner"></div>
+                                    <p>Carregando...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Criar Médico -->
+    <div class="modal-backdrop" id="criarMedicoBackdrop" onclick="closeModal('criarMedicoModal')"></div>
+    <div class="modal" id="criarMedicoModal">
+        <div class="modal-header">
+            <h3 class="modal-title">Cadastrar Médico</h3>
+            <button class="btn btn-ghost btn-sm" onclick="closeModal('criarMedicoModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <form id="criarMedicoForm" onsubmit="handleCriarMedico(event)">
+                <div class="input-group">
+                    <label class="input-label" for="medNome">Nome completo</label>
+                    <input type="text" id="medNome" class="input-field" required placeholder="Dr. Nome">
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="medEmail">E-mail</label>
+                    <input type="email" id="medEmail" class="input-field" required placeholder="medico@email.com">
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="medCrm">CRM</label>
+                    <input type="text" id="medCrm" class="input-field" required placeholder="123456-SP">
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="medEspecialidade">Especialidade</label>
+                    <select id="medEspecialidade" class="select-field" required>
+                        <option value="">Selecione...</option>
+                        <option value="Ortopedia">Ortopedia</option>
+                        <option value="Dermatologia">Dermatologia</option>
+                        <option value="Cardiologia">Cardiologia</option>
+                        <option value="Clínico Geral">Clínico Geral</option>
+                        <option value="Pediatria">Pediatria</option>
+                        <option value="Ginecologia">Ginecologia</option>
+                        <option value="Neurologia">Neurologia</option>
+                        <option value="Oftalmologia">Oftalmologia</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="medTelefone">Telefone</label>
+                    <input type="text" id="medTelefone" class="input-field" placeholder="(11) 99999-0000">
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="medSenha">Senha</label>
+                    <input type="text" id="medSenha" class="input-field" value="123" required>
+                    <span class="input-help">Senha padrão: 123</span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Cadastrar Médico</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Criar Paciente -->
+    <div class="modal-backdrop" id="criarPacienteBackdrop" onclick="closeModal('criarPacienteModal')"></div>
+    <div class="modal" id="criarPacienteModal">
+        <div class="modal-header">
+            <h3 class="modal-title">Cadastrar Paciente</h3>
+            <button class="btn btn-ghost btn-sm" onclick="closeModal('criarPacienteModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <form id="criarPacienteForm" onsubmit="handleCriarPaciente(event)">
+                <div class="input-group">
+                    <label class="input-label" for="pacNome">Nome completo</label>
+                    <input type="text" id="pacNome" class="input-field" required placeholder="Nome do paciente">
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="pacEmail">E-mail</label>
+                    <input type="email" id="pacEmail" class="input-field" required placeholder="paciente@email.com">
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="pacCpf">CPF</label>
+                    <input type="text" id="pacCpf" class="input-field" required placeholder="000.000.000-00">
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="pacTelefone">Telefone</label>
+                    <input type="text" id="pacTelefone" class="input-field" placeholder="(11) 99999-0000">
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="pacSenha">Senha</label>
+                    <input type="text" id="pacSenha" class="input-field" value="123" required>
+                    <span class="input-help">Senha padrão: 123</span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Cadastrar Paciente</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let currentFilter = 'all';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const user = requireAuth('admin');
+            if (!user) return;
+
+            document.getElementById('greeting').textContent = `Usuários — ${user.nome}`;
+            document.getElementById('userAvatar').textContent = user.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            renderUsers();
+        });
+
+        function renderUsers(list) {
+            const tbody = document.getElementById('usersTableBody');
+
+            let users = list || getAllUsers();
+
+            if (users.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <div class="empty-icon">👥</div>
+                            <p>Nenhum usuário encontrado.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = users.map(u => {
+                const tipoLabel = u._tipo === 'medico' ? 'Médico' : 'Paciente';
+                const documento = u._tipo === 'medico' ? (u.crm || '—') : (u.cpf || '—');
+                const ativo = u.ativo !== false;
+                return `
+                    <tr>
+                        <td><strong>${u.nome}</strong></td>
+                        <td><span class="badge ${u._tipo === 'medico' ? 'badge-info' : 'badge-success'}">${tipoLabel}</span></td>
+                        <td>${u.email}</td>
+                        <td>${documento}</td>
+                        <td>${u.telefone || '—'}</td>
+                        <td><span class="badge ${ativo ? 'badge-success' : 'badge-error'}">${ativo ? 'Ativo' : 'Inativo'}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-sm btn-ghost" onclick="editarUsuario('${u.id}', '${u._tipo}')" title="Editar">✏️</button>
+                                ${ativo ? `
+                                    <button class="btn btn-sm btn-ghost" onclick="desativarUsuario('${u.id}', '${u._tipo}')" title="Desativar">🚫</button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function getAllUsers() {
+            const medicos = MedCloud.getMedicos().map(m => ({ ...m, _tipo: 'medico' }));
+            const pacientes = MedCloud.getPacientes().map(p => ({ ...p, _tipo: 'paciente' }));
+            return [...medicos, ...pacientes];
+        }
+
+        function filterUsers(filter) {
+            currentFilter = filter;
+
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.filter === filter);
+            });
+
+            let users = getAllUsers();
+
+            if (filter === 'medicos') {
+                users = users.filter(u => u._tipo === 'medico');
+            } else if (filter === 'pacientes') {
+                users = users.filter(u => u._tipo === 'paciente');
+            }
+
+            const query = document.getElementById('searchUser').value.toLowerCase().trim();
+            if (query) {
+                users = users.filter(u =>
+                    u.nome.toLowerCase().includes(query) ||
+                    u.email.toLowerCase().includes(query) ||
+                    (u.cpf && u.cpf.includes(query)) ||
+                    (u.crm && u.crm.toLowerCase().includes(query))
+                );
+            }
+
+            renderUsers(users);
+        }
+
+        function openCriarMedico() {
+            document.getElementById('criarMedicoForm').reset();
+            document.getElementById('criarMedicoModal').classList.add('open');
+            document.getElementById('criarMedicoBackdrop').classList.add('active');
+        }
+
+        function openCriarPaciente() {
+            document.getElementById('criarPacienteForm').reset();
+            document.getElementById('criarPacienteModal').classList.add('open');
+            document.getElementById('criarPacienteBackdrop').classList.add('active');
+        }
+
+        function handleCriarMedico(event) {
+            event.preventDefault();
+            const dados = {
+                nome: document.getElementById('medNome').value.trim(),
+                email: document.getElementById('medEmail').value.trim(),
+                crm: document.getElementById('medCrm').value.trim(),
+                especialidade: document.getElementById('medEspecialidade').value,
+                telefone: document.getElementById('medTelefone').value.trim(),
+                senha: document.getElementById('medSenha').value.trim(),
+            };
+
+            const result = MedCloud.criarMedico(dados);
+            if (result.success) {
+                showToast('Médico cadastrado com sucesso!');
+                closeModal('criarMedicoModal');
+                filterUsers(currentFilter);
+            } else {
+                showToast(result.error || 'Erro ao cadastrar médico.', 'error');
+            }
+        }
+
+        function handleCriarPaciente(event) {
+            event.preventDefault();
+            const dados = {
+                nome: document.getElementById('pacNome').value.trim(),
+                email: document.getElementById('pacEmail').value.trim(),
+                cpf: document.getElementById('pacCpf').value.trim(),
+                telefone: document.getElementById('pacTelefone').value.trim(),
+                senha: document.getElementById('pacSenha').value.trim(),
+            };
+
+            const result = MedCloud.criarPaciente(dados);
+            if (result.success) {
+                showToast('Paciente cadastrado com sucesso!');
+                closeModal('criarPacienteModal');
+                filterUsers(currentFilter);
+            } else {
+                showToast(result.error || 'Erro ao cadastrar paciente.', 'error');
+            }
+        }
+
+        function editarUsuario(id, tipo) {
+            if (tipo === 'medico') {
+                const m = MedCloud.getMedicoById(id);
+                if (!m) return;
+                document.getElementById('medNome').value = m.nome;
+                document.getElementById('medEmail').value = m.email;
+                document.getElementById('medCrm').value = m.crm || '';
+                document.getElementById('medEspecialidade').value = m.especialidade || '';
+                document.getElementById('medTelefone').value = m.telefone || '';
+                document.getElementById('medSenha').value = m.senha || '123';
+                openCriarMedico();
+                // Override form handler for edit
+                const form = document.getElementById('criarMedicoForm');
+                form.onsubmit = function (e) {
+                    e.preventDefault();
+                    const updates = {
+                        nome: document.getElementById('medNome').value.trim(),
+                        email: document.getElementById('medEmail').value.trim(),
+                        crm: document.getElementById('medCrm').value.trim(),
+                        especialidade: document.getElementById('medEspecialidade').value,
+                        telefone: document.getElementById('medTelefone').value.trim(),
+                        senha: document.getElementById('medSenha').value.trim(),
+                    };
+                    MedCloud.updateMedico(id, updates);
+                    showToast('Médico atualizado!');
+                    closeModal('criarMedicoModal');
+                    form.onsubmit = handleCriarMedico;
+                    filterUsers(currentFilter);
+                };
+            } else {
+                const p = MedCloud.getPacienteById(id);
+                if (!p) return;
+                document.getElementById('pacNome').value = p.nome;
+                document.getElementById('pacEmail').value = p.email;
+                document.getElementById('pacCpf').value = p.cpf || '';
+                document.getElementById('pacTelefone').value = p.telefone || '';
+                document.getElementById('pacSenha').value = p.senha || '123';
+                openCriarPaciente();
+                const form = document.getElementById('criarPacienteForm');
+                form.onsubmit = function (e) {
+                    e.preventDefault();
+                    const updates = {
+                        nome: document.getElementById('pacNome').value.trim(),
+                        email: document.getElementById('pacEmail').value.trim(),
+                        cpf: document.getElementById('pacCpf').value.trim(),
+                        telefone: document.getElementById('pacTelefone').value.trim(),
+                        senha: document.getElementById('pacSenha').value.trim(),
+                    };
+                    MedCloud.updatePaciente(id, updates);
+                    showToast('Paciente atualizado!');
+                    closeModal('criarPacienteModal');
+                    form.onsubmit = handleCriarPaciente;
+                    filterUsers(currentFilter);
+                };
+            }
+        }
+
+        function desativarUsuario(id, tipo) {
+            const label = tipo === 'medico' ? 'médico' : 'paciente';
+            if (!confirm(`Tem certeza que deseja desativar este ${label}?`)) return;
+
+            let result;
+            if (tipo === 'medico') {
+                result = MedCloud.desativarMedico(id);
+            } else {
+                result = MedCloud.desativarPaciente(id);
+            }
+
+            if (result.success) {
+                showToast(`${label.charAt(0).toUpperCase() + label.slice(1)} desativado.`, 'warning');
+                filterUsers(currentFilter);
+            } else {
+                showToast(result.error, 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>

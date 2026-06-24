@@ -1,87 +1,79 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
+/* ============================================
+   🏥 MedCloud — Agendamento de Consulta
+   ============================================ */
 
-body {
-    height: 100vh;
-    background: linear-gradient(135deg, #aee7ec, #6dd5ed);
+.appointment-page {
+    min-height: 100vh;
     display: flex;
+    align-items: center;
     justify-content: center;
-    align-items: center;
+    background: linear-gradient(135deg, var(--color-primary-lightest) 0%, var(--color-bg) 50%, #E0F2FE 100%);
+    padding: var(--spacing-md);
 }
 
-
-.container {
-    width: 350px;
-    padding: 25px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-
-.center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-
-.center h2 {
-    margin-bottom: 20px;
-    color: #333;
-}
-
-
-.input-group {
+.appointment-container {
     width: 100%;
-    margin-bottom: 12px;
+    max-width: 480px;
+    background: var(--color-surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    padding: var(--spacing-2xl);
+    animation: fadeInUp var(--transition-slow) ease forwards;
 }
 
-.input-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    background: #f7f7f7;
-    border-radius: 6px;
-    transition: 0.3s;
+.appointment-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    position: relative;
 }
 
-
-.input-group input:focus {
-    border-color: #2c7a87;
-    outline: none;
-    background: #fff;
+.back-link {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    transition: color var(--transition-fast);
 }
 
-
-.btn {
-    width: 100%;
-    margin-top: 10px;
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    background: #2c7a87;
-    color: white;
-    font-weight: bold;
-    transition: 0.3s;
+.back-link:hover {
+    color: var(--color-primary);
 }
 
-
-.btn:hover {
-    background: #4bb8d4;
+.appointment-logo {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
 }
 
-
-.btn:nth-of-type(2) {
-    background: #ccc;
-    color: #333;
+.appointment-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xs);
 }
 
-.btn:nth-of-type(2):hover {
-    background: #bbb;
+.appointment-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+@media (max-width: 480px) {
+    .appointment-page {
+        padding: 0;
+    }
+
+    .appointment-container {
+        border-radius: 0;
+        min-height: 100vh;
+        box-shadow: none;
+        padding: var(--spacing-lg);
+    }
+
+    .back-link {
+        position: static;
+        display: block;
+        text-align: left;
+        margin-bottom: var(--spacing-md);
+    }
 }

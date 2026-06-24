@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Meu Perfil</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <link rel="stylesheet" href="../../styles/admin.css">
+    <link rel="stylesheet" href="../Dashboard/Dashboard.css">
+    <script src="../../js/data.js">
+    </script>
+    <script src="../../js/app.js">
+    </script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">🏥 MedCloud</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../Dashboard/Dashboard.html" class="sidebar-link">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="../ConsultasMed/ConsultasMed.html" class="sidebar-link">
+                    <span>📅</span> Consultas
+                </a>
+                <a href="../Pacientes/Pacientes.html" class="sidebar-link">
+                    <span>👥</span> Pacientes
+                </a>
+                <a href="PerfilMed.html" class="sidebar-link active">
+                    <span>👤</span> Perfil
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../LoginInicial/LoginInicial.html" class="sidebar-link" onclick="MedCloud.logout()">
+                    <span>🚪</span> Sair
+                </a>
+            </div>
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <main class="dashboard-main">
+            <header class="dashboard-topbar">
+                <button class="btn btn-ghost menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menu">☰</button>
+                <div class="topbar-info">
+                    <span class="topbar-greeting" id="greeting">Meu Perfil</span>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" aria-label="Alternar tema">🌓</button>
+                    <div class="avatar" id="userAvatar">👤</div>
+                </div>
+            </header>
+
+            <div class="dashboard-content page-enter">
+                <div class="page-header">
+                    <div>
+                        <h1>Meu Perfil</h1>
+                        <p>Gerencie suas informações pessoais</p>
+                    </div>
+                </div>
+
+                <div style="max-width: 640px;">
+                    <!-- Avatar -->
+                    <div class="avatar-upload">
+                        <div class="avatar-preview" id="avatarPreview">
+                            <span class="avatar-placeholder" id="avatarPlaceholder">👤</span>
+                            <img id="avatarImage" src="" alt="Foto do perfil" style="display:none;">
+                        </div>
+                        <label class="btn btn-secondary btn-sm" for="fotoInput">
+                            📷 Alterar Foto
+                        </label>
+                        <input type="file" id="fotoInput" accept="image/*" onchange="handleFotoUpload(event)">
+                    </div>
+
+                    <!-- Profile Form -->
+                    <div class="card">
+                        <form id="perfilForm" onsubmit="handleUpdatePerfil(event)">
+                            <div class="input-group">
+                                <label class="input-label" for="perfilNome">Nome Completo</label>
+                                <input type="text" id="perfilNome" class="input-field" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="input-label" for="perfilEmail">E-mail</label>
+                                <input type="email" id="perfilEmail" class="input-field" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="input-label" for="perfilTelefone">Telefone</label>
+                                <input type="text" id="perfilTelefone" class="input-field" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="input-label" for="perfilCRM">CRM</label>
+                                <input type="text" id="perfilCRM" class="input-field" disabled>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="input-label" for="perfilEspecialidade">Especialidade</label>
+                                <input type="text" id="perfilEspecialidade" class="input-field" disabled>
+                            </div>
+
+                            <hr style="margin: var(--spacing-lg) 0; border-color: var(--color-border-light);">
+
+                            <h3
+                                style="font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); margin-bottom: var(--spacing-md);">
+                                Alterar Senha</h3>
+
+                            <div class="input-group">
+                                <label class="input-label" for="perfilSenhaAtual">Senha Atual</label>
+                                <input type="password" id="perfilSenhaAtual" class="input-field">
+                            </div>
+
+                            <div class="input-group">
+                                <label class="input-label" for="perfilNovaSenha">Nova Senha</label>
+                                <input type="password" id="perfilNovaSenha" class="input-field">
+                            </div>
+
+                            <div class="input-group">
+                                <label class="input-label" for="perfilConfirmarSenha">Confirmar Nova Senha</label>
+                                <input type="password" id="perfilConfirmarSenha" class="input-field">
+                                <span class="input-error" id="senhaError"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-full">Salvar Alterações</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const user = requireAuth('medico');
+            if (!user) return;
+
+            document.getElementById('greeting').textContent = `Meu Perfil — ${user.nome.split(' ').slice(0, 2).join(' ')}`;
+            document.getElementById('userAvatar').textContent = user.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            // Load profile data
+            document.getElementById('perfilNome').value = user.nome;
+            document.getElementById('perfilEmail').value = user.email;
+            document.getElementById('perfilTelefone').value = user.telefone || '';
+            document.getElementById('perfilCRM').value = user.crm || '';
+            document.getElementById('perfilEspecialidade').value = user.especialidade || '';
+
+            // Load avatar
+            if (user.foto) {
+                document.getElementById('avatarImage').src = user.foto;
+                document.getElementById('avatarImage').style.display = 'block';
+                document.getElementById('avatarPlaceholder').style.display = 'none';
+            } else {
+                const initials = user.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                document.getElementById('avatarPlaceholder').textContent = initials;
+            }
+        });
+
+        function handleFotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const foto = e.target.result;
+                document.getElementById('avatarImage').src = foto;
+                document.getElementById('avatarImage').style.display = 'block';
+                document.getElementById('avatarPlaceholder').style.display = 'none';
+
+                // Save to data layer
+                const user = MedCloud.getCurrentUser();
+                if (user) {
+                    MedCloud.updateMedico(user.id, { foto });
+                }
+                showToast('Foto atualizada!');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleUpdatePerfil(event) {
+            event.preventDefault();
+
+            const user = MedCloud.getCurrentUser();
+            if (!user) return;
+
+            const nome = document.getElementById('perfilNome').value.trim();
+            const email = document.getElementById('perfilEmail').value.trim();
+            const telefone = document.getElementById('perfilTelefone').value.trim();
+
+            const senhaAtual = document.getElementById('perfilSenhaAtual').value;
+            const novaSenha = document.getElementById('perfilNovaSenha').value;
+            const confirmarSenha = document.getElementById('perfilConfirmarSenha').value;
+
+            document.getElementById('senhaError').textContent = '';
+
+            // Update basic info
+            MedCloud.updateMedico(user.id, { nome, email, telefone });
+
+            // Update password if provided
+            if (senhaAtual || novaSenha || confirmarSenha) {
+                if (senhaAtual !== user.senha) {
+                    document.getElementById('senhaError').textContent = 'Senha atual incorreta.';
+                    return;
+                }
+                if (novaSenha.length < 3) {
+                    document.getElementById('senhaError').textContent = 'Nova senha deve ter pelo menos 3 caracteres.';
+                    return;
+                }
+                if (novaSenha !== confirmarSenha) {
+                    document.getElementById('senhaError').textContent = 'Nova senha e confirmação não conferem.';
+                    return;
+                }
+                MedCloud.updateMedico(user.id, { senha: novaSenha });
+                showToast('Senha alterada com sucesso!');
+            }
+
+            showToast('Perfil atualizado com sucesso!');
+
+            // Clear password fields
+            document.getElementById('perfilSenhaAtual').value = '';
+            document.getElementById('perfilNovaSenha').value = '';
+            document.getElementById('perfilConfirmarSenha').value = '';
+
+            // Update greeting
+            document.getElementById('greeting').textContent = `Meu Perfil — ${nome.split(' ').slice(0, 2).join(' ')}`;
+            document.getElementById('userAvatar').textContent = nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+    </script>
+</body>
+
+</html>

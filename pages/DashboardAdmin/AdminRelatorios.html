@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCloud — Relatórios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <link rel="stylesheet" href="../../styles/admin.css">
+    <link rel="stylesheet" href="../Dashboard/Dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
+    </script>
+    <script src="../../js/data.js"></script>
+    <script src="../../js/app.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">🏥 MedCloud</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="DashboardAdmin.html" class="sidebar-link">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="AdminUsuarios.html" class="sidebar-link">
+                    <span>👥</span> Usuários
+                </a>
+                <a href="AdminMedicos.html" class="sidebar-link">
+                    <span>👨‍⚕️</span> Médicos
+                </a>
+                <a href="AdminPacientes.html" class="sidebar-link">
+                    <span>🙋</span> Pacientes
+                </a>
+                <a href="AdminConsultas.html" class="sidebar-link">
+                    <span>📅</span> Consultas
+                </a>
+                <a href="AdminNovoAgendamento.html" class="sidebar-link">
+                    <span>➕</span> Novo Agendamento
+                </a>
+                <a href="AdminRelatorios.html" class="sidebar-link active">
+                    <span>📈</span> Relatórios
+                </a>
+                <a href="AdminConfiguracoes.html" class="sidebar-link">
+                    <span>⚙️</span> Configurações
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../LoginInicial/LoginInicial.html" class="sidebar-link" onclick="MedCloud.logout()">
+                    <span>🚪</span> Sair
+                </a>
+            </div>
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <header class="dashboard-topbar">
+                <button class="btn btn-ghost menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menu">☰</button>
+                <div class="topbar-info">
+                    <span class="topbar-greeting" id="greeting">Relatórios</span>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" aria-label="Alternar tema">🌓</button>
+                    <div class="avatar" id="userAvatar">👤</div>
+                </div>
+            </header>
+
+            <div class="dashboard-content page-enter">
+                <div class="page-header">
+                    <div>
+                        <h1>Relatórios e Estatísticas</h1>
+                        <p>Indicadores detalhados do sistema</p>
+                    </div>
+                    <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="exportarRelatorio('pdf')">
+                            📄 Exportar PDF
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportarRelatorio('csv')">
+                            📊 Exportar CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Period Filter -->
+                <div class="filter-tabs" style="margin-bottom: var(--spacing-lg);">
+                    <button class="filter-tab active" data-period="mes" onclick="filterPeriod('mes')">Este Mês</button>
+                    <button class="filter-tab" data-period="trimestre" onclick="filterPeriod('trimestre')">Último
+                        Trimestre</button>
+                    <button class="filter-tab" data-period="ano" onclick="filterPeriod('ano')">Último Ano</button>
+                    <button class="filter-tab" data-period="total" onclick="filterPeriod('total')">Total</button>
+                </div>
+
+                <!-- Summary Stats -->
+                <div class="stats-grid" id="reportStats">
+                    <div class="stats-card blue">
+                        <div class="stats-card-icon">📋</div>
+                        <div class="stats-card-label">Total de Consultas</div>
+                        <div class="stats-card-value" id="repTotalConsultas">0</div>
+                        <div class="stats-card-change" id="repTotalVariacao">No período</div>
+                    </div>
+                    <div class="stats-card green">
+                        <div class="stats-card-icon">✅</div>
+                        <div class="stats-card-label">Concluídas</div>
+                        <div class="stats-card-value" id="repConcluidas">0</div>
+                        <div class="stats-card-change positive" id="repConcluidasPct">0%</div>
+                    </div>
+                    <div class="stats-card yellow">
+                        <div class="stats-card-icon">⏳</div>
+                        <div class="stats-card-label">Pendentes</div>
+                        <div class="stats-card-value" id="repPendentes">0</div>
+                        <div class="stats-card-change" id="repPendentesPct">0%</div>
+                    </div>
+                    <div class="stats-card red">
+                        <div class="stats-card-icon">❌</div>
+                        <div class="stats-card-label">Canceladas</div>
+                        <div class="stats-card-value" id="repCanceladas">0</div>
+                        <div class="stats-card-change negative" id="repCanceladasPct">0%</div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-title">Consultas por Mês</div>
+                        <div class="chart-container">
+                            <canvas id="chartRelMes"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">Status das Consultas</div>
+                        <div class="chart-container">
+                            <canvas id="chartRelStatus"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card full-width">
+                        <div class="chart-title">Consultas por Especialidade</div>
+                        <div class="chart-container">
+                            <canvas id="chartRelEspecialidade"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Tables -->
+                <div class="section-header mt-xl">
+                    <h2 class="section-title">Desempenho por Médico</h2>
+                </div>
+                <div class="table-container" style="margin-bottom: var(--spacing-xl);">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Médico</th>
+                                <th>Especialidade</th>
+                                <th>Total Consultas</th>
+                                <th>Concluídas</th>
+                                <th>Canceladas</th>
+                                <th>Taxa de Sucesso</th>
+                            </tr>
+                        </thead>
+                        <tbody id="medicosReportTable">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <div class="spinner"></div>
+                                    <p>Carregando...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="section-header">
+                    <h2 class="section-title">Atividade de Pacientes</h2>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Paciente</th>
+                                <th>Total Consultas</th>
+                                <th>Concluídas</th>
+                                <th>Canceladas</th>
+                                <th>Última Consulta</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pacientesReportTable">
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    <div class="spinner"></div>
+                                    <p>Carregando...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let currentPeriod = 'mes';
+        let relChartMes = null;
+        let relChartStatus = null;
+        let relChartEsp = null;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const user = requireAuth('admin');
+            if (!user) return;
+
+            document.getElementById('greeting').textContent = `Relatórios — ${user.nome}`;
+            document.getElementById('userAvatar').textContent = user.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            loadReportData();
+        });
+
+        function getFilteredConsultas(period) {
+            const todas = MedCloud.getConsultas();
+            const hoje = new Date();
+
+            if (period === 'total') return todas;
+
+            let startDate;
+            if (period === 'mes') {
+                startDate = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+            } else if (period === 'trimestre') {
+                startDate = new Date(hoje);
+                startDate.setMonth(startDate.getMonth() - 3);
+            } else if (period === 'ano') {
+                startDate = new Date(hoje);
+                startDate.setFullYear(startDate.getFullYear() - 1);
+            }
+
+            const startStr = startDate.toISOString().split('T')[0];
+            return todas.filter(c => c.data >= startStr);
+        }
+
+        function filterPeriod(period) {
+            currentPeriod = period;
+
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.period === period);
+            });
+
+            loadReportData();
+        }
+
+        function loadReportData() {
+            const consultas = getFilteredConsultas(currentPeriod);
+            updateStats(consultas);
+            updateMedicosReport(consultas);
+            updatePacientesReport(consultas);
+            initReportCharts(consultas);
+        }
+
+        function updateStats(consultas) {
+            const total = consultas.length;
+            const concluidas = consultas.filter(c => c.status === 'concluida').length;
+            const pendentes = consultas.filter(c => c.status === 'pendente' || c.status === 'confirmada').length;
+            const canceladas = consultas.filter(c => c.status === 'cancelada').length;
+
+            document.getElementById('repTotalConsultas').textContent = total;
+            document.getElementById('repConcluidas').textContent = concluidas;
+            document.getElementById('repPendentes').textContent = pendentes;
+            document.getElementById('repCanceladas').textContent = canceladas;
+
+            document.getElementById('repTotalVariacao').textContent =
+                currentPeriod === 'mes' ? 'Este mês' :
+                    currentPeriod === 'trimestre' ? 'Últimos 3 meses' :
+                        currentPeriod === 'ano' ? 'Último ano' : 'Todo período';
+
+            const conclPct = total > 0 ? Math.round((concluidas / total) * 100) : 0;
+            const pendPct = total > 0 ? Math.round((pendentes / total) * 100) : 0;
+            const cancPct = total > 0 ? Math.round((canceladas / total) * 100) : 0;
+
+            document.getElementById('repConcluidasPct').textContent = conclPct + '%';
+            document.getElementById('repPendentesPct').textContent = pendPct + '%';
+            document.getElementById('repCanceladasPct').textContent = cancPct + '%';
+        }
+
+        function updateMedicosReport(consultas) {
+            const medicos = MedCloud.getMedicos();
+            const tbody = document.getElementById('medicosReportTable');
+
+            if (medicos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="empty-icon">👨‍⚕️</div>
+                            <p>Nenhum médico cadastrado.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const reportData = medicos.map(m => {
+                const cons = consultas.filter(c => c.medicoId === m.id);
+                const total = cons.length;
+                const concluidas = cons.filter(c => c.status === 'concluida').length;
+                const canceladas = cons.filter(c => c.status === 'cancelada').length;
+                const taxa = total > 0 ? Math.round((concluidas / total) * 100) : 0;
+                return { medico: m, total, concluidas, canceladas, taxa };
+            }).sort((a, b) => b.total - a.total);
+
+            tbody.innerHTML = reportData.map(r => `
+                <tr>
+                    <td><strong>${r.medico.nome}</strong></td>
+                    <td><span class="badge badge-info">${r.medico.especialidade || 'Clínico Geral'}</span></td>
+                    <td>${r.total}</td>
+                    <td>${r.concluidas}</td>
+                    <td>${r.canceladas}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                            <div style="flex: 1; height: 6px; background: var(--color-border); border-radius: 3px; overflow: hidden;">
+                                <div style="height: 100%; width: ${r.taxa}%; background: ${r.taxa >= 70 ? 'var(--color-success)' : r.taxa >= 40 ? 'var(--color-warning)' : 'var(--color-error)'}; border-radius: 3px; transition: width 0.5s ease;"></div>
+                            </div>
+                            <span style="font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--color-text-secondary);">${r.taxa}%</span>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updatePacientesReport(consultas) {
+            const pacientes = MedCloud.getPacientes();
+            const tbody = document.getElementById('pacientesReportTable');
+
+            if (pacientes.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <div class="empty-icon">🙋</div>
+                            <p>Nenhum paciente cadastrado.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const reportData = pacientes.map(p => {
+                const cons = consultas.filter(c => c.pacienteId === p.id);
+                const total = cons.length;
+                const concluidas = cons.filter(c => c.status === 'concluida').length;
+                const canceladas = cons.filter(c => c.status === 'cancelada').length;
+                const ultima = cons.length > 0 ? cons.sort((a, b) => b.data.localeCompare(a.data) || b.hora.localeCompare(b.hora))[0] : null;
+                return { paciente: p, total, concluidas, canceladas, ultima };
+            }).sort((a, b) => b.total - a.total);
+
+            tbody.innerHTML = reportData.map(r => `
+                <tr>
+                    <td><strong>${r.paciente.nome}</strong></td>
+                    <td>${r.total}</td>
+                    <td>${r.concluidas}</td>
+                    <td>${r.canceladas}</td>
+                    <td>${r.ultima ? formatDate(r.ultima.data) + ' ' + r.ultima.hora : '—'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function initReportCharts(consultas) {
+            const primaryColor = '#0D9488';
+            const colors = ['#0D9488', '#0284C7', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+
+            // Consultas por Mês
+            const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const dataMes = new Array(12).fill(0);
+            consultas.forEach(c => {
+                const month = new Date(c.data + 'T12:00:00').getMonth();
+                dataMes[month]++;
+            });
+
+            if (relChartMes) relChartMes.destroy();
+            relChartMes = new Chart(document.getElementById('chartRelMes'), {
+                type: 'bar',
+                data: {
+                    labels: meses,
+                    datasets: [{
+                        label: 'Consultas',
+                        data: dataMes,
+                        backgroundColor: primaryColor + '33',
+                        borderColor: primaryColor,
+                        borderWidth: 2,
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+
+            // Status
+            const pendentes = consultas.filter(c => c.status === 'pendente' || c.status === 'confirmada').length;
+            const concluidas = consultas.filter(c => c.status === 'concluida').length;
+            const canceladas = consultas.filter(c => c.status === 'cancelada').length;
+
+            if (relChartStatus) relChartStatus.destroy();
+            relChartStatus = new Chart(document.getElementById('chartRelStatus'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Concluídas', 'Pendentes', 'Canceladas'],
+                    datasets: [{
+                        data: [concluidas, pendentes, canceladas],
+                        backgroundColor: ['#22C55E', '#F59E0B', '#EF4444'],
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 16, usePointStyle: true, font: { family: 'Inter' } }
+                        }
+                    }
+                }
+            });
+
+            // Especialidades
+            const especialidades = {};
+            MedCloud.getMedicos().forEach(m => {
+                const esp = m.especialidade || 'Clínico Geral';
+                const count = consultas.filter(c => c.medicoId === m.id).length;
+                if (especialidades[esp]) {
+                    especialidades[esp] += count;
+                } else {
+                    especialidades[esp] = count;
+                }
+            });
+
+            const espLabels = Object.keys(especialidades);
+            const espData = Object.values(especialidades);
+
+            if (relChartEsp) relChartEsp.destroy();
+            relChartEsp = new Chart(document.getElementById('chartRelEspecialidade'), {
+                type: 'bar',
+                data: {
+                    labels: espLabels,
+                    datasets: [{
+                        label: 'Consultas',
+                        data: espData,
+                        backgroundColor: colors.slice(0, espLabels.length).map(c => c + '33'),
+                        borderColor: colors.slice(0, espLabels.length),
+                        borderWidth: 2,
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+
+        function exportarRelatorio(tipo) {
+            const consultas = getFilteredConsultas(currentPeriod);
+
+            if (tipo === 'csv') {
+                exportarCSV(consultas);
+            } else {
+                showToast('Exportação PDF será implementada em breve.', 'info');
+            }
+        }
+
+        function exportarCSV(consultas) {
+            const headers = ['Data', 'Horário', 'Paciente', 'Médico', 'Especialidade', 'Status'];
+            const rows = consultas.map(c => {
+                const paciente = MedCloud.getPacienteById(c.pacienteId);
+                const medico = MedCloud.getMedicoById(c.medicoId);
+                return [
+                    c.data,
+                    c.hora,
+                    paciente ? paciente.nome : '—',
+                    medico ? medico.nome : '—',
+                    medico ? (medico.especialidade || 'Clínico Geral') : '—',
+                    getStatusLabel(c.status)
+                ];
+            });
+
+            const csvContent = [headers, ...rows]
+                .map(row => row.map(cell => `"${cell}"`).join(','))
+                .join('\n');
+
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `relatorio-consultas-${currentPeriod}-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+
+            showToast('Relatório CSV exportado com sucesso!');
+        }
+    </script>
+</body>
+
+</html>
