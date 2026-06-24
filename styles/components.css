@@ -515,14 +515,21 @@
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: var(--z-modal-backdrop);
-    animation: fadeIn var(--transition-fast) ease forwards;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-normal);
+}
+
+.modal-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .modal {
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(0.95);
     background: var(--color-surface);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-xl);
@@ -531,7 +538,15 @@
     max-width: 480px;
     max-height: 85vh;
     overflow-y: auto;
-    animation: modalIn var(--transition-normal) ease forwards;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+
+.modal.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
 }
 
 .modal-header {

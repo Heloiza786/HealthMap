@@ -121,7 +121,9 @@ function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.add('open');
-        modal.querySelector('.modal-backdrop')?.classList.add('active');
+        // Backdrop is a sibling element, find by ID convention (modalId + "Backdrop")
+        const backdrop = document.getElementById(modalId + 'Backdrop');
+        if (backdrop) backdrop.classList.add('active');
     }
 }
 
@@ -129,7 +131,9 @@ function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.remove('open');
-        modal.querySelector('.modal-backdrop')?.classList.remove('active');
+        // Backdrop is a sibling element, find by ID convention (modalId + "Backdrop")
+        const backdrop = document.getElementById(modalId + 'Backdrop');
+        if (backdrop) backdrop.classList.remove('active');
     }
 }
 
