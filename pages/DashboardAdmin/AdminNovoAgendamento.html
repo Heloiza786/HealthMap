@@ -19,8 +19,6 @@
     </script>
     <script src="../../js/app.js">
     </script>
-    <script src="../../js/email-service.js">
-    </script>
 </head>
 
 <body>
@@ -124,15 +122,6 @@
                             <input type="time" id="hora" class="input-field" required>
                             <span class="input-help">Horários disponíveis: 08:00 às 18:00</span>
                             <span class="input-error" id="horaError"></span>
-                        </div>
-
-                        <!-- E-mail para confirmação -->
-                        <div class="input-group">
-                            <label class="input-label" for="emailConfirmacao">E-mail para confirmação</label>
-                            <input type="email" id="emailConfirmacao" class="input-field"
-                                placeholder="email@exemplo.com" required value="heloizacustodio089@gmail.com">
-                            <span class="input-help">O comprovante será enviado para este e-mail</span>
-                            <span class="input-error" id="emailConfirmacaoError"></span>
                         </div>
 
                         <!-- Observações -->
@@ -266,8 +255,8 @@
                 ocupadosList.innerHTML = consultas.map(c => {
                     const paciente = MedCloud.getPacienteById(c.pacienteId);
                     return `
-                        <div class="email-log-entry">
-                            <span class="log-status ${c.status === 'confirmada' ? 'sent' : 'pending'}"></span>
+                        <div class="ocupado-entry">
+                            <span class="ocupado-status ${c.status === 'confirmada' ? 'ocupado-confirmada' : 'ocupado-pendente'}"></span>
                             <span><strong>${c.hora}</strong> — ${paciente ? paciente.nome : 'Paciente'} (${getStatusLabel(c.status)})</span>
                         </div>
                     `;
@@ -288,7 +277,6 @@
 
             const pacienteId = document.getElementById('paciente').value;
             const medicoId = document.getElementById('medico').value;
-            const emailConfirmacao = document.getElementById('emailConfirmacao').value.trim();
             const data = document.getElementById('data').value;
             const hora = document.getElementById('hora').value;
             const observacoes = document.getElementById('observacoes').value.trim();
@@ -308,18 +296,6 @@
             if (!medicoId) {
                 document.getElementById('medicoError').textContent = 'Selecione um médico.';
                 document.getElementById('medico').classList.add('error');
-                hasError = true;
-            }
-
-            // Validate email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailConfirmacao) {
-                document.getElementById('emailConfirmacaoError').textContent = 'O e-mail para confirmação é obrigatório.';
-                document.getElementById('emailConfirmacao').classList.add('error');
-                hasError = true;
-            } else if (!emailRegex.test(emailConfirmacao)) {
-                document.getElementById('emailConfirmacaoError').textContent = 'Insira um e-mail válido.';
-                document.getElementById('emailConfirmacao').classList.add('error');
                 hasError = true;
             }
 
@@ -344,24 +320,7 @@
             const result = MedCloud.criarConsulta(pacienteId, medicoId, data, hora, observacoes);
 
             if (result.success) {
-                // Send confirmation email
-                const paciente = MedCloud.getPacienteById(pacienteId);
-                const medico = MedCloud.getMedicoById(medicoId);
-                const { html, text } = MedCloudEmail.buildAppointmentConfirmationEmail(
-                    result.consulta, paciente, medico
-                );
-                MedCloudEmail.sendEmail(emailConfirmacao, 'Confirmação de Consulta Agendada', html, text)
-                    .then(emailResult => {
-                        if (emailResult.success) {
-                            showToast('Consulta agendada! E-mail de confirmação enviado para ' + emailConfirmacao);
-                        } else {
-                            showToast('Consulta agendada! Falha ao enviar e-mail: ' + emailResult.error, 'warning');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('[EMAIL] Error sending confirmation:', err);
-                        showToast('Consulta agendada! Erro ao enviar e-mail.', 'warning');
-                    });
+                showToast('Consulta agendada com sucesso!');
 
                 document.getElementById('agendamentoForm').reset();
                 document.getElementById('conflitoWarning').style.display = 'none';

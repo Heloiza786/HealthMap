@@ -380,39 +380,6 @@ tr:hover td {
     transform: translateX(20px);
 }
 
-/* ── Email Log ── */
-.email-log-entry {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    padding: var(--spacing-sm) 0;
-    border-bottom: 1px solid var(--color-border-light);
-    font-size: var(--font-size-sm);
-}
-
-.email-log-entry:last-child {
-    border-bottom: none;
-}
-
-.email-log-entry .log-status {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.email-log-entry .log-status.sent {
-    background: var(--color-success);
-}
-
-.email-log-entry .log-status.pending {
-    background: var(--color-warning);
-}
-
-.email-log-entry .log-status.error {
-    background: var(--color-error);
-}
-
 /* ── Responsive ── */
 @media (max-width: 767px) {
     .charts-grid {

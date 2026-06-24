@@ -17,7 +17,6 @@
     <link rel="stylesheet" href="../../styles/responsive.css">
     <script src="../../js/data.js"></script>
     <script src="../../js/app.js"></script>
-    <script src="../../js/email-service.js"></script>
 </head>
 
 <body>
@@ -129,49 +128,6 @@
                 </div>
 
                 <div class="settings-group">
-                    <h3>📧 Configuração de E-mail</h3>
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <span class="setting-label">Provedor de E-mail</span>
-                            <span class="setting-desc">Selecione o serviço de envio de e-mails</span>
-                        </div>
-                        <select id="emailProvider" class="select-field" style="width: auto;"
-                            onchange="saveEmailConfig()">
-                            <option value="emailjs">EmailJS</option>
-                            <option value="smtp">SMTP (Backend)</option>
-                            <option value="sendgrid">SendGrid</option>
-                            <option value="mailgun">Mailgun</option>
-                            <option value="resend">Resend</option>
-                        </select>
-                    </div>
-                    <div class="setting-item"
-                        style="flex-direction: column; align-items: stretch; gap: var(--spacing-md);">
-                        <div class="setting-info">
-                            <span class="setting-label">E-mail de Confirmação Padrão</span>
-                            <span class="setting-desc">E-mail pré-preenchido no campo de confirmação de
-                                agendamentos</span>
-                        </div>
-                        <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
-                            <input type="email" id="defaultEmail" class="input-field"
-                                value="heloizacustodio089@gmail.com" style="flex: 1; max-width: 400px;">
-                            <button class="btn btn-primary btn-sm" onclick="saveDefaultEmail()">Salvar</button>
-                        </div>
-                    </div>
-                    <div class="setting-item"
-                        style="flex-direction: column; align-items: stretch; gap: var(--spacing-md);">
-                        <div class="setting-info">
-                            <span class="setting-label">Testar Envio de E-mail</span>
-                            <span class="setting-desc">Envie um e-mail de teste para verificar a configuração</span>
-                        </div>
-                        <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
-                            <input type="email" id="testEmail" class="input-field" placeholder="email@teste.com"
-                                style="flex: 1; max-width: 400px;">
-                            <button class="btn btn-secondary btn-sm" onclick="testEmailConfig()">Enviar Teste</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="settings-group">
                     <h3>👤 Dados do Administrador</h3>
                     <form id="adminProfileForm" onsubmit="handleUpdateAdmin(event)">
                         <div
@@ -216,26 +172,9 @@
                             <span class="setting-desc" id="totalPacientesInfo">—</span>
                         </div>
                     </div>
-                    <div class="setting-item" style="border-bottom: none; padding-bottom: 0;">
-                        <div class="setting-info">
-                            <span class="setting-label">E-mails Enviados</span>
-                            <span class="setting-desc" id="totalEmailsInfo">—</span>
-                        </div>
-                    </div>
                     <div style="margin-top: var(--spacing-lg); display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
                         <button class="btn btn-secondary" onclick="exportarDados()">📥 Exportar Dados</button>
                         <button class="btn btn-danger" onclick="resetarDados()">⚠️ Resetar Dados</button>
-                    </div>
-                </div>
-
-                <!-- Email Log -->
-                <div class="settings-group">
-                    <h3>📋 Histórico de E-mails</h3>
-                    <div id="emailLogContainer">
-                        <div class="loading-state">
-                            <div class="spinner"></div>
-                            <p>Carregando...</p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -279,7 +218,6 @@
             document.getElementById('userAvatar').textContent = user.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
             loadSettings();
-            loadEmailLog();
             loadSystemInfo();
         });
 
@@ -299,18 +237,6 @@
                 document.getElementById('adminNome').value = admin[0].nome || '';
                 document.getElementById('adminEmail').value = admin[0].email || '';
             }
-
-            // Load email provider
-            const savedProvider = localStorage.getItem('medcloud_email_provider');
-            if (savedProvider) {
-                document.getElementById('emailProvider').value = savedProvider;
-            }
-
-            // Load default email
-            const savedEmail = localStorage.getItem('medcloud_default_email');
-            if (savedEmail) {
-                document.getElementById('defaultEmail').value = savedEmail;
-            }
         }
 
         function saveNotificationSettings() {
@@ -323,57 +249,6 @@
 
             MedCloud.updateNotificationSettings(settings);
             showToast('Configurações de notificação salvas!');
-        }
-
-        function saveEmailConfig() {
-            const provider = document.getElementById('emailProvider').value;
-            localStorage.setItem('medcloud_email_provider', provider);
-
-            if (MedCloudEmail && MedCloudEmail.updateConfig) {
-                MedCloudEmail.updateConfig({ provider: provider });
-            }
-
-            showToast('Provedor de e-mail atualizado!');
-        }
-
-        function saveDefaultEmail() {
-            const email = document.getElementById('defaultEmail').value.trim();
-            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                showToast('Informe um e-mail válido.', 'error');
-                return;
-            }
-            localStorage.setItem('medcloud_default_email', email);
-            showToast('E-mail padrão salvo!');
-        }
-
-        async function testEmailConfig() {
-            const testTo = document.getElementById('testEmail').value.trim();
-            if (!testTo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(testTo)) {
-                showToast('Informe um e-mail de destino válido.', 'error');
-                return;
-            }
-
-            const btn = event.target;
-            btn.disabled = true;
-            btn.textContent = 'Enviando...';
-
-            try {
-                if (MedCloudEmail && MedCloudEmail.testConfig) {
-                    const result = await MedCloudEmail.testConfig(testTo);
-                    if (result.success) {
-                        showToast('E-mail de teste enviado com sucesso!');
-                    } else {
-                        showToast('Falha ao enviar: ' + (result.error || 'Erro desconhecido'), 'error');
-                    }
-                } else {
-                    showToast('Serviço de e-mail não disponível.', 'error');
-                }
-            } catch (err) {
-                showToast('Erro ao testar e-mail.', 'error');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Enviar Teste';
-            }
         }
 
         function handleUpdateAdmin(event) {
@@ -398,7 +273,6 @@
                 }
                 // Save back - we need to access the internal data
                 try {
-                    // Use the MedCloud internal save mechanism
                     const rawData = JSON.parse(localStorage.getItem('medcloud_data'));
                     if (rawData && rawData.administradores) {
                         rawData.administradores[0].nome = nome;
@@ -417,58 +291,11 @@
             document.getElementById('adminSenha').value = '';
         }
 
-        function loadEmailLog() {
-            const container = document.getElementById('emailLogContainer');
-
-            try {
-                const rawData = JSON.parse(localStorage.getItem('medcloud_data'));
-                const log = (rawData && rawData.emailLog) || [];
-
-                if (log.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-icon">📧</div>
-                            <p>Nenhum e-mail enviado ainda.</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                const recentLog = log.slice(-20).reverse();
-
-                container.innerHTML = recentLog.map(entry => `
-                    <div class="email-log-entry">
-                        <span class="log-status ${entry.status || 'sent'}"></span>
-                        <div style="flex: 1; min-width: 0;">
-                            <div style="font-weight: var(--font-weight-medium); font-size: var(--font-size-sm); color: var(--color-text);">${entry.to || '—'}</div>
-                            <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary);">${entry.subject || '—'}</div>
-                        </div>
-                        <span style="font-size: var(--font-size-xs); color: var(--color-text-muted); white-space: nowrap;">${entry.timestamp ? new Date(entry.timestamp).toLocaleString('pt-BR') : '—'}</span>
-                    </div>
-                `).join('');
-            } catch (e) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📧</div>
-                        <p>Erro ao carregar histórico.</p>
-                    </div>
-                `;
-            }
-        }
-
         function loadSystemInfo() {
             const stats = MedCloud.getStatsAdmin();
             document.getElementById('totalConsultasInfo').textContent = stats.totalConsultas + ' consultas';
             document.getElementById('totalMedicosInfo').textContent = stats.totalMedicos + ' médicos';
             document.getElementById('totalPacientesInfo').textContent = stats.totalPacientes + ' pacientes';
-
-            try {
-                const rawData = JSON.parse(localStorage.getItem('medcloud_data'));
-                const emailLog = (rawData && rawData.emailLog) || [];
-                document.getElementById('totalEmailsInfo').textContent = emailLog.length + ' e-mails';
-            } catch (e) {
-                document.getElementById('totalEmailsInfo').textContent = '—';
-            }
         }
 
         function exportarDados() {
@@ -503,7 +330,6 @@
 
             MedCloud.resetData();
             showToast('Dados resetados para o padrão!');
-            loadEmailLog();
             loadSystemInfo();
         }
     </script>
