@@ -149,6 +149,58 @@ function showLoading(containerId, message = 'Carregando...') {
     `;
 }
 
+// ── Pagination ──
+const PAGINATION_PAGE_SIZE = 10;
+
+// Returns the slice of a list for a given page index (1-based).
+function paginate(list, page, pageSize = PAGINATION_PAGE_SIZE) {
+    const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+    const current = Math.min(Math.max(1, page), totalPages);
+    const start = (current - 1) * pageSize;
+    return {
+        items: list.slice(start, start + pageSize),
+        current,
+        totalPages,
+        total: list.length,
+    };
+}
+
+// Renders pagination controls into a container element.
+// `containerId` — element id where the controls are inserted.
+// `pageInfo` — object returned by `paginate()`.
+// `onPageChange` — callback receiving the new page number.
+function renderPagination(containerId, pageInfo, onPageChange) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (pageInfo.totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    const pages = [];
+    for (let i = 1; i <= pageInfo.totalPages; i++) {
+        pages.push(`
+            <button class="pagination-btn ${i === pageInfo.current ? 'active' : ''}"
+                onclick="(${onPageChange})(${i})"
+                ${i === pageInfo.current ? 'aria-current="page"' : ''}>
+                ${i}
+            </button>
+        `);
+    }
+
+    container.innerHTML = `
+        <div class="pagination">
+            <button class="pagination-btn" onclick="(${onPageChange})(${pageInfo.current - 1})"
+                ${pageInfo.current === 1 ? 'disabled' : ''} aria-label="Página anterior">‹</button>
+            ${pages.join('')}
+            <button class="pagination-btn" onclick="(${onPageChange})(${pageInfo.current + 1})"
+                ${pageInfo.current === pageInfo.totalPages ? 'disabled' : ''} aria-label="Próxima página">›</button>
+            <span class="pagination-info">${pageInfo.total} registro(s)</span>
+        </div>
+    `;
+}
+
 // ── Bottom Navigation Active State ──
 function initBottomNav() {
     const currentPath = window.location.pathname;
