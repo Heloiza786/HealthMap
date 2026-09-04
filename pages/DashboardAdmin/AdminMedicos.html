@@ -85,7 +85,7 @@
                 <div class="search-bar" style="margin-bottom: var(--spacing-lg); max-width: 100%;">
                     <span class="search-icon">🔍</span>
                     <input type="text" id="searchMedico" placeholder="Buscar por nome, email ou CRM..."
-                        oninput="renderMedicos()">
+                        oninput="currentPage = 1; renderMedicos()">
                 </div>
 
                 <div class="table-container">
@@ -111,6 +111,7 @@
                         </tbody>
                     </table>
                 </div>
+                <div id="medicosPagination"></div>
             </div>
         </main>
     </div>
@@ -144,6 +145,9 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+        let currentPage = 1;
+        let filteredMedicos = [];
+
         document.addEventListener('DOMContentLoaded', function () {
             const user = requireAuth('admin');
             if (!user) return;
@@ -166,6 +170,8 @@
                 );
             }
 
+            const pageInfo = paginate(medicos, currentPage);
+            filteredMedicos = medicos;
             const tbody = document.getElementById('medicosTableBody');
 
             if (medicos.length === 0) {
@@ -177,10 +183,11 @@
                         </td>
                     </tr>
                 `;
+                renderPagination('medicosPagination', pageInfo, 'changeMedicoPage');
                 return;
             }
 
-            tbody.innerHTML = medicos.map(m => {
+            tbody.innerHTML = pageInfo.items.map(m => {
                 const consultas = MedCloud.getConsultasByMedico(m.id);
                 return `
                     <tr>
@@ -199,6 +206,14 @@
                     </tr>
                 `;
             }).join('');
+
+            renderPagination('medicosPagination', pageInfo, 'changeMedicoPage');
+        }
+
+        function changeMedicoPage(page) {
+            if (page < 1) return;
+            currentPage = page;
+            renderMedicos();
         }
 
         function verMedico(id) {

@@ -121,6 +121,7 @@
                         </tbody>
                     </table>
                 </div>
+                <div id="consultasPagination"></div>
             </div>
         </main>
     </div>
@@ -156,6 +157,8 @@
     <script>
         let currentFilter = 'all';
         let allConsultas = [];
+        let currentPage = 1;
+        let filteredConsultas = [];
 
         document.addEventListener('DOMContentLoaded', function () {
             const user = requireAuth('admin');
@@ -172,6 +175,7 @@
 
         function filterConsultas(filter) {
             currentFilter = filter;
+            currentPage = 1;
 
             document.querySelectorAll('.filter-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.filter === filter);
@@ -204,6 +208,8 @@
 
         function renderConsultas(consultas) {
             const tbody = document.getElementById('consultasTableBody');
+            const pageInfo = paginate(consultas, currentPage);
+            filteredConsultas = consultas;
 
             if (consultas.length === 0) {
                 tbody.innerHTML = `
@@ -214,10 +220,11 @@
                         </td>
                     </tr>
                 `;
+                renderPagination('consultasPagination', pageInfo, 'changeConsultaPage');
                 return;
             }
 
-            tbody.innerHTML = consultas.map(c => {
+            tbody.innerHTML = pageInfo.items.map(c => {
                 const paciente = MedCloud.getPacienteById(c.pacienteId);
                 const medico = MedCloud.getMedicoById(c.medicoId);
                 return `
@@ -239,6 +246,14 @@
                     </tr>
                 `;
             }).join('');
+
+            renderPagination('consultasPagination', pageInfo, 'changeConsultaPage');
+        }
+
+        function changeConsultaPage(page) {
+            if (page < 1) return;
+            currentPage = page;
+            renderConsultas(filteredConsultas);
         }
 
         function concluirConsulta(id) {

@@ -123,6 +123,7 @@
                         </tbody>
                     </table>
                 </div>
+                <div id="usersPagination"></div>
             </div>
         </main>
     </div>
@@ -241,6 +242,8 @@
 
     <script>
         let currentFilter = 'all';
+        let currentPage = 1;
+        let filteredUsers = [];
 
         document.addEventListener('DOMContentLoaded', function () {
             const user = requireAuth('admin');
@@ -256,6 +259,8 @@
             const tbody = document.getElementById('usersTableBody');
 
             let users = list || getAllUsers();
+            const pageInfo = paginate(users, currentPage);
+            filteredUsers = users;
 
             if (users.length === 0) {
                 tbody.innerHTML = `
@@ -266,10 +271,11 @@
                         </td>
                     </tr>
                 `;
+                renderPagination('usersPagination', pageInfo, 'changeUserPage');
                 return;
             }
 
-            tbody.innerHTML = users.map(u => {
+            tbody.innerHTML = pageInfo.items.map(u => {
                 const tipoLabel = u._tipo === 'medico' ? 'Médico' : 'Paciente';
                 const documento = u._tipo === 'medico' ? (u.crm || '—') : (u.cpf || '—');
                 const ativo = u.ativo !== false;
@@ -292,6 +298,14 @@
                     </tr>
                 `;
             }).join('');
+
+            renderPagination('usersPagination', pageInfo, 'changeUserPage');
+        }
+
+        function changeUserPage(page) {
+            if (page < 1) return;
+            currentPage = page;
+            renderUsers(filteredUsers);
         }
 
         function getAllUsers() {
@@ -302,6 +316,7 @@
 
         function filterUsers(filter) {
             currentFilter = filter;
+            currentPage = 1;
 
             document.querySelectorAll('.filter-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.filter === filter);

@@ -85,7 +85,7 @@
                 <div class="search-bar" style="margin-bottom: var(--spacing-lg); max-width: 100%;">
                     <span class="search-icon">🔍</span>
                     <input type="text" id="searchPaciente" placeholder="Buscar por nome, email ou CPF..."
-                        oninput="renderPacientes()">
+                        oninput="currentPage = 1; renderPacientes()">
                 </div>
 
                 <div class="table-container">
@@ -110,6 +110,7 @@
                         </tbody>
                     </table>
                 </div>
+                <div id="pacientesPagination"></div>
             </div>
         </main>
     </div>
@@ -143,6 +144,9 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+        let currentPage = 1;
+        let filteredPacientes = [];
+
         document.addEventListener('DOMContentLoaded', function () {
             const user = requireAuth('admin');
             if (!user) return;
@@ -165,6 +169,8 @@
                 );
             }
 
+            const pageInfo = paginate(pacientes, currentPage);
+            filteredPacientes = pacientes;
             const tbody = document.getElementById('pacientesTableBody');
 
             if (pacientes.length === 0) {
@@ -176,10 +182,11 @@
                         </td>
                     </tr>
                 `;
+                renderPagination('pacientesPagination', pageInfo, 'changePacientePage');
                 return;
             }
 
-            tbody.innerHTML = pacientes.map(p => {
+            tbody.innerHTML = pageInfo.items.map(p => {
                 const consultas = MedCloud.getConsultasByPaciente(p.id);
                 return `
                     <tr>
@@ -197,6 +204,14 @@
                     </tr>
                 `;
             }).join('');
+
+            renderPagination('pacientesPagination', pageInfo, 'changePacientePage');
+        }
+
+        function changePacientePage(page) {
+            if (page < 1) return;
+            currentPage = page;
+            renderPacientes();
         }
 
         function verPaciente(id) {
