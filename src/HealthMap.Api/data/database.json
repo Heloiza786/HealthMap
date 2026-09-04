@@ -1,0 +1,70 @@
+{
+  "usuarios": [
+    {
+      "idUsuario": "usr-1",
+      "nome": "Maria Oliveira",
+      "email": "paciente@gmail.com",
+      "senhaHash": "demo",
+      "cpf": "123.456.789-00",
+      "telefone": "(11) 98888-0001",
+      "dataNascimento": "1990-05-12"
+    },
+    {
+      "idUsuario": "usr-2",
+      "nome": "Dr. Carlos Silva",
+      "email": "medico@gmail.com",
+      "senhaHash": "demo",
+      "cpf": "111.222.333-44",
+      "telefone": "(11) 99999-0001",
+      "dataNascimento": "1980-03-20"
+    },
+    {
+      "idUsuario": "usr-3",
+      "nome": "Secretaria Ana",
+      "email": "secretaria@gmail.com",
+      "senhaHash": "demo",
+      "cpf": "555.666.777-88",
+      "telefone": "(11) 97777-0001",
+      "dataNascimento": "1995-07-01"
+    }
+  ],
+  "pacientes": [
+    {
+      "idUsuario": "usr-1",
+      "planoSaude": "Unimed",
+      "endereco": "Rua A, 123"
+    }
+  ],
+  "secretarias": [
+    {
+      "idUsuario": "usr-3",
+      "turnoTrabalho": "Manhã"
+    }
+  ],
+  "especialidades": [
+    { "idEspecialidade": "esp-1", "nome": "Ortopedia" },
+    { "idEspecialidade": "esp-2", "nome": "Dermatologia" },
+    { "idEspecialidade": "esp-3", "nome": "Cardiologia" }
+  ],
+  "medicos": [
+    {
+      "idUsuario": "usr-2",
+      "idEspecialidade": "esp-1",
+      "crm": "123456-SP"
+    }
+  ],
+  "disponibilidadesMedico": [
+    {
+      "idDisponibilidade": "disp-1",
+      "idMedico": "usr-2",
+      "diaSemana": 1,
+      "horaInicio": "08:00",
+      "horaFim": "17:00"
+    }
+  ],
+  "historicosMedicos": [],
+  "consultas": [],
+  "agendamentos": [],
+  "feedbacks": [],
+  "confirmacoesMensagem": []
+}
