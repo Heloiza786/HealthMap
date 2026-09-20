@@ -1,6 +1,7 @@
 using HealthMap.Domain.Interfaces;
 using HealthMap.Domain.Services;
 using HealthMap.Api.Dtos;
+using HealthMap.Api.Middleware;
 
 namespace HealthMap.Api.Endpoints;
 
@@ -9,8 +10,9 @@ public static class AuthEndpoints
     public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/auth");
+        group.AddEndpointFilter<ValidationEndpointFilter>();
 
-        group.MapPost("/login", (LoginRequest req, AuthService auth, IUsuarioRepository usuarios) =>
+        group.MapPost("/login", (LoginRequest req, AuthService auth) =>
         {
             var usuario = auth.Autenticar(req.Email, req.Senha);
             if (usuario is null)

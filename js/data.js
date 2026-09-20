@@ -214,6 +214,10 @@ const MedCloud = (function () {
     }
 
     // ── Load / Save ──
+    function gerarId(prefix) {
+        return prefix + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6);
+    }
+
     function load() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
@@ -408,6 +412,12 @@ const MedCloud = (function () {
         criarConsulta(pacienteId, medicoId, data, hora, observacoes = '') {
             const dataLoad = load();
 
+            // Validate future date
+            const hoje = new Date().toISOString().split('T')[0];
+            if (!data || data < hoje) {
+                return { success: false, error: 'A data da consulta deve ser hoje ou uma data futura.' };
+            }
+
             // Validate conflict
             const conflito = dataLoad.consultas.some(c =>
                 c.medicoId === medicoId &&
@@ -420,7 +430,7 @@ const MedCloud = (function () {
             }
 
             const nova = {
-                id: 'cons-' + Date.now(),
+                id: gerarId('cons'),
                 pacienteId,
                 medicoId,
                 data,
@@ -442,6 +452,9 @@ const MedCloud = (function () {
             const data = load();
             const cons = data.consultas.find(c => c.id === consultaId);
             if (!cons) return { success: false, error: 'Consulta não encontrada.' };
+            if (cons.status === 'concluida') {
+                return { success: false, error: 'Não é possível cancelar uma consulta já concluída.' };
+            }
             cons.status = 'cancelada';
             save(data);
             return { success: true };
@@ -451,6 +464,9 @@ const MedCloud = (function () {
             const data = load();
             const cons = data.consultas.find(c => c.id === consultaId);
             if (!cons) return { success: false, error: 'Consulta não encontrada.' };
+            if (cons.status === 'cancelada') {
+                return { success: false, error: 'Não é possível concluir uma consulta cancelada.' };
+            }
             cons.status = 'concluida';
             save(data);
             return { success: true };
@@ -460,6 +476,18 @@ const MedCloud = (function () {
             const data = load();
             const cons = data.consultas.find(c => c.id === consultaId);
             if (!cons) return { success: false, error: 'Consulta não encontrada.' };
+            if (cons.status === 'concluida') {
+                return { success: false, error: 'Não é possível reagendar uma consulta já concluída.' };
+            }
+            if (cons.status === 'cancelada') {
+                return { success: false, error: 'Não é possível reagendar uma consulta cancelada.' };
+            }
+
+            // Validate future date
+            const hoje = new Date().toISOString().split('T')[0];
+            if (!novaData || novaData < hoje) {
+                return { success: false, error: 'A nova data deve ser hoje ou uma data futura.' };
+            }
 
             // Check conflict
             const conflito = data.consultas.some(c =>
@@ -475,7 +503,7 @@ const MedCloud = (function () {
 
             cons.data = novaData;
             cons.hora = novaHora;
-            cons.status = 'pendente';
+            cons.status = 'reagendada';
             save(data);
             return { success: true };
         },
@@ -501,7 +529,7 @@ const MedCloud = (function () {
             const proxima = futuras.sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora))[0];
             return {
                 total: todas.length,
-                agendadas: todas.filter(c => c.status === 'pendente' || c.status === 'confirmada').length,
+                agendadas: todas.filter(c => c.status === 'pendente' || c.status === 'confirmada' || c.status === 'reagendada').length,
                 concluidas: todas.filter(c => c.status === 'concluida').length,
                 canceladas: todas.filter(c => c.status === 'cancelada').length,
                 proxima: proxima || null,
@@ -528,7 +556,7 @@ const MedCloud = (function () {
         criarMedico(dados) {
             const data = load();
             const novo = {
-                id: 'med-' + Date.now(),
+                id: gerarId('med'),
                 nome: dados.nome,
                 email: dados.email,
                 senha: dados.senha || '123',
@@ -545,7 +573,7 @@ const MedCloud = (function () {
         criarPaciente(dados) {
             const data = load();
             const novo = {
-                id: 'pac-' + Date.now(),
+                id: gerarId('pac'),
                 nome: dados.nome,
                 email: dados.email,
                 senha: dados.senha || '123',

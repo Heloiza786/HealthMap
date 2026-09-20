@@ -188,8 +188,8 @@
                 const nomeMed = medico ? medico.nome : 'Médico';
                 const especialidade = medico ? medico.especialidade : '—';
 
-                const podeCancelar = c.status === 'pendente' || c.status === 'confirmada';
-                const podeReagendar = c.status === 'pendente';
+                const podeCancelar = c.status === 'pendente' || c.status === 'confirmada' || c.status === 'reagendada';
+                const podeReagendar = c.status === 'pendente' || c.status === 'reagendada';
 
                 return `
                             <tr>
