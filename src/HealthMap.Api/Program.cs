@@ -15,8 +15,9 @@ builder.Services.AddCors(options =>
 });
 
 // ── Persistência: banco em arquivo JSON (System.Text.Json) ──
-var dataDir = Path.Combine(builder.Environment.ContentRootPath, "data");
-var dbPath = Path.Combine(dataDir, "database.json");
+// O caminho pode ser sobrescrito via configuração (ex.: Database__Path) para testes.
+var dbPath = builder.Configuration["Database:Path"]
+    ?? Path.Combine(builder.Environment.ContentRootPath, "data", "database.json");
 builder.Services.AddSingleton(new JsonDatabase(dbPath));
 
 // ── Repositories ──
@@ -36,6 +37,7 @@ builder.Services.AddSingleton<IDisponibilidadeMedicoRepository, DisponibilidadeM
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ConsultaService>();
 builder.Services.AddScoped<FeedbackService>();
+builder.Services.AddSingleton<ValidationEndpointFilter>();
 
 var app = builder.Build();
 
@@ -59,3 +61,9 @@ app.MapConsultaEndpoints();
 app.MapFeedbackEndpoints();
 
 app.Run();
+
+/// <summary>
+/// Declaração parcial para permitir que os testes de integração usem
+/// <see cref="Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory{TEntryPoint}"/>.
+/// </summary>
+public partial class Program { }

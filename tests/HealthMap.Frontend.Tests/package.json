@@ -1,0 +1,9 @@
+{
+  "name": "healthmap-frontend-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Testes da camada de dados do frontend (MedCloud) usando node:test",
+  "scripts": {
+    "test": "node --test"
+  }
+}

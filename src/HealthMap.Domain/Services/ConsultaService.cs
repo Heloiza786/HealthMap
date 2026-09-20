@@ -5,8 +5,9 @@ namespace HealthMap.Domain.Services;
 
 /// <summary>
 /// Regras de negócio para agendamento de consultas.
-/// Garante integridade referencial e ausência de conflito de horário,
-/// além de criar o registro de agendamento (1:1 com a consulta).
+/// Garante integridade referencial, data futura, disponibilidade do médico e
+/// ausência de conflito de horário, além de criar o registro de agendamento
+/// (1:1 com a consulta).
 /// </summary>
 public class ConsultaService
 {
@@ -45,6 +46,9 @@ public class ConsultaService
 
         if (dataHora < DateTime.Now)
             throw new DomainException("A data/hora da consulta deve ser futura.");
+
+        if (!EstaDentroDaDisponibilidade(idMedico, dataHora))
+            throw new DomainException("O horário selecionado está fora da disponibilidade do médico.");
 
         if (TemConflito(idMedico, dataHora))
             throw new DomainException("Já existe uma consulta agendada para este médico neste horário.");
@@ -88,15 +92,58 @@ public class ConsultaService
         var consulta = _consultas.GetById(idConsulta)
             ?? throw new DomainException("Consulta não encontrada.");
 
+        if (consulta.Status == ConsultaStatus.Cancelada)
+            throw new DomainException("Não é possível concluir uma consulta cancelada.");
+
         consulta.Status = ConsultaStatus.Concluida;
         _consultas.Update(consulta);
     }
 
-    private bool TemConflito(string idMedico, DateTime dataHora)
+    public void Reagendar(string idConsulta, DateTime novaDataHora)
+    {
+        var consulta = _consultas.GetById(idConsulta)
+            ?? throw new DomainException("Consulta não encontrada.");
+
+        if (consulta.Status == ConsultaStatus.Concluida)
+            throw new DomainException("Não é possível reagendar uma consulta já concluída.");
+
+        if (consulta.Status == ConsultaStatus.Cancelada)
+            throw new DomainException("Não é possível reagendar uma consulta cancelada.");
+
+        if (novaDataHora < DateTime.Now)
+            throw new DomainException("A nova data/hora deve ser futura.");
+
+        if (!EstaDentroDaDisponibilidade(consulta.IdMedico, novaDataHora))
+            throw new DomainException("O horário selecionado está fora da disponibilidade do médico.");
+
+        if (TemConflito(consulta.IdMedico, novaDataHora, consulta.IdConsulta))
+            throw new DomainException("Já existe uma consulta agendada para este médico neste horário.");
+
+        consulta.DataHora = novaDataHora;
+        consulta.Status = ConsultaStatus.Reagendada;
+        _consultas.Update(consulta);
+    }
+
+    private bool TemConflito(string idMedico, DateTime dataHora, string? idConsultaIgnorar = null)
     {
         return _consultas.GetByMedico(idMedico).Any(c =>
+            c.IdConsulta != idConsultaIgnorar &&
             c.Status != ConsultaStatus.Cancelada &&
             Math.Abs((c.DataHora - dataHora).TotalMinutes) < 30);
+    }
+
+    private bool EstaDentroDaDisponibilidade(string idMedico, DateTime dataHora)
+    {
+        var disponibilidades = _disponibilidades.GetByMedico(idMedico).ToList();
+        if (disponibilidades.Count == 0)
+            return false;
+
+        return disponibilidades.Any(d =>
+            d.DiaSemana == (int)dataHora.DayOfWeek &&
+            TimeSpan.TryParse(d.HoraInicio, out var inicio) &&
+            TimeSpan.TryParse(d.HoraFim, out var fim) &&
+            dataHora.TimeOfDay >= inicio &&
+            dataHora.TimeOfDay < fim);
     }
 }
 

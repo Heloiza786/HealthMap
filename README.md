@@ -141,6 +141,24 @@ npm start
 
 O servidor escuta na porta `3000` por padrão (configurável via variável `BACKEND_PORT`).
 
+### 4. Testes
+
+O repositório inclui três suítes de testes:
+
+| Suíte | Caminho | Comando |
+|-------|---------|---------|
+| Testes unitários (Domain) | `tests/HealthMap.Domain.Tests` | `dotnet test tests/HealthMap.Domain.Tests` |
+| Testes de integração (API) | `tests/HealthMap.Api.Tests` | `dotnet test tests/HealthMap.Api.Tests` |
+| Testes do frontend (node:test) | `tests/HealthMap.Frontend.Tests` | `cd tests/HealthMap.Frontend.Tests && npm test` |
+
+Para executar todos os testes .NET de uma vez:
+
+```bash
+dotnet test HealthMap.sln
+```
+
+Os testes de integração usam um banco JSON temporário e isolado — o arquivo `src/HealthMap.Api/data/database.json` nunca é modificado durante os testes.
+
 ---
 
 ## 🔑 Credenciais de Demonstração
