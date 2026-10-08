@@ -1,0 +1,260 @@
+/* ============================================
+   🏥 MedCloud — Animações e Microinterações
+   ============================================ */
+
+/* ── Fade In ── */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ── Slide ── */
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ── Bounce ── */
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ── Pulse ── */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes pulseRing {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+/* ── Shimmer ── */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* ── Float ── */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+/* ── Ripple ── */
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* ── Utility Classes ── */
+.animate-fade-in {
+    animation: fadeIn var(--transition-normal) ease forwards;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp var(--transition-normal) ease forwards;
+}
+
+.animate-fade-in-down {
+    animation: fadeInDown var(--transition-normal) ease forwards;
+}
+
+.animate-fade-in-scale {
+    animation: fadeInScale var(--transition-normal) ease forwards;
+}
+
+.animate-bounce-in {
+    animation: bounceIn 0.5s ease forwards;
+}
+
+.animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* ── Stagger Children ── */
+.stagger-children>* {
+    opacity: 0;
+    animation: fadeInUp var(--transition-normal) ease forwards;
+}
+
+.stagger-children>*:nth-child(1) {
+    animation-delay: 0ms;
+}
+
+.stagger-children>*:nth-child(2) {
+    animation-delay: 80ms;
+}
+
+.stagger-children>*:nth-child(3) {
+    animation-delay: 160ms;
+}
+
+.stagger-children>*:nth-child(4) {
+    animation-delay: 240ms;
+}
+
+.stagger-children>*:nth-child(5) {
+    animation-delay: 320ms;
+}
+
+.stagger-children>*:nth-child(6) {
+    animation-delay: 400ms;
+}
+
+.stagger-children>*:nth-child(7) {
+    animation-delay: 480ms;
+}
+
+.stagger-children>*:nth-child(8) {
+    animation-delay: 560ms;
+}
+
+/* ── Hover Effects ── */
+.hover-lift {
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.hover-glow:hover {
+    box-shadow: 0 0 20px rgba(13, 148, 136, 0.15);
+}
+
+.hover-scale:hover {
+    transform: scale(1.03);
+}
+
+/* ── Page Transitions ── */
+.page-enter {
+    animation: fadeInUp var(--transition-slow) ease forwards;
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
