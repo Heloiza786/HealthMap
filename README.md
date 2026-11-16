@@ -24,6 +24,7 @@ Sistema de agendamento de consultas médicas para clínicas e profissionais de s
 - [Arquitetura do Sistema](#-arquitetura-do-sistema)
 - [Requisitos](#-requisitos)
 - [Como Executar](#-como-executar)
+- [Banco de Dados (SQL)](#-banco-de-dados-sql)
 - [Credenciais de Demonstração](#-credenciais-de-demonstração)
 - [Estrutura de Pastas](#-estrutura-de-pastas)
 - [Modelo de Dados](#-modelo-de-dados)
@@ -37,7 +38,7 @@ Sistema de agendamento de consultas médicas para clínicas e profissionais de s
 O HealthMap é um aplicativo web de agendamento médico dividido em dois grandes blocos:
 
 - **Frontend (SPA)** — interface em HTML, CSS e JavaScript puro (sem frameworks), executada diretamente no navegador.
-- **Backend (.NET)** — API em .NET estruturada em camadas (Domain, Infrastructure e Api), responsável pela persistência dos dados em JSON.
+- **Backend (.NET)** — API em .NET estruturada em camadas (Domain, Infrastructure e Api), responsável pela persistência dos dados em um banco SQL (SQLite via Entity Framework Core).
 
 O sistema atende a três perfis de usuário, cada um com funcionalidades e telas próprias:
 
@@ -70,7 +71,7 @@ O sistema atende a três perfis de usuário, cada um com funcionalidades e telas
 |--------|-------------|
 | Frontend | HTML5, CSS3, JavaScript (ES6+) |
 | Backend | .NET (C#), ASP.NET Core Minimal API |
-| Persistência | JSON (arquivo local) |
+| Persistência | SQL (SQLite via Entity Framework Core) |
 | E-mail | EmailJS, SMTP (Nodemailer), SendGrid, Mailgun, Resend |
 | Servidor auxiliar | Node.js + Express (opcional, apenas para SMTP) |
 
@@ -84,7 +85,7 @@ O backend .NET segue o padrão de **camadas**, separando responsabilidades:
 HealthMap.sln
 ├── src/
 │   ├── HealthMap.Domain/        # Entidades, interface (contratos) e regras de negócio
-│   ├── HealthMap.Infrastructure/ # Implementação de repositórios e persistência JSON
+│   ├── HealthMap.Infrastructure/ # Implementação de repositórios e persistência SQL (EF Core)
 │   └── HealthMap.Api/           # API (endpoints, DTOs, middleware)
 ├── js/                          # Frontend (SPA em JavaScript puro)
 ├── pages/                       # Páginas HTML
@@ -95,7 +96,7 @@ HealthMap.sln
 ### Camadas do backend
 
 1. **Domain** — entidades de domínio (Consulta, Medico, Paciente, Usuario etc.), interfaces de repositório e serviços de regra de negócio.
-2. **Infrastructure** — repositórios concretos que implementam as interfaces, com persistência em arquivo JSON.
+2. **Infrastructure** — repositórios concretos que implementam as interfaces, com persistência em banco SQL (SQLite via `AppDbContext`, EF Core).
 3. **Api** — camada de apresentação, com `Endpoints`, `DTOs` e `Middleware` de tratamento de erros.
 
 ---
@@ -127,7 +128,9 @@ dotnet restore
 dotnet run --project src/HealthMap.Api
 ```
 
-A API inicia por padrão em `http://localhost:5xxx` (configuração em `src/HealthMap.Api/appsettings.json`).
+A API inicia por padrão em `http://localhost:5177` (configuração em `src/HealthMap.Api/Properties/launchSettings.json`).
+
+Ao iniciar, o banco de dados SQL (SQLite) é criado e populado automaticamente com os dados de demonstração — veja [Banco de Dados (SQL)](#-banco-de-dados-sql).
 
 ### 3. Servidor de e-mail (opcional)
 
@@ -157,7 +160,43 @@ Para executar todos os testes .NET de uma vez:
 dotnet test HealthMap.sln
 ```
 
-Os testes de integração usam um banco JSON temporário e isolado — o arquivo `src/HealthMap.Api/data/database.json` nunca é modificado durante os testes.
+Os testes de integração usam um banco SQLite temporário e isolado — o arquivo `src/HealthMap.Api/healthmap.db` nunca é modificado durante os testes.
+
+---
+
+## 🗄 Banco de Dados (SQL)
+
+O backend persiste os dados em um banco SQL — **SQLite** por padrão, via **Entity Framework Core**. Nenhuma configuração extra é necessária: ao iniciar a API, o esquema é criado (`EnsureCreated`) e populado automaticamente com os dados de demonstração (mesmas credenciais abaixo).
+
+### Como habilitar / usar
+
+1. O banco é criado automaticamente no primeiro `dotnet run` da API (arquivo `src/HealthMap.Api/healthmap.db`).
+2. Para um banco **novo/limpo**, basta apagar o arquivo `healthmap.db` e reiniciar a API — o esquema e o seed são recriados.
+3. Para apontar para outro banco, sobrescreva a connection string via configuração:
+
+```json
+{
+  "ConnectionStrings": {
+    "HealthMap": "Data Source=healthmap.db"
+  }
+}
+```
+
+ou via variável de ambiente:
+
+```bash
+ConnectionStrings__HealthMap="Data Source=caminho/para/outro.db" dotnet run --project src/HealthMap.Api
+```
+
+> A connection string é injetável, o que permite trocar o SQLite por outro banco relacional (PostgreSQL, SQL Server etc.) futuramente, alterando apenas o provider do `DbContext`.
+
+### Estrutura
+
+- **`AppDbContext`** (`src/HealthMap.Infrastructure/Persistence/AppDbContext.cs`) — mapeia as 11 entidades, com chaves primárias, índices únicos (email, CPF, CRM, nome) e relacionamentos (perfis 1:1 com `Usuario`, FKs de consulta/agendamento etc.).
+- **`Ef*Repository`** (`src/HealthMap.Infrastructure/Repositories/`) — repositórios do EF Core que implementam as mesmas interfaces do Domain.
+- **`DatabaseSeeder`** (`src/HealthMap.Api/data/DatabaseSeeder.cs`) — cria o esquema e popula os dados demo com senhas hasheadas (PBKDF2).
+
+> Os repositórios/`JsonDatabase` antigos foram mantidos no código (por referência), porém não são mais utilizados no `Program.cs`.
 
 ---
 
@@ -262,6 +301,6 @@ Provedores suportados:
 
 ## ⚠️ Observações
 
-- As senhas são armazenadas em texto puro — comportamento **intencional** para fins de demonstração acadêmica.
+- No banco SQL, as senhas são armazenadas como hash (**PBKDF2**) — diferentemente do frontend legado (SPA), que ainda usa texto puro por ser apenas demonstração.
 - O worker de notificações executa uma checagem a cada 60 segundos.
 - Os dados das consultas de demonstração usam datas relativas à data atual, mantendo-as sempre "frescas".

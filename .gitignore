@@ -8,3 +8,8 @@
 # Environment / secrets
 .env
 *.env
+
+# SQLite database (gerado em tempo de execução)
+*.db
+*.db-shm
+*.db-wal
