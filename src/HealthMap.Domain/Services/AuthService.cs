@@ -23,8 +23,17 @@ public class AuthService
         if (usuario is null)
             return null;
 
-        var hash = PasswordHasher.Hash(senha, usuario.SenhaHash);
-        return hash == usuario.SenhaHash ? usuario : null;
+        // Autenticação padrão: hash PBKDF2 no formato "salt:hash".
+        if (PasswordHasher.Verify(senha, usuario.SenhaHash))
+            return usuario;
+
+        // Compatibilidade com dados seed/legados gravados em texto puro
+        // (o banco de demonstração usa "senhaHash": "demo"). Em produção,
+        // apenas o formato PBKDF2 deve ser aceito.
+        if (!usuario.SenhaHash.Contains(':') && usuario.SenhaHash == senha)
+            return usuario;
+
+        return null;
     }
 }
 
@@ -51,8 +60,15 @@ public static class PasswordHasher
 
     public static bool Verify(string senha, string storedHash)
     {
-        var parts = storedHash.Split(':');
-        if (parts.Length != 2) return false;
-        return Hash(senha, storedHash) == storedHash;
+        try
+        {
+            var parts = storedHash.Split(':');
+            if (parts.Length != 2) return false;
+            return Hash(senha, storedHash) == storedHash;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
     }
 }

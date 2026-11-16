@@ -1,6 +1,7 @@
 using HealthMap.Domain.Interfaces;
 using HealthMap.Domain.Services;
 using HealthMap.Api.Dtos;
+using HealthMap.Api.Middleware;
 
 namespace HealthMap.Api.Endpoints;
 
@@ -9,6 +10,7 @@ public static class ConsultaEndpoints
     public static void MapConsultaEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/consultas");
+        group.AddEndpointFilter<ValidationEndpointFilter>();
 
         group.MapGet("/", (IConsultaRepository repo) => Results.Ok(repo.GetAll()));
 
@@ -38,11 +40,18 @@ public static class ConsultaEndpoints
             service.Concluir(id);
             return Results.NoContent();
         });
+
+        group.MapPost("/{id}/reagendar", (string id, ReagendarConsultaRequest req, ConsultaService service) =>
+        {
+            service.Reagendar(id, req.DataHora);
+            return Results.NoContent();
+        });
     }
 
     public static void MapFeedbackEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/feedback");
+        group.AddEndpointFilter<ValidationEndpointFilter>();
 
         group.MapPost("/", (FeedbackRequest req, FeedbackService service) =>
         {
