@@ -27,6 +27,11 @@ public class ErrorHandlingMiddleware
             _logger.LogWarning(ex, "Erro de regra de negócio");
             await WriteJson(context, StatusCodes.Status422UnprocessableEntity, ex.Message);
         }
+        catch (BadHttpRequestException ex)
+        {
+            _logger.LogWarning(ex, "Requisição inválida");
+            await WriteJson(context, StatusCodes.Status400BadRequest, ex.Message);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro inesperado");
