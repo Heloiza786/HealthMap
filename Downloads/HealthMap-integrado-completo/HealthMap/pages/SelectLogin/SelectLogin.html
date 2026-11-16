@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthMap — Criar Conta</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/design-system.css">
+    <link rel="stylesheet" href="../../styles/reset.css">
+    <link rel="stylesheet" href="../../styles/components.css">
+    <link rel="stylesheet" href="../../styles/animations.css">
+    <link rel="stylesheet" href="SelectLogin.css">
+</head>
+
+<body>
+    <div class="select-page">
+        <div class="select-container">
+            <div class="select-header">
+                <a href="../LoginInicial/LoginInicial.html" class="back-link">← Voltar</a>
+                <div class="select-logo">🏥 MedCloud</div>
+                <h1 class="select-title">Criar Conta</h1>
+                <p class="select-subtitle">Selecione seu perfil para continuar</p>
+            </div>
+
+            <div class="profile-cards">
+                <!-- Médico -->
+                <div class="profile-card" onclick="selectProfile('med')" tabindex="0" role="button"
+                    aria-label="Cadastrar como Médico">
+                    <div class="profile-icon">👨‍⚕️</div>
+                    <h3 class="profile-name">Médico</h3>
+                    <p class="profile-desc">Acesse o painel médico, gerencie consultas e pacientes.</p>
+                    <span class="profile-action">Cadastrar →</span>
+                </div>
+
+                <!-- Paciente -->
+                <div class="profile-card" onclick="selectProfile('pac')" tabindex="0" role="button"
+                    aria-label="Cadastrar como Paciente">
+                    <div class="profile-icon">🙋</div>
+                    <h3 class="profile-name">Paciente</h3>
+                    <p class="profile-desc">Agende consultas e acompanhe seus atendimentos.</p>
+                    <span class="profile-action">Cadastrar →</span>
+                </div>
+
+                <!-- Secretário -->
+                <div class="profile-card" onclick="selectProfile('sec')" tabindex="0" role="button"
+                    aria-label="Cadastrar como Secretário">
+                    <div class="profile-icon">📋</div>
+                    <h3 class="profile-name">Secretário</h3>
+                    <p class="profile-desc">Gerencie a agenda e o cadastro de pacientes.</p>
+                    <span class="profile-action">Cadastrar →</span>
+                </div>
+            </div>
+
+            <div class="select-footer">
+                <span>Já tem uma conta?</span>
+                <a href="../LoginInicial/LoginInicial.html" class="login-link">Fazer login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectProfile(profile) {
+            const urls = {
+                'med': '../RegisterMed/RegisterMed.html',
+                'pac': '../RegisterPac/RegisterPac.html',
+                'sec': '../RegisterSec/RegisterSec.html'
+            };
+            window.location.href = urls[profile];
+        }
+
+        // Keyboard support
+        document.querySelectorAll('.profile-card').forEach(card => {
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    card.click();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

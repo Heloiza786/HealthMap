@@ -5,9 +5,8 @@ namespace HealthMap.Domain.Services;
 
 /// <summary>
 /// Regras de negócio para agendamento de consultas.
-/// Garante integridade referencial, data futura, disponibilidade do médico e
-/// ausência de conflito de horário, além de criar o registro de agendamento
-/// (1:1 com a consulta).
+/// Garante integridade referencial e ausência de conflito de horário,
+/// além de criar o registro de agendamento (1:1 com a consulta).
 /// </summary>
 public class ConsultaService
 {

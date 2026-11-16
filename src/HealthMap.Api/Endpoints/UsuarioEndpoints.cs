@@ -20,6 +20,20 @@ public static class UsuarioEndpoints
             var u = repo.GetById(id);
             return u is null ? Results.NotFound(new { error = "Usuário não encontrado." }) : Results.Ok(UsuarioResponse.From(u));
         });
+
+        group.MapPut("/{id}", (string id, AtualizarUsuarioRequest req, IUsuarioRepository repo) =>
+        {
+            var atual = repo.GetById(id);
+            if (atual is null) return Results.NotFound(new { error = "Usuário não encontrado." });
+            var emailOutro = repo.GetByEmail(req.Email);
+            if (emailOutro is not null && emailOutro.IdUsuario != id) return Results.Conflict(new { error = "E-mail já cadastrado." });
+            var cpfOutro = repo.GetByCpf(req.Cpf);
+            if (cpfOutro is not null && cpfOutro.IdUsuario != id) return Results.Conflict(new { error = "CPF já cadastrado." });
+            atual.Nome = req.Nome.Trim(); atual.Email = req.Email.Trim(); atual.Cpf = req.Cpf.Trim(); atual.Telefone = req.Telefone?.Trim() ?? string.Empty; atual.DataNascimento = req.DataNascimento;
+            if (!string.IsNullOrWhiteSpace(req.Senha)) atual.SenhaHash = PasswordHasher.Hash(req.Senha);
+            repo.Update(atual);
+            return Results.Ok(UsuarioResponse.From(atual));
+        });
     }
 
     public static void MapEspecialidadeEndpoints(this IEndpointRouteBuilder app)
@@ -92,12 +106,11 @@ public static class UsuarioEndpoints
             return Results.NoContent();
         });
 
-        group.MapDelete("/{id}", (string id, IMedicoRepository repo) =>
+        group.MapDelete("/{id}", (string id, IMedicoRepository repo, IUsuarioRepository usuarios) =>
         {
-            if (repo.GetById(id) is null)
-                return Results.NotFound(new { error = "Médico não encontrado." });
-
+            if (repo.GetById(id) is null) return Results.NotFound(new { error = "Médico não encontrado." });
             repo.Delete(id);
+            usuarios.Delete(id);
             return Results.NoContent();
         });
     }
@@ -129,12 +142,39 @@ public static class UsuarioEndpoints
 
         group.MapPut("/{id}", (string id, Paciente paciente, IPacienteRepository repo) =>
         {
-            if (repo.GetById(id) is null)
-                return Results.NotFound(new { error = "Paciente não encontrado." });
+            if (repo.GetById(id) is null) return Results.NotFound(new { error = "Paciente não encontrado." });
+            paciente.IdUsuario = id; repo.Update(paciente); return Results.NoContent();
+        });
 
-            paciente.IdUsuario = id;
-            repo.Update(paciente);
-            return Results.NoContent();
+        group.MapDelete("/{id}", (string id, IPacienteRepository repo, IUsuarioRepository usuarios) =>
+        {
+            if (repo.GetById(id) is null) return Results.NotFound(new { error = "Paciente não encontrado." });
+            repo.Delete(id); usuarios.Delete(id); return Results.NoContent();
+        });
+    }
+
+    public static void MapSecretariaEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup("/api/secretarias");
+
+        group.MapGet("/", (ISecretariaRepository repo) => Results.Ok(repo.GetAll()));
+
+        group.MapGet("/{id}", (string id, ISecretariaRepository repo) =>
+        {
+            var s = repo.GetById(id);
+            return s is null ? Results.NotFound(new { error = "Secretaria não encontrada." }) : Results.Ok(s);
+        });
+
+        group.MapPut("/{id}", (string id, Secretaria secretaria, ISecretariaRepository repo) =>
+        {
+            if (repo.GetById(id) is null) return Results.NotFound(new { error = "Secretaria não encontrada." });
+            secretaria.IdUsuario = id; repo.Update(secretaria); return Results.NoContent();
+        });
+
+        group.MapDelete("/{id}", (string id, ISecretariaRepository repo, IUsuarioRepository usuarios) =>
+        {
+            if (repo.GetById(id) is null) return Results.NotFound(new { error = "Secretaria não encontrada." });
+            repo.Delete(id); usuarios.Delete(id); return Results.NoContent();
         });
     }
 }

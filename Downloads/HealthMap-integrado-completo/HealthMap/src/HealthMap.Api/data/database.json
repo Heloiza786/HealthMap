@@ -1,0 +1,111 @@
+{
+  "usuarios": [
+    {
+      "idUsuario": "usr-1",
+      "nome": "Maria Oliveira",
+      "email": "paciente@gmail.com",
+      "senhaHash": "demo",
+      "cpf": "123.456.789-00",
+      "telefone": "(11) 98888-0001",
+      "dataNascimento": "1990-05-12T00:00:00"
+    },
+    {
+      "idUsuario": "usr-2",
+      "nome": "Dr. Carlos Silva",
+      "email": "medico@gmail.com",
+      "senhaHash": "demo",
+      "cpf": "111.222.333-44",
+      "telefone": "(11) 99999-0001",
+      "dataNascimento": "1980-03-20T00:00:00"
+    },
+    {
+      "idUsuario": "usr-3",
+      "nome": "Secretaria Ana",
+      "email": "secretaria@gmail.com",
+      "senhaHash": "demo",
+      "cpf": "555.666.777-88",
+      "telefone": "(11) 97777-0001",
+      "dataNascimento": "1995-07-01T00:00:00"
+    },
+    {
+      "idUsuario": "ea6fe01c-4cfb-4eac-946a-f50d2ebc39ed",
+      "nome": "TESTE2",
+      "email": "heloizacustodio2@gmail.com",
+      "senhaHash": "WJXCaPpS\u002BJSDfOSoH81jMw==:EeHWqxwkd/5IOANtcSsCLvD/dB1N10Bht408YUc3gwY=",
+      "cpf": "034.407.892-25",
+      "telefone": "21975846623",
+      "dataNascimento": null
+    },
+    {
+      "idUsuario": "54b46839-4750-4d0d-ac2f-b429e6529dc7",
+      "nome": "TESTE",
+      "email": "heloizacustodio277@gmail.com",
+      "senhaHash": "x6UYbUis06OPndG\u002B0gCtpQ==:FdqLQaLDmsriWrZaLtSY0mVRM0/H9Q/pIqA5WdEic7A=",
+      "cpf": "034.407.892-27",
+      "telefone": "(21) 97084-0031",
+      "dataNascimento": null
+    }
+  ],
+  "pacientes": [
+    {
+      "idUsuario": "usr-1",
+      "planoSaude": "Unimed",
+      "endereco": "Rua A, 123"
+    },
+    {
+      "idUsuario": "ea6fe01c-4cfb-4eac-946a-f50d2ebc39ed",
+      "planoSaude": "",
+      "endereco": ""
+    }
+  ],
+  "secretarias": [
+    {
+      "idUsuario": "usr-3",
+      "turnoTrabalho": "Manh\u00E3"
+    }
+  ],
+  "especialidades": [
+    {
+      "idEspecialidade": "esp-1",
+      "nome": "Ortopedia"
+    },
+    {
+      "idEspecialidade": "esp-2",
+      "nome": "Dermatologia"
+    },
+    {
+      "idEspecialidade": "esp-3",
+      "nome": "Cardiologia"
+    },
+    {
+      "idEspecialidade": "8ffd7555-b961-4130-a4ad-7b9375b1e7f1",
+      "nome": "pediatria"
+    }
+  ],
+  "medicos": [
+    {
+      "idUsuario": "usr-2",
+      "idEspecialidade": "esp-1",
+      "crm": "123456-SP"
+    },
+    {
+      "idUsuario": "54b46839-4750-4d0d-ac2f-b429e6529dc7",
+      "idEspecialidade": "8ffd7555-b961-4130-a4ad-7b9375b1e7f1",
+      "crm": "14754658"
+    }
+  ],
+  "disponibilidadesMedico": [
+    {
+      "idDisponibilidade": "disp-1",
+      "idMedico": "usr-2",
+      "diaSemana": 1,
+      "horaInicio": "08:00",
+      "horaFim": "17:00"
+    }
+  ],
+  "historicosMedicos": [],
+  "consultas": [],
+  "agendamentos": [],
+  "feedbacks": [],
+  "confirmacoesMensagem": []
+}
