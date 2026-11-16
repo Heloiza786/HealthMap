@@ -419,11 +419,15 @@
                         telefone: document.getElementById('medTelefone').value.trim(),
                         senha: document.getElementById('medSenha').value.trim(),
                     };
-                    MedCloud.updateMedico(id, updates);
-                    showToast('Médico atualizado!');
-                    closeModal('criarMedicoModal');
-                    form.onsubmit = handleCriarMedico;
-                    filterUsers(currentFilter);
+                    const result = MedCloud.updateMedico(id, updates);
+                    if (result && result.success) {
+                        showToast('Médico atualizado!');
+                        closeModal('criarMedicoModal');
+                        form.onsubmit = handleCriarMedico;
+                        filterUsers(currentFilter);
+                    } else {
+                        showToast(result && result.error ? result.error : 'Erro ao atualizar médico.', 'error');
+                    }
                 };
             } else {
                 const p = MedCloud.getPacienteById(id);
@@ -444,11 +448,15 @@
                         telefone: document.getElementById('pacTelefone').value.trim(),
                         senha: document.getElementById('pacSenha').value.trim(),
                     };
-                    MedCloud.updatePaciente(id, updates);
-                    showToast('Paciente atualizado!');
-                    closeModal('criarPacienteModal');
-                    form.onsubmit = handleCriarPaciente;
-                    filterUsers(currentFilter);
+                    const result = MedCloud.updatePaciente(id, updates);
+                    if (result && result.success) {
+                        showToast('Paciente atualizado!');
+                        closeModal('criarPacienteModal');
+                        form.onsubmit = handleCriarPaciente;
+                        filterUsers(currentFilter);
+                    } else {
+                        showToast(result && result.error ? result.error : 'Erro ao atualizar paciente.', 'error');
+                    }
                 };
             }
         }

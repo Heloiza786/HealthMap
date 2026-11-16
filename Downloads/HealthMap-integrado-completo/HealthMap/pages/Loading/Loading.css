@@ -1,0 +1,25 @@
+/* ============================================
+   🏥 MedCloud — Tela de Loading
+   ============================================ */
+
+.loading-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg);
+}
+
+.loading-container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-lg);
+}
+
+.loading-text {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    animation: pulse 2s ease-in-out infinite;
+}

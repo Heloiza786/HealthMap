@@ -1,0 +1,61 @@
+/* ============================================
+   🏥 MedCloud — Tela de Sucesso
+   ============================================ */
+
+.success-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-primary-lightest) 0%, var(--color-bg) 50%, #E0F2FE 100%);
+    padding: var(--spacing-md);
+}
+
+.success-container {
+    text-align: center;
+    max-width: 480px;
+    background: var(--color-surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    padding: var(--spacing-3xl) var(--spacing-2xl);
+}
+
+.success-icon {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.success-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-md);
+}
+
+.success-text {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--spacing-xl);
+}
+
+.success-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+    .success-container {
+        padding: var(--spacing-xl);
+    }
+
+    .success-actions {
+        flex-direction: column;
+    }
+
+    .success-actions .btn {
+        width: 100%;
+    }
+}

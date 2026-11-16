@@ -6,6 +6,95 @@
 const MedCloud = (function () {
     const STORAGE_KEY = 'medcloud_data';
 
+    // API do ASP.NET Core. Pode ser sobrescrita antes deste arquivo com:
+    // window.HEALTHMAP_API_URL = 'https://seu-backend/api';
+    const API_BASE = (window.HEALTHMAP_API_URL || 'http://localhost:5177/api').replace(/\/$/, '');
+    let apiCache = null;
+    let apiCacheAt = 0;
+
+    function apiRequest(path, options = {}) {
+        const xhr = new XMLHttpRequest();
+        xhr.open(options.method || 'GET', API_BASE + path, false);
+        xhr.setRequestHeader('Accept', 'application/json');
+        if (options.body !== undefined) {
+            xhr.setRequestHeader('Content-Type', 'application/json');
+        }
+        const token = localStorage.getItem('healthmap_token');
+        if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+        try {
+            xhr.send(options.body !== undefined ? JSON.stringify(options.body) : null);
+        } catch (error) {
+            return { ok: false, networkError: true, error: error.message };
+        }
+
+        let body = null;
+        try { body = xhr.responseText ? JSON.parse(xhr.responseText) : null; } catch (_) { body = null; }
+        return { ok: xhr.status >= 200 && xhr.status < 300, status: xhr.status, body };
+    }
+
+    function invalidateApiCache() {
+        apiCache = null;
+        apiCacheAt = 0;
+    }
+
+    function syncApiData(force = false) {
+        if (!force && apiCache && Date.now() - apiCacheAt < 1500) return apiCache;
+
+        const users = apiRequest('/usuarios/');
+        const pacientes = apiRequest('/pacientes/');
+        const medicos = apiRequest('/medicos/');
+        const consultas = apiRequest('/consultas/');
+
+        if (![users, pacientes, medicos, consultas].every(r => r.ok)) return null;
+
+        const userById = new Map((users.body || []).map(u => [u.idUsuario, u]));
+        const medicoProfiles = medicos.body || [];
+        const pacienteProfiles = pacientes.body || [];
+
+        const medicoMap = medicoProfiles.map(m => {
+            const u = userById.get(m.idUsuario) || {};
+            return {
+                id: m.idUsuario, idUsuario: m.idUsuario, nome: u.nome || '', email: u.email || '',
+                cpf: u.cpf || '', telefone: u.telefone || '', dataNascimento: u.dataNascimento || null,
+                crm: m.crm || '', idEspecialidade: m.idEspecialidade || '', especialidade: '',
+                senha: '', foto: '', ativo: true
+            };
+        });
+
+        const especialidades = apiRequest('/especialidades/');
+        const espMap = new Map((especialidades.ok ? especialidades.body : []).map(e => [e.idEspecialidade, e.nome]));
+        medicoMap.forEach(m => m.especialidade = espMap.get(m.idEspecialidade) || '');
+
+        const pacienteMap = pacienteProfiles.map(p => {
+            const u = userById.get(p.idUsuario) || {};
+            return {
+                id: p.idUsuario, idUsuario: p.idUsuario, nome: u.nome || '', email: u.email || '',
+                cpf: u.cpf || '', telefone: u.telefone || '', dataNascimento: u.dataNascimento || null,
+                planoSaude: p.planoSaude || '', endereco: p.endereco || '', senha: '', foto: '', ativo: true
+            };
+        });
+
+        const consultaMap = (consultas.body || []).map(c => {
+            const d = new Date(c.dataHora);
+            return {
+                id: c.idConsulta, idConsulta: c.idConsulta, pacienteId: c.idPaciente, medicoId: c.idMedico,
+                data: isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0],
+                hora: isNaN(d.getTime()) ? '' : d.toTimeString().slice(0, 5),
+                dataHora: c.dataHora, status: c.status, observacoes: c.queixaPrincipal || '',
+                queixaPrincipal: c.queixaPrincipal || '', criadaEm: null
+            };
+        });
+
+        apiCache = { usuarios: users.body || [], medicos: medicoMap, pacientes: pacienteMap, consultas: consultaMap };
+        apiCacheAt = Date.now();
+        return apiCache;
+    }
+
+    function apiIsAvailable() {
+        return !!syncApiData(false);
+    }
+
     // ── Default Demo Data ──
     const defaultData = {
         // Admin users
@@ -221,15 +310,23 @@ const MedCloud = (function () {
     function load() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) {
-                const data = JSON.parse(raw);
-                // Merge with defaults to ensure all keys exist
-                return { ...deepClone(defaultData), ...data };
+            const localData = raw ? JSON.parse(raw) : deepClone(defaultData);
+            const api = syncApiData(false);
+            if (api) {
+                return {
+                    ...deepClone(defaultData),
+                    ...localData,
+                    usuarios: api.usuarios,
+                    medicos: api.medicos,
+                    pacientes: api.pacientes,
+                    consultas: api.consultas,
+                };
             }
+            return { ...deepClone(defaultData), ...localData };
         } catch (e) {
             console.warn('Failed to load data, using defaults', e);
+            return deepClone(defaultData);
         }
-        return deepClone(defaultData);
     }
 
     function save(data) {
@@ -248,26 +345,33 @@ const MedCloud = (function () {
     return {
         // ── Auth ──
         login(email, senha) {
+            const response = apiRequest('/auth/login', { method: 'POST', body: { email, senha } });
+            if (response.ok && response.body) {
+                const logged = response.body;
+                localStorage.setItem('healthmap_token', logged.token);
+                const api = syncApiData(true);
+                const medico = api?.medicos.find(m => m.id === logged.idUsuario);
+                const paciente = api?.pacientes.find(p => p.id === logged.idUsuario);
+                const tipo = paciente ? 'paciente' : medico ? 'medico' : 'admin';
+                const user = { id: logged.idUsuario, idUsuario: logged.idUsuario, nome: logged.nome, email: logged.email, tipo };
+                const data = load();
+                data.currentUser = user;
+                save(data);
+                return { success: true, user };
+            }
+
+            // Fallback para o modo demonstração antigo se o back-end estiver offline.
             const data = load();
             let user = data.administradores.find(a => a.email === email && a.senha === senha);
             let tipo = 'admin';
-            if (!user) {
-                user = data.medicos.find(m => m.email === email && m.senha === senha);
-                tipo = 'medico';
-            }
-            if (!user) {
-                user = data.pacientes.find(p => p.email === email && p.senha === senha);
-                tipo = 'paciente';
-            }
-            if (user) {
-                data.currentUser = { ...user, tipo };
-                save(data);
-                return { success: true, user: data.currentUser };
-            }
-            return { success: false, error: 'E-mail ou senha inválidos' };
+            if (!user) { user = data.medicos.find(m => m.email === email && m.senha === senha); tipo = 'medico'; }
+            if (!user) { user = data.pacientes.find(p => p.email === email && p.senha === senha); tipo = 'paciente'; }
+            if (user) { data.currentUser = { ...user, tipo }; save(data); return { success: true, user: data.currentUser }; }
+            return { success: false, error: response.status === 401 ? 'E-mail ou senha inválidos' : 'Não foi possível conectar ao servidor.' };
         },
 
         logout() {
+            localStorage.removeItem('healthmap_token');
             const data = load();
             data.currentUser = null;
             save(data);
@@ -304,54 +408,72 @@ const MedCloud = (function () {
 
         // ── Médicos ──
         getMedicos() {
-            return load().medicos;
+            const api = syncApiData(true);
+            return api ? api.medicos : load().medicos;
         },
 
         getMedicoById(id) {
-            return load().medicos.find(m => m.id === id) || null;
+            return this.getMedicos().find(m => m.id === id || m.idUsuario === id) || null;
         },
 
         updateMedico(id, updates) {
-            const data = load();
-            const idx = data.medicos.findIndex(m => m.id === id);
-            if (idx === -1) return false;
-            data.medicos[idx] = { ...data.medicos[idx], ...updates };
-            // Update current user if it's the same
-            if (data.currentUser && data.currentUser.id === id) {
-                data.currentUser = { ...data.currentUser, ...updates };
+            const medico = this.getMedicoById(id);
+            if (!medico) return { success: false, error: 'Médico não encontrado.' };
+            const userResponse = apiRequest(`/usuarios/${encodeURIComponent(id)}`, { method: 'PUT', body: {
+                nome: updates.nome ?? medico.nome, email: updates.email ?? medico.email, cpf: updates.cpf ?? medico.cpf ?? '',
+                telefone: updates.telefone ?? medico.telefone ?? '', dataNascimento: updates.dataNascimento ?? medico.dataNascimento ?? null, senha: updates.senha || null
+            }});
+            if (!userResponse.ok) return { success: false, error: userResponse.body?.error || 'Não foi possível atualizar o usuário.' };
+            let idEspecialidade = medico.idEspecialidade;
+            if (updates.especialidade) {
+                const especialidades = apiRequest('/especialidades/');
+                const found = (especialidades.body || []).find(e => e.nome.toLowerCase() === updates.especialidade.toLowerCase());
+                if (found) idEspecialidade = found.idEspecialidade;
+                else {
+                    const created = apiRequest('/especialidades/', { method: 'POST', body: { nome: updates.especialidade } });
+                    if (!created.ok) return { success: false, error: created.body?.error || 'Não foi possível atualizar a especialidade.' };
+                    idEspecialidade = created.body.idEspecialidade;
+                }
             }
-            save(data);
-            return true;
+            const profile = apiRequest(`/medicos/${encodeURIComponent(id)}`, { method: 'PUT', body: { idUsuario: id, idEspecialidade, crm: updates.crm ?? medico.crm } });
+            if (!profile.ok) return { success: false, error: profile.body?.error || 'Não foi possível atualizar o médico.' };
+            invalidateApiCache();
+            return { success: true };
         },
 
         // ── Pacientes ──
         getPacientes() {
-            return load().pacientes;
+            const api = syncApiData(true);
+            return api ? api.pacientes : load().pacientes;
         },
 
         getPacienteById(id) {
-            return load().pacientes.find(p => p.id === id) || null;
+            return this.getPacientes().find(p => p.id === id || p.idUsuario === id) || null;
         },
 
         updatePaciente(id, updates) {
-            const data = load();
-            const idx = data.pacientes.findIndex(p => p.id === id);
-            if (idx === -1) return false;
-            data.pacientes[idx] = { ...data.pacientes[idx], ...updates };
-            if (data.currentUser && data.currentUser.id === id) {
-                data.currentUser = { ...data.currentUser, ...updates };
-            }
-            save(data);
-            return true;
+            const paciente = this.getPacienteById(id);
+            if (!paciente) return { success: false, error: 'Paciente não encontrado.' };
+            const userResponse = apiRequest(`/usuarios/${encodeURIComponent(id)}`, { method: 'PUT', body: {
+                nome: updates.nome ?? paciente.nome, email: updates.email ?? paciente.email, cpf: updates.cpf ?? paciente.cpf ?? '',
+                telefone: updates.telefone ?? paciente.telefone ?? '', dataNascimento: updates.dataNascimento ?? paciente.dataNascimento ?? null, senha: updates.senha || null
+            }});
+            if (!userResponse.ok) return { success: false, error: userResponse.body?.error || 'Não foi possível atualizar o usuário.' };
+            const profile = apiRequest(`/pacientes/${encodeURIComponent(id)}`, { method: 'PUT', body: {
+                idUsuario: id, planoSaude: updates.planoSaude ?? paciente.planoSaude ?? '', endereco: updates.endereco ?? paciente.endereco ?? ''
+            }});
+            if (!profile.ok) return { success: false, error: profile.body?.error || 'Não foi possível atualizar o paciente.' };
+            invalidateApiCache();
+            return { success: true };
         },
 
         searchPacientes(query) {
             const q = query.toLowerCase().trim();
-            if (!q) return load().pacientes;
-            return load().pacientes.filter(p =>
-                p.nome.toLowerCase().includes(q) ||
-                p.email.toLowerCase().includes(q) ||
-                p.cpf.includes(q)
+            if (!q) return this.getPacientes();
+            return this.getPacientes().filter(p =>
+                (p.nome || '').toLowerCase().includes(q) ||
+                (p.email || '').toLowerCase().includes(q) ||
+                (p.cpf || '').includes(q)
             );
         },
 
@@ -410,102 +532,53 @@ const MedCloud = (function () {
 
         // ── Create / Update / Cancel Consulta ──
         criarConsulta(pacienteId, medicoId, data, hora, observacoes = '') {
-            const dataLoad = load();
-
-            // Validate future date
             const hoje = new Date().toISOString().split('T')[0];
-            if (!data || data < hoje) {
-                return { success: false, error: 'A data da consulta deve ser hoje ou uma data futura.' };
+            if (!data || data < hoje) return { success: false, error: 'A data da consulta deve ser hoje ou uma data futura.' };
+
+            const user = this.getCurrentUser();
+            const response = apiRequest('/consultas/agendar', {
+                method: 'POST',
+                body: {
+                    idPaciente: pacienteId,
+                    idMedico: medicoId,
+                    dataHora: `${data}T${hora}:00`,
+                    queixaPrincipal: observacoes,
+                    idUsuarioSolicitante: user?.id || user?.idUsuario || pacienteId
+                }
+            });
+
+            if (response.ok && response.body) {
+                invalidateApiCache();
+                const c = response.body;
+                const d = new Date(c.dataHora);
+                const nova = { id: c.idConsulta, pacienteId: c.idPaciente, medicoId: c.idMedico,
+                    data: d.toISOString().split('T')[0], hora: d.toTimeString().slice(0, 5),
+                    status: c.status, observacoes: c.queixaPrincipal || '', dataHora: c.dataHora };
+                return { success: true, consulta: nova };
             }
 
-            // Validate conflict
-            const conflito = dataLoad.consultas.some(c =>
-                c.medicoId === medicoId &&
-                c.data === data &&
-                c.hora === hora &&
-                c.status !== 'cancelada'
-            );
-            if (conflito) {
-                return { success: false, error: 'Já existe uma consulta agendada neste horário.' };
-            }
-
-            const nova = {
-                id: gerarId('cons'),
-                pacienteId,
-                medicoId,
-                data,
-                hora,
-                status: 'pendente',
-                observacoes,
-                criadaEm: new Date().toISOString(),
-            };
-            dataLoad.consultas.push(nova);
-            save(dataLoad);
-
-            // Schedule notifications
-            this.agendarNotificacoes(nova);
-
-            return { success: true, consulta: nova };
+            if (!response.networkError && response.body?.error) return { success: false, error: response.body.error };
+            return { success: false, error: 'Não foi possível agendar a consulta.' };
         },
 
         cancelarConsulta(consultaId) {
-            const data = load();
-            const cons = data.consultas.find(c => c.id === consultaId);
-            if (!cons) return { success: false, error: 'Consulta não encontrada.' };
-            if (cons.status === 'concluida') {
-                return { success: false, error: 'Não é possível cancelar uma consulta já concluída.' };
-            }
-            cons.status = 'cancelada';
-            save(data);
-            return { success: true };
+            const response = apiRequest(`/consultas/${encodeURIComponent(consultaId)}/cancelar`, { method: 'POST' });
+            if (response.ok) { invalidateApiCache(); return { success: true }; }
+            return { success: false, error: response.body?.error || 'Não foi possível cancelar a consulta.' };
         },
 
         concluirConsulta(consultaId) {
-            const data = load();
-            const cons = data.consultas.find(c => c.id === consultaId);
-            if (!cons) return { success: false, error: 'Consulta não encontrada.' };
-            if (cons.status === 'cancelada') {
-                return { success: false, error: 'Não é possível concluir uma consulta cancelada.' };
-            }
-            cons.status = 'concluida';
-            save(data);
-            return { success: true };
+            const response = apiRequest(`/consultas/${encodeURIComponent(consultaId)}/concluir`, { method: 'POST' });
+            if (response.ok) { invalidateApiCache(); return { success: true }; }
+            return { success: false, error: response.body?.error || 'Não foi possível concluir a consulta.' };
         },
 
         reagendarConsulta(consultaId, novaData, novaHora) {
-            const data = load();
-            const cons = data.consultas.find(c => c.id === consultaId);
-            if (!cons) return { success: false, error: 'Consulta não encontrada.' };
-            if (cons.status === 'concluida') {
-                return { success: false, error: 'Não é possível reagendar uma consulta já concluída.' };
-            }
-            if (cons.status === 'cancelada') {
-                return { success: false, error: 'Não é possível reagendar uma consulta cancelada.' };
-            }
-
-            // Validate future date
-            const hoje = new Date().toISOString().split('T')[0];
-            if (!novaData || novaData < hoje) {
-                return { success: false, error: 'A nova data deve ser hoje ou uma data futura.' };
-            }
-
-            // Check conflict
-            const conflito = data.consultas.some(c =>
-                c.id !== consultaId &&
-                c.medicoId === cons.medicoId &&
-                c.data === novaData &&
-                c.hora === novaHora &&
-                c.status !== 'cancelada'
-            );
-            if (conflito) {
-                return { success: false, error: 'Já existe uma consulta neste horário.' };
-            }
-
-            cons.data = novaData;
-            cons.hora = novaHora;
-            cons.status = 'reagendada';
-            save(data);
-            return { success: true };
+            const response = apiRequest(`/consultas/${encodeURIComponent(consultaId)}/reagendar`, {
+                method: 'POST', body: { dataHora: `${novaData}T${novaHora}:00` }
+            });
+            if (response.ok) { invalidateApiCache(); return { success: true }; }
+            return { success: false, error: response.body?.error || 'Não foi possível reagendar a consulta.' };
         },
 
         // ── Stats ──
@@ -554,55 +627,42 @@ const MedCloud = (function () {
 
         // ── Admin: User Management ──
         criarMedico(dados) {
-            const data = load();
-            const novo = {
-                id: gerarId('med'),
-                nome: dados.nome,
-                email: dados.email,
-                senha: dados.senha || '123',
-                crm: dados.crm,
-                especialidade: dados.especialidade,
-                telefone: dados.telefone || '',
-                foto: '',
-            };
-            data.medicos.push(novo);
-            save(data);
-            return { success: true, user: novo };
+            const response = apiRequest('/auth/register-medico', { method: 'POST', body: {
+                nome: dados.nome, email: dados.email, senha: dados.senha || '123', cpf: dados.cpf || '', telefone: dados.telefone || '',
+                dataNascimento: dados.dataNascimento || null, crm: dados.crm, especialidade: dados.especialidade
+            }});
+            if (response.ok) { invalidateApiCache(); return { success: true, user: response.body }; }
+            return { success: false, error: response.body?.error || 'Não foi possível cadastrar o médico.' };
         },
 
         criarPaciente(dados) {
-            const data = load();
-            const novo = {
-                id: gerarId('pac'),
-                nome: dados.nome,
-                email: dados.email,
-                senha: dados.senha || '123',
-                cpf: dados.cpf,
-                telefone: dados.telefone || '',
-                foto: '',
-            };
-            data.pacientes.push(novo);
-            save(data);
-            return { success: true, user: novo };
+            const response = apiRequest('/auth/register-paciente', { method: 'POST', body: {
+                nome: dados.nome, email: dados.email, senha: dados.senha || '123', cpf: dados.cpf, telefone: dados.telefone || '',
+                dataNascimento: dados.dataNascimento || null, planoSaude: dados.planoSaude || '', endereco: dados.endereco || ''
+            }});
+            if (response.ok) { invalidateApiCache(); return { success: true, user: response.body }; }
+            return { success: false, error: response.body?.error || 'Não foi possível cadastrar o paciente.' };
+        },
+
+        criarSecretaria(dados) {
+            const response = apiRequest('/auth/register-secretaria', { method: 'POST', body: {
+                nome: dados.nome, email: dados.email, senha: dados.senha || '123', cpf: dados.cpf, telefone: dados.telefone || '',
+                dataNascimento: dados.dataNascimento || null, turnoTrabalho: dados.turnoTrabalho || ''
+            }});
+            if (response.ok) { invalidateApiCache(); return { success: true, user: response.body }; }
+            return { success: false, error: response.body?.error || 'Não foi possível cadastrar a secretaria.' };
         },
 
         desativarMedico(id) {
-            const data = load();
-            const idx = data.medicos.findIndex(m => m.id === id);
-            if (idx === -1) return { success: false, error: 'Médico não encontrado.' };
-            // Mark as inactive by removing or flagging
-            data.medicos[idx].ativo = false;
-            save(data);
-            return { success: true };
+            const response = apiRequest(`/medicos/${encodeURIComponent(id)}`, { method: 'DELETE' });
+            if (response.ok) { invalidateApiCache(); return { success: true }; }
+            return { success: false, error: response.body?.error || 'Não foi possível desativar o médico.' };
         },
 
         desativarPaciente(id) {
-            const data = load();
-            const idx = data.pacientes.findIndex(p => p.id === id);
-            if (idx === -1) return { success: false, error: 'Paciente não encontrado.' };
-            data.pacientes[idx].ativo = false;
-            save(data);
-            return { success: true };
+            const response = apiRequest(`/pacientes/${encodeURIComponent(id)}`, { method: 'DELETE' });
+            if (response.ok) { invalidateApiCache(); return { success: true }; }
+            return { success: false, error: response.body?.error || 'Não foi possível desativar o paciente.' };
         },
 
         // ── Chart Data ──

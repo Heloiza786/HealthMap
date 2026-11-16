@@ -198,9 +198,14 @@
 
                 const user = MedCloud.getCurrentUser();
                 if (user) {
-                    MedCloud.updatePaciente(user.id, { foto });
+                    const result = MedCloud.updatePaciente(user.id, { foto });
+                    if (result && result.success) {
+                        showToast('Foto atualizada!');
+                    } else {
+                        showToast(result && result.error ? result.error : 'Erro ao atualizar a foto.', 'error');
+                        return;
+                    }
                 }
-                showToast('Foto atualizada!');
             };
             reader.readAsDataURL(file);
         }
@@ -222,7 +227,11 @@
             document.getElementById('senhaError').textContent = '';
 
             // Update basic info
-            MedCloud.updatePaciente(user.id, { nome, email, telefone });
+            const resultInfo = MedCloud.updatePaciente(user.id, { nome, email, telefone });
+            if (!resultInfo || !resultInfo.success) {
+                document.getElementById('senhaError').textContent = resultInfo?.error || 'Erro ao atualizar perfil.';
+                return;
+            }
 
             // Update password if provided
             if (senhaAtual || novaSenha || confirmarSenha) {
@@ -238,7 +247,11 @@
                     document.getElementById('senhaError').textContent = 'Nova senha e confirmação não conferem.';
                     return;
                 }
-                MedCloud.updatePaciente(user.id, { senha: novaSenha });
+                const resultSenha = MedCloud.updatePaciente(user.id, { senha: novaSenha });
+                if (!resultSenha || !resultSenha.success) {
+                    document.getElementById('senhaError').textContent = resultSenha?.error || 'Erro ao alterar a senha.';
+                    return;
+                }
                 showToast('Senha alterada com sucesso!');
             }
 

@@ -1,0 +1,119 @@
+/* ============================================
+   🏥 MedCloud — Agendamento de Consulta
+   ============================================ */
+
+.appointment-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-primary-lightest) 0%, var(--color-bg) 50%, #E0F2FE 100%);
+    padding: var(--spacing-md);
+}
+
+.appointment-container {
+    width: 100%;
+    max-width: 480px;
+    background: var(--color-surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    padding: var(--spacing-2xl);
+    animation: fadeInUp var(--transition-slow) ease forwards;
+}
+
+.appointment-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    position: relative;
+}
+
+.back-link {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    transition: color var(--transition-fast);
+}
+
+.back-link:hover {
+    color: var(--color-primary);
+}
+
+.appointment-logo {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.appointment-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xs);
+}
+
+.appointment-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+@media (max-width: 767px) {
+    .appointment-container {
+        padding: var(--spacing-xl);
+    }
+
+    .appointment-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .back-link {
+        position: static;
+        display: block;
+        text-align: left;
+        margin-bottom: var(--spacing-md);
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Larger touch targets for form fields */
+    .input-group input,
+    .input-group .select-field {
+        font-size: 16px;
+        min-height: 48px;
+    }
+
+    .btn {
+        min-height: 48px;
+        font-size: var(--font-size-base);
+    }
+}
+
+@media (max-width: 480px) {
+    .appointment-page {
+        padding: 0;
+    }
+
+    .appointment-container {
+        border-radius: 0;
+        min-height: 100vh;
+        box-shadow: none;
+        padding: var(--spacing-lg);
+    }
+
+    .appointment-title {
+        font-size: var(--font-size-lg);
+    }
+
+    .appointment-logo {
+        font-size: 2.5rem;
+    }
+
+    .back-link {
+        position: static;
+        display: block;
+        text-align: left;
+        margin-bottom: var(--spacing-md);
+    }
+}

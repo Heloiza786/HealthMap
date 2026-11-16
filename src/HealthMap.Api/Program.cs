@@ -7,7 +7,8 @@ using HealthMap.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -45,7 +46,8 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseCors();
@@ -57,6 +59,7 @@ app.MapUsuarioEndpoints();
 app.MapEspecialidadeEndpoints();
 app.MapMedicoEndpoints();
 app.MapPacienteEndpoints();
+app.MapSecretariaEndpoints();
 app.MapConsultaEndpoints();
 app.MapFeedbackEndpoints();
 

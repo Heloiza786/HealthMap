@@ -4,7 +4,7 @@
       "idUsuario": "usr-1",
       "nome": "Maria Oliveira",
       "email": "paciente@gmail.com",
-      "senhaHash": "demo",
+      "senhaHash": "Ra6QfHXiCf4K4zS0p+a4gQ==:DVwIlvhkHK4YkVBFCY0OAontVFQVd8qNt/+p0pLXfLE=",
       "cpf": "123.456.789-00",
       "telefone": "(11) 98888-0001",
       "dataNascimento": "1990-05-12"
@@ -13,7 +13,7 @@
       "idUsuario": "usr-2",
       "nome": "Dr. Carlos Silva",
       "email": "medico@gmail.com",
-      "senhaHash": "demo",
+      "senhaHash": "Ra6QfHXiCf4K4zS0p+a4gQ==:DVwIlvhkHK4YkVBFCY0OAontVFQVd8qNt/+p0pLXfLE=",
       "cpf": "111.222.333-44",
       "telefone": "(11) 99999-0001",
       "dataNascimento": "1980-03-20"
@@ -22,7 +22,7 @@
       "idUsuario": "usr-3",
       "nome": "Secretaria Ana",
       "email": "secretaria@gmail.com",
-      "senhaHash": "demo",
+      "senhaHash": "Ra6QfHXiCf4K4zS0p+a4gQ==:DVwIlvhkHK4YkVBFCY0OAontVFQVd8qNt/+p0pLXfLE=",
       "cpf": "555.666.777-88",
       "telefone": "(11) 97777-0001",
       "dataNascimento": "1995-07-01"
