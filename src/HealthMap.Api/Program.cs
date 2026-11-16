@@ -4,6 +4,9 @@ using HealthMap.Infrastructure.Persistence;
 using HealthMap.Infrastructure.Repositories;
 using HealthMap.Api.Endpoints;
 using HealthMap.Api.Middleware;
+using HealthMap.Api.Data;
+
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,24 +18,26 @@ builder.Services.AddCors(options =>
         policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
 
-// ── Persistência: banco em arquivo JSON (System.Text.Json) ──
-// O caminho pode ser sobrescrito via configuração (ex.: Database__Path) para testes.
-var dbPath = builder.Configuration["Database:Path"]
-    ?? Path.Combine(builder.Environment.ContentRootPath, "data", "database.json");
-builder.Services.AddSingleton(new JsonDatabase(dbPath));
+// ── Persistência: banco SQL (SQLite via Entity Framework Core) ──
+// A connection string pode ser sobrescrita via configuração
+// (ConnectionStrings__HealthMap) para usar outro banco/testes.
+var connectionString = builder.Configuration.GetConnectionString("HealthMap")
+    ?? "Data Source=healthmap.db";
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(connectionString));
 
 // ── Repositories ──
-builder.Services.AddSingleton<IUsuarioRepository, UsuarioRepository>();
-builder.Services.AddSingleton<IPacienteRepository, PacienteRepository>();
-builder.Services.AddSingleton<IMedicoRepository, MedicoRepository>();
-builder.Services.AddSingleton<ISecretariaRepository, SecretariaRepository>();
-builder.Services.AddSingleton<IEspecialidadeRepository, EspecialidadeRepository>();
-builder.Services.AddSingleton<IConsultaRepository, ConsultaRepository>();
-builder.Services.AddSingleton<IAgendamentoRepository, AgendamentoRepository>();
-builder.Services.AddSingleton<IFeedbackRepository, FeedbackRepository>();
-builder.Services.AddSingleton<IConfirmacaoMensagemRepository, ConfirmacaoMensagemRepository>();
-builder.Services.AddSingleton<IHistoricoMedicoRepository, HistoricoMedicoRepository>();
-builder.Services.AddSingleton<IDisponibilidadeMedicoRepository, DisponibilidadeMedicoRepository>();
+builder.Services.AddScoped<IUsuarioRepository, EfUsuarioRepository>();
+builder.Services.AddScoped<IPacienteRepository, EfPacienteRepository>();
+builder.Services.AddScoped<IMedicoRepository, EfMedicoRepository>();
+builder.Services.AddScoped<ISecretariaRepository, EfSecretariaRepository>();
+builder.Services.AddScoped<IEspecialidadeRepository, EfEspecialidadeRepository>();
+builder.Services.AddScoped<IConsultaRepository, EfConsultaRepository>();
+builder.Services.AddScoped<IAgendamentoRepository, EfAgendamentoRepository>();
+builder.Services.AddScoped<IFeedbackRepository, EfFeedbackRepository>();
+builder.Services.AddScoped<IConfirmacaoMensagemRepository, EfConfirmacaoMensagemRepository>();
+builder.Services.AddScoped<IHistoricoMedicoRepository, EfHistoricoMedicoRepository>();
+builder.Services.AddScoped<IDisponibilidadeMedicoRepository, EfDisponibilidadeMedicoRepository>();
 
 // ── Serviços de domínio ──
 builder.Services.AddScoped<AuthService>();
@@ -62,6 +67,13 @@ app.MapPacienteEndpoints();
 app.MapSecretariaEndpoints();
 app.MapConsultaEndpoints();
 app.MapFeedbackEndpoints();
+
+// ── Inicialização do banco ──
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    DatabaseSeeder.Initialize(db);
+}
 
 app.Run();
 

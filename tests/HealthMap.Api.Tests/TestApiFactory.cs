@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace HealthMap.Api.Tests;
 
 /// <summary>
-/// Factory de teste que aponta a API para um banco JSON temporário e isolado,
-/// sobrescrevendo a configuração <c>Database:Path</c> via variável de ambiente.
+/// Factory de teste que aponta a API para um banco SQLite temporário e isolado,
+/// sobrescrevendo a connection string <c>ConnectionStrings__HealthMap</c>.
+/// O esquema e os dados de demonstração são criados pelo seeder da aplicação.
 /// </summary>
 public sealed class TestApiFactory : WebApplicationFactory<Program>
 {
@@ -15,16 +16,15 @@ public sealed class TestApiFactory : WebApplicationFactory<Program>
     {
         _tempDir = Path.Combine(Path.GetTempPath(), "healthmap-tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_tempDir);
-        _dbPath = Path.Combine(_tempDir, "database.json");
-        TestData.Seed(_dbPath);
-        Environment.SetEnvironmentVariable("Database__Path", _dbPath);
+        _dbPath = Path.Combine(_tempDir, "healthmap-test.db");
+        Environment.SetEnvironmentVariable("ConnectionStrings__HealthMap", $"Data Source={_dbPath}");
     }
 
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
 
-        Environment.SetEnvironmentVariable("Database__Path", null);
+        Environment.SetEnvironmentVariable("ConnectionStrings__HealthMap", null);
         try
         {
             if (Directory.Exists(_tempDir))
