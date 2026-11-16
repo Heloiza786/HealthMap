@@ -101,7 +101,7 @@
                             <span class="setting-desc">Enviar lembrete automático 24 horas antes da consulta</span>
                         </div>
                         <label class="toggle-switch">
-                            <input type="checkbox" id="notifyReminder24h" checked onchange="saveNotificationSettings()">
+                            <input type="checkbox" id="notifyReminder1d" checked onchange="saveNotificationSettings()">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -117,11 +117,11 @@
                     </div>
                     <div class="setting-item">
                         <div class="setting-info">
-                            <span class="setting-label">Notificações no Sistema</span>
-                            <span class="setting-desc">Exibir notificações visuais dentro do sistema</span>
+                            <span class="setting-label">Lembrete 7 dias antes</span>
+                            <span class="setting-desc">Enviar lembrete automático 7 dias antes da consulta</span>
                         </div>
                         <label class="toggle-switch">
-                            <input type="checkbox" id="notifySystem" checked onchange="saveNotificationSettings()">
+                            <input type="checkbox" id="notifyReminder7d" checked onchange="saveNotificationSettings()">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -225,10 +225,10 @@
             // Load notification settings
             const settings = MedCloud.getNotificationSettings();
             if (settings) {
-                document.getElementById('notifyEmail').checked = settings.email !== false;
-                document.getElementById('notifyReminder24h').checked = settings.reminder24h !== false;
-                document.getElementById('notifyReminder1h').checked = settings.reminder1h !== false;
-                document.getElementById('notifySystem').checked = settings.system !== false;
+                document.getElementById('notifyEmail').checked = settings.enabled !== false;
+                document.getElementById('notifyReminder7d').checked = settings.send7Days !== false;
+                document.getElementById('notifyReminder1d').checked = settings.send1Day !== false;
+                document.getElementById('notifyReminder1h').checked = settings.send1Hour !== false;
             }
 
             // Load admin profile
@@ -241,10 +241,10 @@
 
         function saveNotificationSettings() {
             const settings = {
-                email: document.getElementById('notifyEmail').checked,
-                reminder24h: document.getElementById('notifyReminder24h').checked,
-                reminder1h: document.getElementById('notifyReminder1h').checked,
-                system: document.getElementById('notifySystem').checked,
+                enabled: document.getElementById('notifyEmail').checked,
+                send7Days: document.getElementById('notifyReminder7d').checked,
+                send1Day: document.getElementById('notifyReminder1d').checked,
+                send1Hour: document.getElementById('notifyReminder1h').checked,
             };
 
             MedCloud.updateNotificationSettings(settings);

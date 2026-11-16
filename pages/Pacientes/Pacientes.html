@@ -318,12 +318,12 @@
             const telefone = document.getElementById('editTelefone').value.trim();
 
             const result = MedCloud.updatePaciente(id, { nome, email, telefone });
-            if (result) {
+            if (result && result.success) {
                 showToast('Paciente atualizado com sucesso!');
                 closeEditModal();
                 renderPacientes();
             } else {
-                showToast('Erro ao atualizar paciente.', 'error');
+                showToast(result && result.error ? result.error : 'Erro ao atualizar paciente.', 'error');
             }
         }
 
